@@ -1,6 +1,12 @@
-(ns schema-tools.core)
+(ns schema-tools.core
+  (:require [plumbing.core :as p]
+            [schema.core :as s])
+  (:refer-clojure :exclude [dissoc]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn dissoc
+  [schema & ks]
+  (let [ks? (set ks)]
+    (p/for-map
+      [[k v] schema
+       :when (not (ks? (s/explicit-schema-key k)))]
+      k v)))
