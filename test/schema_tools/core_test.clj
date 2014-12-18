@@ -3,8 +3,29 @@
             [schema-tools.core :as st]
             [schema.core :as s]))
 
+(fact st/keyword-key?
+   (st/keyword-key? :a) => true
+   (st/keyword-key? (s/optional-key :a)) => true
+   (st/keyword-key? (s/required-key :a)) => true
+   (st/keyword-key? "a") => false
+   (st/keyword-key? s/Keyword) => false)
+
 (fact st/dissoc
-  (st/dissoc {:a s/Str
-              (s/optional-key :b) s/Str
-              (s/required-key :c) s/Str
-              :d s/Str} :a :b :c) => {:d s/Str})
+  (let [schema {:a s/Str
+                (s/optional-key :b) s/Str
+                (s/required-key :c) s/Str
+                "d" s/Str
+                s/Keyword s/Str}]
+    (st/dissoc schema :a :b :c :d) => {"d" s/Str
+                                       s/Keyword s/Str}))
+
+(fact st/select-keys
+   (let [schema {:a s/Str
+                 (s/optional-key :b) s/Str
+                 (s/required-key :c) s/Str
+                 "d" s/Str
+                 (s/maybe :e) s/Str
+                 s/Keyword s/Str}]
+     (st/select-keys schema [:a :b :c :d]) => {:a s/Str
+                                               (s/optional-key :b) s/Str
+                                               (s/required-key :c) s/Str}))
