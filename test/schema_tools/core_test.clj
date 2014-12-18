@@ -29,3 +29,13 @@
      (st/select-keys schema [:a :b :c :d]) => {:a s/Str
                                                (s/optional-key :b) s/Str
                                                (s/required-key :c) s/Str}))
+
+(fact st/get-in
+   (let [schema {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
+                 "d" {s/Keyword s/Str}
+                 "e" s/Str}]
+     (st/get-in schema [:a :b :c]) => s/Str
+     (st/get-in schema ["d" s/Keyword]) => s/Str
+     (st/get-in schema ["e"]) => s/Str
+     (st/get-in schema [:e]) => nil
+     (st/get-in schema [:e] s/Str) => s/Str))

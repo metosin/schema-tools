@@ -1,14 +1,13 @@
 (ns schema-tools.core
   (:require [plumbing.core :as p]
             [schema.core :as s])
-  (:refer-clojure :exclude [dissoc select-keys]))
+  (:refer-clojure :exclude [dissoc select-keys get-in]))
 
 (defn keyword-key?
-  "Tests whether the key is optional or required keyword key"
+  "Tests whether the key is keyword or spesific schema key."
   [x]
   (or (keyword? x)
-      (s/required-key? x)
-      (s/optional-key? x)))
+      (s/specific-key? x)))
 
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
@@ -31,4 +30,15 @@
                         (keyword-key? k)
                         (contains? ks (s/explicit-schema-key k)))]
       k v)))
+
+(defn get-in
+  "Returns the value in a nested associative Schema,
+  where ks is a sequence of keys. Returns nil if the key
+  is not present, or the not-found value if supplied."
+  [schema ks & [not-found]]
+  (reduce (fn [acc k]
+            (or (get acc k) (get acc (s/optional-key k) (get acc (s/required-key k))) not-found))
+          schema
+          ks))
+
 
