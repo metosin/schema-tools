@@ -39,3 +39,14 @@
      (st/get-in schema ["e"]) => s/Str
      (st/get-in schema [:e]) => nil
      (st/get-in schema [:e] s/Str) => s/Str))
+
+(fact st/strip-keys
+  (let [schema {:a String
+                :b {(s/optional-key :c) {(s/required-key :d) String}}}
+        value {:a "kikka"
+               :b {:c {:d "kukka"
+                       :d2 "kikka"
+                       :d3 "kukka"}}}]
+    (st/strip-keys schema value) => {:a "kikka"
+                                     :b {:c {:d "kukka"}}}))
+

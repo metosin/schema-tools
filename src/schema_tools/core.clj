@@ -1,6 +1,7 @@
 (ns schema-tools.core
   (:require [plumbing.core :as p]
-            [schema.core :as s])
+            [schema.core :as s]
+            [schema-tools.util :refer :all])
   (:refer-clojure :exclude [dissoc select-keys get-in]))
 
 (defn keyword-key?
@@ -41,4 +42,13 @@
           schema
           ks))
 
+(defn strip-keys
+  "Strips recursively all keys disallowed keys from value."
+  [schema value]
+  (->> value
+       (s/check schema)
+       path-vals
+       (filter (p/fn-> second 'disallowed-key))
+       (map first)
+       (reduce (partial dissoc-in) value)))
 
