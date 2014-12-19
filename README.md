@@ -1,8 +1,8 @@
-# Schema-tools
-
-[![Build Status](https://travis-ci.org/metosin/schema-tools.png?branch=master)](https://travis-ci.org/metosin/schema-tools)
+# Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.png?branch=master)](https://travis-ci.org/metosin/schema-tools)
 
 Common helpers on top of the Prismatic [Schema](https://github.com/Prismatic/schema).
+
+[API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
 
 ## Latest version
 
