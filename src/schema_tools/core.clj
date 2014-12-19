@@ -10,6 +10,10 @@
   (or (keyword? x)
       (s/specific-key? x)))
 
+(defn explicit-path-vals
+  "Returns vector of tuples containing path vector to the value and the value."
+  [m] (path-vals m #(if (keyword-key? %) (s/explicit-schema-key %) %)))
+
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
   [schema & ks]
@@ -52,3 +56,10 @@
        (map first)
        (reduce (partial dissoc-in) value)))
 
+(defn select-schema
+  "Selects recursively all valid keyword-keys based on Schema."
+  [schema value]
+  (->> schema
+       explicit-path-vals
+       (map first)
+       (reduce (partial copy-in value) {})))
