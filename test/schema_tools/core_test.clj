@@ -34,6 +34,7 @@
    (let [schema {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
                  "d" {s/Keyword s/Str}
                  "e" s/Str}]
+     (st/get-in schema [:a (s/optional-key :b) (s/required-key :c)]) => s/Str
      (st/get-in schema [:a :b :c]) => s/Str
      (st/get-in schema ["d" s/Keyword]) => s/Str
      (st/get-in schema ["e"]) => s/Str
