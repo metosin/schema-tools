@@ -48,6 +48,16 @@
      (st/get-in schema [:e] s/Str) => s/Str
      (st/get-in schema [:e :a] {:a s/Str}) => {:a s/Str}))
 
+(fact st/assoc-in
+  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}}]
+    (st/assoc-in schema [:a [1 2 3] "d" :e] s/Str)
+    => {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e s/Str}}}}))
+
+(fact st/update-in
+  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}}]
+    (st/update-in schema [:a [1 2 3] "d"] (constantly s/Int))
+    => {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}))
+
 (fact st/select-schema
   (let [schema {:a String
                 :b {(s/optional-key [1 2 3]) {(s/required-key "d") String}}}
