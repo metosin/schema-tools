@@ -14,9 +14,18 @@
   (or (keyword? x)
       (s/specific-key? x)))
 
+(defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
+
+(defn- explicit-key-set [ks]
+  (reduce (fn [s k] (conj s (explicit-key k))) #{} ks))
+
 (defn explicit-path-vals
   "Returns vector of tuples containing path vector to the value and the value."
   [m] (path-vals m #(if (keyword-key? %) (s/explicit-schema-key %) %)))
+
+;;
+;; Core functions
+;;
 
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
@@ -33,11 +42,11 @@
   "Select part of schema based on vector of keywords.
    Plain keyword should match optional-key with mathcing keyword."
   [schema ks]
-  (let [ks (set ks)]
+  (let [ks? (set ks)]
     (p/for-map [[k v] schema
                 :when (and
                         (keyword-key? k)
-                        (contains? ks (s/explicit-schema-key k)))]
+                        (ks? (s/explicit-schema-key k)))]
       k v)))
 
 (defn get-in
@@ -49,6 +58,10 @@
             (or (get acc k) (get acc (s/optional-key k) (get acc (s/required-key k))) not-found))
           schema
           ks))
+
+;;
+;; Extras
+;;
 
 (defn strip-keys
   "Strips recursively all keys disallowed keys from value."
@@ -67,3 +80,16 @@
        explicit-path-vals
        (map first)
        (reduce (partial copy-in value) {})))
+
+(defn- transform-keys
+  [m f ks]
+  (let [ks? (explicit-key-set ks)]
+    (p/for-map [[k v] m]
+      (cond
+        (and ks (not (ks? (explicit-key k)))) k
+        (keyword-key? k) (f (s/explicit-schema-key k))
+        :else (f k))
+      v)))
+
+(defn optional-keys [m & ks] (transform-keys m s/optional-key ks))
+(defn required-keys [m & ks] (transform-keys m identity ks))

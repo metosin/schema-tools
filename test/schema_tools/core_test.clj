@@ -64,3 +64,45 @@
                        :d3 "kukka"}}}]
     (st/select-schema schema value) => {:a "kikka"
                                         :b {:c {:d "kukka"}}}))
+
+(fact st/optional-keys
+  (let [schema {(s/optional-key :a) s/Str
+                (s/required-key :b) s/Str
+                (s/required-key [1 2 3]) s/Str
+                :c s/Str
+                "d" s/Str}]
+
+    (fact "without parameters transforms all keys"
+      (keys (st/optional-keys schema)) => (just [(s/optional-key :a)
+                                                 (s/optional-key :b)
+                                                 (s/optional-key :c)
+                                                 (s/optional-key [1 2 3])
+                                                 (s/optional-key "d")] :in-any-order))
+
+    (fact "ensures defined keys are optional"
+      (keys (st/optional-keys schema :b [1 2 3] "d")) => (just [(s/optional-key :a)
+                                                                (s/optional-key :b)
+                                                                :c
+                                                                (s/optional-key [1 2 3])
+                                                                (s/optional-key "d")] :in-any-order))))
+
+(fact st/required-keys
+  (let [schema {(s/required-key :a) s/Str
+                (s/optional-key :b) s/Str
+                (s/optional-key [1 2 3]) s/Str
+                :c s/Str
+                "d" s/Str}]
+
+    (fact "without parameters transforms all keys"
+      (keys (st/required-keys schema)) => (just [:a
+                                                 :b
+                                                 :c
+                                                 [1 2 3]
+                                                 "d"] :in-any-order))
+
+    (fact "ensures defined keys are required"
+      (keys (st/required-keys schema :b [1 2 3] "d")) => (just [:a
+                                                                :b
+                                                                :c
+                                                                [1 2 3]
+                                                                "d"] :in-any-order))))
