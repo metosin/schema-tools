@@ -45,7 +45,8 @@
      (st/get-in schema ["d" s/Keyword]) => s/Str
      (st/get-in schema [[1 2 3]]) => s/Str
      (st/get-in schema [:e]) => nil
-     (st/get-in schema [:e] s/Str) => s/Str)
+     (st/get-in schema [:e] s/Str) => s/Str
+     (st/get-in schema [:e :a] {:a s/Str}) => {:a s/Str}))
 
 (fact st/select-schema
   (let [schema {:a String

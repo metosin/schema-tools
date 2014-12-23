@@ -47,11 +47,22 @@
   "Returns the value in a nested associative Schema,
   where ks is a sequence of keys. Returns nil if the key
   is not present, or the not-found value if supplied."
-  [schema ks & [not-found]]
-  (reduce (fn [acc k]
-            (or (get acc k) (get acc (s/optional-key k) (get acc (s/required-key k))) not-found))
-          schema
-          ks))
+  ([m ks]
+    (get-in m ks nil))
+  ([m ks not-found]
+    (loop [sentinel (Object.)
+           m m
+           ks (seq ks)]
+      (if ks
+        (let [k (first ks)]
+          (let [m (or (get m k)
+                      (get m (s/optional-key k))
+                      (get m (s/required-key k))
+                      sentinel)]
+            (if (identical? sentinel m)
+              not-found
+              (recur sentinel m (next ks)))))
+        m))))
 
 ;;
 ;; Extras
