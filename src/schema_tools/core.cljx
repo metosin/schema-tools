@@ -19,7 +19,7 @@
 (defn- explicit-key-set [ks]
   (reduce (fn [s k] (conj s (explicit-key k))) #{} ks))
 
-(defn explicit-path-vals
+(defn- explicit-path-vals
   "Returns vector of tuples containing path vector to the value and the value."
   [m] (path-vals m #(if (keyword-key? %) (s/explicit-schema-key %) %)))
 
@@ -30,23 +30,17 @@
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
   [schema & ks]
-  (let [ks? (set ks)]
-    (p/for-map
-      [[k v] schema
-       :when (or
-               (not (keyword-key? k))
-               (not (ks? (s/explicit-schema-key k))))]
+  (let [ks? (explicit-key-set ks)]
+    (p/for-map [[k v] schema
+                :when (not (ks? (explicit-key k)))]
       k v)))
 
 (defn select-keys
-  "Select part of schema based on vector of keywords.
-   Plain keyword should match optional-key with mathcing keyword."
+  "Like clojure.core/select-keys but handles boths optional-keys and required-keys."
   [schema ks]
-  (let [ks? (set ks)]
+  (let [ks? (explicit-key-set ks)]
     (p/for-map [[k v] schema
-                :when (and
-                        (keyword-key? k)
-                        (ks? (s/explicit-schema-key k)))]
+                :when (ks? (explicit-key k))]
       k v)))
 
 (defn get-in
@@ -63,23 +57,13 @@
 ;; Extras
 ;;
 
-(defn strip-keys
-  "Strips recursively all keys disallowed keys from value."
-  [schema value]
-  (->> value
-       (s/check schema)
-       path-vals
-       (filter (p/fn-> second 'disallowed-key))
-       (map first)
-       (reduce (partial dissoc-in) value)))
-
 (defn select-schema
-  "Selects recursively all valid keyword-keys based on Schema."
+  "Like select-keys but selects all (nested) keys present in a Schema."
   [schema value]
   (->> schema
        explicit-path-vals
        (map first)
-       (reduce (partial copy-in value) {})))
+       (reduce (partial copy-in value) (empty value))))
 
 (defn- transform-keys
   [m f ks]
@@ -91,5 +75,10 @@
         :else (f k))
       v)))
 
-(defn optional-keys [m & ks] (transform-keys m s/optional-key ks))
-(defn required-keys [m & ks] (transform-keys m identity ks))
+(defn optional-keys
+  "Makes given map keys optional. Defaults to all keys."
+  [m & ks] (transform-keys m s/optional-key ks))
+
+(defn required-keys
+  "Makes given map keys required. Defaults to all keys."
+  [m & ks] (transform-keys m identity ks))

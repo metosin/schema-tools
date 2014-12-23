@@ -19,51 +19,43 @@
                 (s/optional-key :b) s/Str
                 (s/required-key :c) s/Str
                 "d" s/Str
+                (s/optional-key [1 2 3]) s/Str
                 s/Keyword s/Str}]
-    (st/dissoc schema :a :b :c :d) => {"d" s/Str
-                                       s/Keyword s/Str}))
+    (st/dissoc schema :a :b :c "d" [1 2 3] :e) => {s/Keyword s/Str}))
 
 (fact st/select-keys
    (let [schema {:a s/Str
                  (s/optional-key :b) s/Str
                  (s/required-key :c) s/Str
                  "d" s/Str
-                 (s/maybe :e) s/Str
+                 (s/optional-key [1 2 3]) s/Str
                  s/Keyword s/Str}]
-     (st/select-keys schema [:a :b :c :d]) => {:a s/Str
-                                               (s/optional-key :b) s/Str
-                                               (s/required-key :c) s/Str}))
+     (st/select-keys schema [:a :b :c "d" [1 2 3] :e]) => {:a s/Str
+                                                           (s/optional-key :b) s/Str
+                                                           (s/required-key :c) s/Str
+                                                           "d" s/Str
+                                                           (s/optional-key [1 2 3]) s/Str}))
 
 (fact st/get-in
    (let [schema {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
                  "d" {s/Keyword s/Str}
-                 "e" s/Str}]
+                 [1 2 3] s/Str}]
      (st/get-in schema [:a (s/optional-key :b) (s/required-key :c)]) => s/Str
      (st/get-in schema [:a :b :c]) => s/Str
      (st/get-in schema ["d" s/Keyword]) => s/Str
-     (st/get-in schema ["e"]) => s/Str
+     (st/get-in schema [[1 2 3]]) => s/Str
      (st/get-in schema [:e]) => nil
-     (st/get-in schema [:e] s/Str) => s/Str))
-
-(fact st/strip-keys
-  (let [schema {:a String
-                :b {(s/optional-key :c) {(s/required-key :d) String}}}
-        value {:a "kikka"
-               :b {:c {:d "kukka"
-                       :d2 "kikka"
-                       :d3 "kukka"}}}]
-    (st/strip-keys schema value) => {:a "kikka"
-                                     :b {:c {:d "kukka"}}}))
+     (st/get-in schema [:e] s/Str) => s/Str)
 
 (fact st/select-schema
   (let [schema {:a String
-                :b {(s/optional-key :c) {(s/required-key :d) String}}}
+                :b {(s/optional-key [1 2 3]) {(s/required-key "d") String}}}
         value {:a "kikka"
-               :b {:c {:d "kukka"
-                       :d2 "kikka"
-                       :d3 "kukka"}}}]
+               :b {[1 2 3] {"d" "kukka"
+                            ":d" "kikka"
+                            :d "kukka"}}}]
     (st/select-schema schema value) => {:a "kikka"
-                                        :b {:c {:d "kukka"}}}))
+                                        :b {[1 2 3] {"d" "kukka"}}}))
 
 (fact st/optional-keys
   (let [schema {(s/optional-key :a) s/Str
