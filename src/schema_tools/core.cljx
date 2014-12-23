@@ -8,12 +8,6 @@
 
 (defn any-keys [schema] (merge AnyKeys schema))
 
-(defn keyword-key?
-  "Tests whether the key is keyword or spesific schema key."
-  [x]
-  (or (keyword? x)
-      (s/specific-key? x)))
-
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
 
 (defn- explicit-key-set [ks]
@@ -21,7 +15,7 @@
 
 (defn- explicit-path-vals
   "Returns vector of tuples containing path vector to the value and the value."
-  [m] (path-vals m #(if (keyword-key? %) (s/explicit-schema-key %) %)))
+  [m] (path-vals m #(if (s/specific-key? %) (s/explicit-schema-key %) %)))
 
 ;;
 ;; Core functions
@@ -111,7 +105,7 @@
     (p/for-map [[k v] m]
       (cond
         (and ks (not (ks? (explicit-key k)))) k
-        (keyword-key? k) (f (s/explicit-schema-key k))
+        (s/specific-key? k) (f (s/explicit-schema-key k))
         :else (f k))
       v)))
 

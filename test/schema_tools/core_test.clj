@@ -7,13 +7,6 @@
   (st/any-keys {:a s/Str}) => {:a s/Str, s/Keyword s/Any}
   (st/any-keys {s/Keyword s/Str}) => {s/Keyword s/Str})
 
-(fact st/keyword-key?
-   (st/keyword-key? :a) => true
-   (st/keyword-key? (s/optional-key :a)) => true
-   (st/keyword-key? (s/required-key :a)) => true
-   (st/keyword-key? "a") => false
-   (st/keyword-key? s/Keyword) => false)
-
 (fact st/dissoc
   (let [schema {:a s/Str
                 (s/optional-key :b) s/Str
