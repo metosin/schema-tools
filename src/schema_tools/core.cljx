@@ -4,6 +4,10 @@
             [schema-tools.util :refer :all])
   (:refer-clojure :exclude [dissoc select-keys get-in]))
 
+(def AnyKeys {s/Keyword s/Any})
+
+(defn any-keys [schema] (merge AnyKeys schema))
+
 (defn keyword-key?
   "Tests whether the key is keyword or spesific schema key."
   [x]

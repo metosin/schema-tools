@@ -3,6 +3,10 @@
             [schema-tools.core :as st]
             [schema.core :as s]))
 
+(fact st/any-keys
+  (st/any-keys {:a s/Str}) => {:a s/Str, s/Keyword s/Any}
+  (st/any-keys {s/Keyword s/Str}) => {s/Keyword s/Str})
+
 (fact st/keyword-key?
    (st/keyword-key? :a) => true
    (st/keyword-key? (s/optional-key :a)) => true
