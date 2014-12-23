@@ -91,18 +91,21 @@
                 (s/optional-key :b) s/Str
                 (s/optional-key [1 2 3]) s/Str
                 :c s/Str
-                "d" s/Str}]
+                "d" s/Str
+                (s/optional-key :e) s/Str}]
 
     (fact "without parameters transforms all keys"
       (keys (st/required-keys schema)) => (just [:a
                                                  :b
                                                  :c
                                                  [1 2 3]
-                                                 "d"] :in-any-order))
+                                                 "d"
+                                                 :e] :in-any-order))
 
     (fact "ensures defined keys are required"
       (keys (st/required-keys schema :b [1 2 3] "d")) => (just [:a
                                                                 :b
                                                                 :c
                                                                 [1 2 3]
-                                                                "d"] :in-any-order))))
+                                                                "d"
+                                                                (s/optional-key :e)] :in-any-order))))
