@@ -2,7 +2,7 @@
 
 Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schema):
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
-* Schema-aware transformers:  `dissoc`, `assoc-in`, `update-in`, `optional-keys`, `required-keys`
+* Schema-aware transformers:  `dissoc`, `assoc-in`, `update-in`, `with-optional-keys`, `with-required-keys`
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
 
@@ -19,7 +19,7 @@ See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_
 - [ ] Verify performance
 - [ ] Context-aware Schemas
 - [ ] Common predicates missing from the schema.core
-- [ ] Separate package for common finnish predicates, `Y-Tunnus`, `Hetu` etc.  
+- [ ] Separate package for common finnish predicates, `YTunnus`, `Hetu` etc.
 
 ## License
 
