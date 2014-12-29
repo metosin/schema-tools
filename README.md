@@ -18,6 +18,7 @@ See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_
 ## Todo
 - [ ] Verify performance
 - [ ] Context-aware Schemas
+- [ ] XSD Generation(?)
 - [ ] Common predicates missing from the schema.core
 - [ ] Separate package for common finnish predicates, `YTunnus`, `Hetu` etc.
 
