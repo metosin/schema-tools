@@ -1,12 +1,14 @@
 (ns schema-tools.core
   (:require [plumbing.core :as p]
             [schema.core :as s]
-            [schema-tools.util :refer :all])
+            [schema-tools.util :as stu])
   (:refer-clojure :exclude [dissoc select-keys get-in assoc-in update-in]))
 
-(def AnyKeys {s/Keyword s/Any})
+(def AnyKeys {s/Any s/Any})
+(defn any-keys [] AnyKeys)
 
-(defn any-keys [schema] (merge AnyKeys schema))
+(def AnyKeywordKeys {s/Keyword s/Any})
+(defn any-keyword-keys [& schemas] (apply merge AnyKeywordKeys schemas))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
 
@@ -15,7 +17,7 @@
 
 (defn- explicit-path-vals
   "Returns vector of tuples containing path vector to the value and the value."
-  [m] (path-vals m #(if (s/specific-key? %) (s/explicit-schema-key %) %)))
+  [m] (stu/path-vals m #(if (s/specific-key? %) (s/explicit-schema-key %) %)))
 
 ;;
 ;; Core functions
@@ -92,12 +94,14 @@
 ;;
 
 (defn select-schema
-  "Like select-keys but selects all (nested) keys present in a Schema."
+  "Removes all keys that are disallowed in the Schema."
   [schema value]
-  (->> schema
-       explicit-path-vals
+  (->> value
+       (s/check schema)
+       stu/path-vals
+       (filter (p/fn-> second 'disallowed-key))
        (map first)
-       (reduce (partial copy-in value) (empty value))))
+       (reduce (partial stu/dissoc-in) value)))
 
 (defn- transform-keys
   [m f ks]
@@ -115,4 +119,4 @@
 
 (defn with-required-keys
   "Makes given map keys required. Defaults to all keys."
-  [m & ks] (transform-keys m identity ks))
+  [m & ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks))
