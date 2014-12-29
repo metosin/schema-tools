@@ -89,6 +89,22 @@
       (assoc m kis (apply update-in (get-in-schema m k) ks f args))
       (assoc m kis (apply f (get-in-schema m k) args)))))
 
+;; https://github.com/clojure/core.incubator/blob/master/src/main/clojure/clojure/core/incubator.clj
+(defn dissoc-in
+  "Dissociates an entry from a nested associative Schema returning a new
+  nested structure. keys is a sequence of keys. Any empty maps that result
+  will not be present in the new Schema."
+  [m [k & ks]]
+  (let [k (key-in-schema m k)]
+    (if ks
+      (if-let [nextmap (get m k)]
+        (let [newmap (dissoc-in nextmap ks)]
+          (if (seq newmap)
+            (assoc m k newmap)
+            (dissoc m k)))
+        m)
+      (dissoc m k))))
+
 ;;
 ;; Extras
 ;;

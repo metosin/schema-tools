@@ -56,6 +56,15 @@
     (st/update-in schema [:a [1 2 3] "d"] (constantly s/Int))
     => {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}))
 
+(fact "dissoc-in"
+  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str
+                                              :kikka s/Str}}}]
+    (st/dissoc-in schema [:a [1 2 3] "d"])
+    => {:a {(s/optional-key [1 2 3]) {:kikka s/Str}}}
+
+    (fact "resulting empty maps are removed"
+      (st/dissoc-in schema [:a [1 2 3]]) => {})))
+
 (fact "select-schema"
   (fact "with strictly defined schema, when value has extra keys"
     (let [schema {:a s/Str
