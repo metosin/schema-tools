@@ -6,8 +6,7 @@
             :distribution :repo
             :comments "same as Clojure"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [prismatic/schema "0.3.3"]
-                 [prismatic/plumbing "0.3.5"]]
+                 [prismatic/schema "0.3.3"]]
   :plugins [[codox "0.8.10"]]
 
   :cljx {:builds [{:rules :clj

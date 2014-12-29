@@ -31,3 +31,10 @@
     (dissoc m k)))
 
 (defn copy-in [from to ks] (assoc-in to ks (get-in from ks)))
+
+(defmacro fn-> [& body]
+  `(fn [x#] (-> x# ~@body)))
+
+(defn map-keys [f coll]
+  (persistent! (reduce-kv (fn [acc k v] (assoc! acc (f k) v))
+                          (transient (empty coll)) coll)))

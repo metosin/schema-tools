@@ -1,7 +1,6 @@
 (ns schema-tools.core
-  (:require [plumbing.core :as p]
-            [schema.core :as s]
-            [schema-tools.util :as stu])
+  (:require [schema.core :as s]
+            [schema-tools.util :as stu :include-macros true])
   (:refer-clojure :exclude [dissoc select-keys get-in assoc-in update-in]))
 
 (def AnyKeys {s/Any s/Any})
@@ -27,17 +26,13 @@
   "Dissoc[iate]s keys from Schema."
   [schema & ks]
   (let [ks? (explicit-key-set ks)]
-    (p/for-map [[k v] schema
-                :when (not (ks? (explicit-key k)))]
-      k v)))
+    (into {} (filter (comp not ks? explicit-key key) schema))))
 
 (defn select-keys
   "Like clojure.core/select-keys but handles boths optional-keys and required-keys."
   [schema ks]
   (let [ks? (explicit-key-set ks)]
-    (p/for-map [[k v] schema
-                :when (ks? (explicit-key k))]
-      k v)))
+    (into {} (filter (comp ks? explicit-key key) schema))))
 
 (defn- key-in-schema [m k]
   (cond
@@ -115,19 +110,19 @@
   (->> value
        (s/check schema)
        stu/path-vals
-       (filter (p/fn-> second 'disallowed-key))
+       (filter (stu/fn-> second 'disallowed-key))
        (map first)
        (reduce (partial stu/dissoc-in) value)))
 
 (defn- transform-keys
   [m f ks]
   (let [ks? (explicit-key-set ks)]
-    (p/for-map [[k v] m]
-      (cond
-        (and ks (not (ks? (explicit-key k)))) k
-        (s/specific-key? k) (f (s/explicit-schema-key k))
-        :else (f k))
-      v)))
+    (stu/map-keys (fn [k]
+                    (cond
+                      (and ks (not (ks? (explicit-key k)))) k
+                      (s/specific-key? k) (f (s/explicit-schema-key k))
+                      :else (f k)))
+                  m)))
 
 (defn with-optional-keys
   "Makes given map keys optional. Defaults to all keys."
