@@ -110,9 +110,9 @@
   (->> value
        (s/check schema)
        stu/path-vals
-       (filter (stu/fn-> second 'disallowed-key))
+       (filter (comp #(= % 'disallowed-key) second))
        (map first)
-       (reduce (partial stu/dissoc-in) value)))
+       (reduce stu/dissoc-in value)))
 
 (defn- transform-keys
   [m f ks]
