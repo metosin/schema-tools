@@ -35,7 +35,7 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
                            :description "Metosin HQ" ; disallowed-key
                            :country {:weather "-18" ; disallowed-key
                                      :name "Finland"}})
-; => {:street "Keskustori 8", :city "Tampere", :country {:name "Finland"}}
+; => {:city "Tampere", :street "Keskustori 8", :country {:name "Finland"}}
 ```
 
 ## Usage
