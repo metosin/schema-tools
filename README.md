@@ -16,7 +16,7 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
 See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.clj).
 
 ## Todo
-- [ ] `update`, `merge`, `merge-with`
+- [ ] `update`, `merge`, `deep-merge`
 - [ ] Verify performance
 - [ ] Context-aware Schemas
 - [ ] XSD Generation(?)
