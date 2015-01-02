@@ -14,10 +14,6 @@
 (defn- explicit-key-set [ks]
   (reduce (fn [s k] (conj s (explicit-key k))) #{} ks))
 
-(defn- explicit-path-vals
-  "Returns vector of tuples containing path vector to the value and the value."
-  [m] (stu/path-vals m #(if (s/specific-key? %) (s/explicit-schema-key %) %)))
-
 ;;
 ;; Core functions
 ;;
