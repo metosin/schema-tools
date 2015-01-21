@@ -1,3 +1,4 @@
+sudo: false
 language: clojure
 lein: lein2
 script: lein2 $TEST
@@ -17,3 +18,6 @@ jdk:
   - oraclejdk8
 node_js:
   - "0.10"
+cache:
+  directories:
+  - "$HOME/.m2"
