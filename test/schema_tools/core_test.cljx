@@ -1,5 +1,6 @@
 (ns schema-tools.core-test
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require #+clj  [clojure.test :as test :refer [deftest testing is]]
+            #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
             [schema.core :as s]))
 
@@ -129,3 +130,9 @@
 
       (is (= (keys (st/with-required-keys schema :b [1 2 3] "d" :NON-EXISTING))
              [:a :b :c (s/required-key "d")])))))
+
+#+cljs
+(do
+  (set! *print-newline* false)
+  (set-print-fn! js/console.log)
+  (test/run-tests))

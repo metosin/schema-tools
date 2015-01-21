@@ -47,7 +47,7 @@
   ([m ks]
     (get-in m ks nil))
   ([m ks not-found]
-    (loop [sentinel (Object.)
+    (loop [sentinel #+clj (Object.) #+cljs (js/Object.)
            m m
            ks (seq ks)]
       (if ks
