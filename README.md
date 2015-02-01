@@ -3,7 +3,7 @@
 Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schema):
 * common Schema definitions: `any-keys`, `any-keyword-keys`
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
-* Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `dissoc-in`, `merge`, `with-optional-keys`, `with-required-keys`
+* Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
 

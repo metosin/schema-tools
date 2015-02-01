@@ -116,47 +116,47 @@
                                                     :c {[1 2 3] "kakka"}}}))
         (is (= (s/check schema (st/select-schema schema value)) nil))))))
 
-(deftest with-optional-keys-test
+(deftest optional-keys-test
   (let [schema {(s/optional-key :a) s/Str
                 (s/required-key :b) s/Str
                 :c s/Str
                 (s/required-key "d") s/Str}]
 
     (testing "without extra arguments makes all top-level keys optional"
-      (is (= (keys (st/with-optional-keys schema))
+      (is (= (keys (st/optional-keys schema))
              [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
 
     (testing "invalid input"
       (is (thrown-with-msg? AssertionError
                             #"input should be nil or a vector of keys."
-                            (st/with-optional-keys schema :ANY))))
+                            (st/optional-keys schema :ANY))))
 
     (testing "makes all given top-level keys are optional, ignoring missing keys"
 
-      (is (= (st/with-optional-keys schema [:NON-EXISTING]) schema))
+      (is (= (st/optional-keys schema [:NON-EXISTING]) schema))
 
-      (is (= (keys (st/with-optional-keys schema [:a :b "d" :NON-EXISTING]))
+      (is (= (keys (st/optional-keys schema [:a :b "d" :NON-EXISTING]))
              [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")])))))
 
-(deftest with-required-keys-test
+(deftest required-keys-test
   (let [schema {(s/required-key :a) s/Str
                 (s/optional-key :b) s/Str
                 :c s/Str
                 (s/optional-key "d") s/Str}]
 
     (testing "without extra arguments makes all top-level keys required"
-      (is (= (keys (st/with-required-keys schema))
+      (is (= (keys (st/required-keys schema))
              [:a :b :c (s/required-key "d")])))
 
     (testing "invalid input"
       (is (thrown-with-msg? AssertionError
                             #"input should be nil or a vector of keys."
-                            (st/with-required-keys schema :ANY))))
+                            (st/required-keys schema :ANY))))
 
     (testing "makes all given top-level keys are required, ignoring missing keys"
-      (is (= (st/with-required-keys schema [:NON-EXISTING]) schema))
+      (is (= (st/required-keys schema [:NON-EXISTING]) schema))
 
-      (is (= (keys (st/with-required-keys schema [:b [1 2 3] "d" :NON-EXISTING]))
+      (is (= (keys (st/required-keys schema [:b [1 2 3] "d" :NON-EXISTING]))
              [:a :b :c (s/required-key "d")])))))
 
 #+cljs

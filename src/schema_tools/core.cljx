@@ -136,12 +136,12 @@
                       :else (f k)))
                   m)))
 
-(defn with-optional-keys
+(defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
-  ([m] (with-optional-keys m nil))
+  ([m] (optional-keys m nil))
   ([m ks] (transform-keys m s/optional-key ks)))
 
-(defn with-required-keys
+(defn required-keys
   "Makes given map keys required. Defaults to all keys."
-  ([m] (with-required-keys m nil))
+  ([m] (required-keys m nil))
   ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
