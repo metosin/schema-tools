@@ -40,7 +40,7 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
 
 ## Usage
 
-See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.clj).
+See the [tests](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.cljx).
 
 ## Todo
 - [ ] `deep-merge`
