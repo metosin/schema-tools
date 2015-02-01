@@ -3,7 +3,7 @@
 Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schema):
 * common Schema definitions: `any-keys`, `any-keyword-keys`
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
-* Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
+* Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
 
@@ -43,7 +43,7 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
 See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.clj).
 
 ## Todo
-- [ ] `update`, `deep-merge`
+- [ ] `deep-merge`
 - [ ] Verify performance
 - [ ] Context-aware Schemas
 - [ ] XSD Generation(?)
@@ -52,6 +52,6 @@ See the [facts](https://github.com/metosin/schema-tools/blob/master/test/schema_
 
 ## License
 
-Copyright © 2014-2015 Metosin Oy
+Copyright © 2014-2015 [Metosin Oy](http://www.metosin.fi)
 
 Distributed under the Eclipse Public License, the same as Clojure.
