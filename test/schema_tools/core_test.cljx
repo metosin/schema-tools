@@ -1,5 +1,5 @@
 (ns schema-tools.core-test
-  (:require #+clj  [clojure.test :as test :refer [deftest testing is]]
+  (:require #+clj  [clojure.test :refer [deftest testing is]]
             #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
             [schema.core :as s]))
@@ -67,6 +67,24 @@
     (testing "resulting empty maps are removed"
       (is (= (st/dissoc-in schema [:a [1 2 3]]) {})))))
 
+(deftest merge-test
+  (testing "is merged left to right"
+    (is (= {(s/optional-key :a) s/Num
+            (s/optional-key :b) s/Num
+            (s/required-key :c) s/Str}
+           (st/merge {:a                  s/Str
+                      (s/optional-key :b) s/Str
+                      (s/required-key :c) s/Str}
+                     {(s/optional-key :a) s/Num
+                      (s/optional-key :b) s/Num}))))
+  (testing "nills"
+    (is (= nil (st/merge nil nil)))
+    (is (= {:a s/Str} (st/merge {:a s/Str} nil)))
+    (is (= {:a s/Str} (st/merge nil {:a s/Str}))))
+
+  (testing "non-maps can't be mapped"
+    (is (thrown? AssertionError (st/merge [s/Str] [s/Num])))))
+
 (deftest select-schema-test
   (testing "with strictly defined schema, when value has extra keys"
     (let [schema {:a s/Str
@@ -108,11 +126,16 @@
       (is (= (keys (st/with-optional-keys schema))
              [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
 
+    (testing "invalid input"
+      (is (thrown-with-msg? AssertionError
+                            #"input should be nil or a vector of keys."
+                            (st/with-optional-keys schema :ANY))))
+
     (testing "makes all given top-level keys are optional, ignoring missing keys"
 
-      (is (= (st/with-optional-keys schema :NON-EXISTING) schema))
+      (is (= (st/with-optional-keys schema [:NON-EXISTING]) schema))
 
-      (is (= (keys (st/with-optional-keys schema :a :b "d" :NON-EXISTING))
+      (is (= (keys (st/with-optional-keys schema [:a :b "d" :NON-EXISTING]))
              [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")])))))
 
 (deftest with-required-keys-test
@@ -125,10 +148,15 @@
       (is (= (keys (st/with-required-keys schema))
              [:a :b :c (s/required-key "d")])))
 
-    (testing "makes all given top-level keys are required, ignoring missing keys"
-      (is (= (st/with-required-keys schema :NON-EXISTING) schema))
+    (testing "invalid input"
+      (is (thrown-with-msg? AssertionError
+                            #"input should be nil or a vector of keys."
+                            (st/with-required-keys schema :ANY))))
 
-      (is (= (keys (st/with-required-keys schema :b [1 2 3] "d" :NON-EXISTING))
+    (testing "makes all given top-level keys are required, ignoring missing keys"
+      (is (= (st/with-required-keys schema [:NON-EXISTING]) schema))
+
+      (is (= (keys (st/with-required-keys schema [:b [1 2 3] "d" :NON-EXISTING]))
              [:a :b :c (s/required-key "d")])))))
 
 #+cljs

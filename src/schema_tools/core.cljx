@@ -1,13 +1,13 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
             [schema-tools.util :as stu :include-macros true])
-  (:refer-clojure :exclude [dissoc select-keys get-in assoc-in update-in]))
+  (:refer-clojure :exclude [dissoc select-keys get-in assoc-in update-in merge]))
 
 (def AnyKeys {s/Any s/Any})
 (defn any-keys [] AnyKeys)
 
 (def AnyKeywordKeys {s/Keyword s/Any})
-(defn any-keyword-keys [& schemas] (apply merge AnyKeywordKeys schemas))
+(defn any-keyword-keys [& schemas] (apply clojure.core/merge AnyKeywordKeys schemas))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
 
@@ -96,6 +96,21 @@
         m)
       (dissoc m k))))
 
+(defn merge
+  "Returns a Schema that consists of the rest of the Schemas conj-ed onto
+  the first. If a schema key occurs in more than one map, the mapping from
+  the latter (left-to-right) will be the mapping in the result. Works only
+  with Map schemas."
+  [& maps]
+  {:pre [(every? #(or (map? %) (nil? %)) maps)]}
+  (when (some identity maps)
+    (reduce
+      (fn [acc m]
+        (reduce
+          (fn [acc [k v]]
+            (assoc (dissoc acc k) k v))
+          acc m)) maps)))
+
 ;;
 ;; Extras
 ;;
@@ -112,6 +127,7 @@
 
 (defn- transform-keys
   [m f ks]
+  (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
   (let [ks? (explicit-key-set ks)]
     (stu/map-keys (fn [k]
                     (cond
@@ -122,8 +138,10 @@
 
 (defn with-optional-keys
   "Makes given map keys optional. Defaults to all keys."
-  [m & ks] (transform-keys m s/optional-key ks))
+  ([m] (with-optional-keys m nil))
+  ([m ks] (transform-keys m s/optional-key ks)))
 
 (defn with-required-keys
   "Makes given map keys required. Defaults to all keys."
-  [m & ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks))
+  ([m] (with-required-keys m nil))
+  ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
