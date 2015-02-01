@@ -80,7 +80,17 @@
       (assoc m kis (apply update-in (get-in-schema m k) ks f args))
       (assoc m kis (apply f (get-in-schema m k) args)))))
 
-;; https://github.com/clojure/core.incubator/blob/master/src/main/clojure/clojure/core/incubator.clj
+;; (c) original https://github.com/weavejester/medley/blob/master/src/medley/core.cljx
+(defn update
+  "Updates a value in a map with a function."
+  {:arglists '([m k f & args])}
+  ([m k f] (assoc m (key-in-schema m k) (f (get-in-schema m k))))
+  ([m k f a1] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1)))
+  ([m k f a1 a2] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2)))
+  ([m k f a1 a2 a3] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2 a3)))
+  ([m k f a1 a2 a3 & args] (assoc m (key-in-schema m k) (apply f (get-in-schema m k) a1 a2 a3 args))))
+
+;; (c) original https://github.com/clojure/core.incubator/blob/master/src/main/clojure/clojure/core/incubator.clj
 (defn dissoc-in
   "Dissociates an entry from a nested associative Schema returning a new
   nested structure. keys is a sequence of keys. Any empty maps that result

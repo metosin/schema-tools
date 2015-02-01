@@ -67,6 +67,11 @@
     (testing "resulting empty maps are removed"
       (is (= (st/dissoc-in schema [:a [1 2 3]]) {})))))
 
+(deftest update-test
+  (is (= {:a 2} (st/update {:a 1} :a inc)))
+  (is (= {(s/optional-key :a) 2} (st/update {(s/optional-key :a) 1} :a inc)))
+  (is (= {(s/required-key :a) 2} (st/update {(s/required-key :a) 1} :a inc))))
+
 (deftest merge-test
   (testing "is merged left to right"
     (is (= {(s/optional-key :a) s/Num
