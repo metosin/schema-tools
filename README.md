@@ -1,6 +1,6 @@
 # Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.png?branch=master)](https://travis-ci.org/metosin/schema-tools)
 
-Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schema):
+Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps:
 * common Schema definitions: `any-keys`, `any-keyword-keys`
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
@@ -12,6 +12,8 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
 [![Clojars Project](http://clojars.org/metosin/schema-tools/latest-version.svg)](http://clojars.org/metosin/schema-tools)
 
 ## Examples
+
+Comparison to normal `clojure.core` functions:
 
 ```clojure
 (require '[schema.core :as s])
@@ -29,6 +31,8 @@ Common utilities on top of [Prismatic Schema](https://github.com/Prismatic/schem
 ; => {:street java.lang.String, #schema.core.OptionalKey{:k :city} java.lang.String}
 ````
 
+Filtering out extra keys (without validation errors):
+
 ```clojure
 (st/select-schema Address {:street "Keskustori 8"
                            :city "Tampere"
@@ -44,6 +48,7 @@ See the [tests](https://github.com/metosin/schema-tools/blob/master/test/schema_
 
 ## Todo
 - [ ] `deep-merge`
+- [ ] Walking over certain Schema-containers such as `maybe`
 - [ ] Verify performance
 - [ ] Context-aware Schemas
 - [ ] XSD Generation(?)
