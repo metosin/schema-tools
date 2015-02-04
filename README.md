@@ -1,6 +1,6 @@
 # Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.png?branch=master)](https://travis-ci.org/metosin/schema-tools)
 
-Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps:
+Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps, both Clojure & ClojureScript.
 * common Schema definitions: `any-keys`, `any-keyword-keys`
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * Schema-aware transformers: `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
