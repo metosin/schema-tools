@@ -48,7 +48,7 @@ See the [tests](https://github.com/metosin/schema-tools/blob/master/test/schema_
 
 ## Todo
 - [ ] `deep-merge`
-- [ ] Walking over certain Schema-containers such as `maybe`
+- [x] Walking over certain Schema-containers such as `maybe`
 - [ ] Verify performance
 - [ ] Context-aware Schemas
 - [ ] XSD Generation(?)
