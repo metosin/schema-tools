@@ -9,6 +9,7 @@
   (satisfies? IRecord x))
 
 (defn walk
+  {:added "0.3.0"}
   [this inner outer]
   (cond
     (satisfies? WalkableSchema this) (-walk this inner outer)
