@@ -88,7 +88,7 @@
     (is (= {:a s/Str} (st/merge nil {:a s/Str}))))
 
   (testing "non-maps can't be mapped"
-    (is (thrown? AssertionError (st/merge [s/Str] [s/Num])))))
+    (is (thrown? #+clj AssertionError #+cljs js/Error (st/merge [s/Str] [s/Num])))))
 
 (deftest select-schema-test
   (testing "with strictly defined schema, when value has extra keys"
@@ -132,7 +132,7 @@
              [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
 
     (testing "invalid input"
-      (is (thrown-with-msg? AssertionError
+      (is (thrown-with-msg? #+clj AssertionError #+cljs js/Error
                             #"input should be nil or a vector of keys."
                             (st/optional-keys schema :ANY))))
 
@@ -154,7 +154,7 @@
              [:a :b :c (s/required-key "d")])))
 
     (testing "invalid input"
-      (is (thrown-with-msg? AssertionError
+      (is (thrown-with-msg? #+clj AssertionError #+cljs js/Error
                             #"input should be nil or a vector of keys."
                             (st/required-keys schema :ANY))))
 
@@ -163,9 +163,3 @@
 
       (is (= (keys (st/required-keys schema [:b [1 2 3] "d" :NON-EXISTING]))
              [:a :b :c (s/required-key "d")])))))
-
-#+cljs
-(do
-  (set! *print-newline* false)
-  (set-print-fn! js/console.log)
-  (test/run-tests))

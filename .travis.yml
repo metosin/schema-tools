@@ -1,16 +1,16 @@
 sudo: false
 language: clojure
 lein: lein2
-script: lein2 $TEST
+script: $TEST
 env:
   matrix:
-  - TEST=test-clj
-  - TEST=test-node
+  - TEST=lein2 test-clj
+  - TEST=./scripts/test.sh
 matrix:
   exclude:
-    - env: TEST=test-node
+    - env: TEST=./scripts/test.sh
       jdk: openjdk6
-    - env: TEST=test-node
+    - env: TEST=./scripts/test.sh
       jdk: openjdk7
 jdk:
   - openjdk6
