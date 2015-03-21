@@ -4,10 +4,15 @@
 (defprotocol WalkableSchema
   (-walk [this inner outer]))
 
+#+cljs
+(defn- record? [x]
+  (satisfies? IRecord x))
+
 (defn walk
   [this inner outer]
   (cond
     (satisfies? WalkableSchema this) (-walk this inner outer)
+    (record? this) (outer (with-meta (reduce (fn [r x] (conj r (inner x))) this this) (meta this)))
     #+clj (list? this) #+clj (outer (with-meta (apply list (map inner this)) (meta this)))
     (seq? this) (outer (with-meta (doall (map inner this)) (meta this)))
     (coll? this) (outer (with-meta (into (empty this) (map inner this)) (meta this)))
@@ -19,12 +24,6 @@
   #+clj
   (-walk [this inner outer]
     (outer (vec (map inner this))))
-
-  #+clj
-  clojure.lang.IRecord
-  #+clj
-  (-walk [this inner outer]
-    (outer (with-meta (reduce (fn [r x] (conj r (inner x))) this this) (meta this))))
 
   schema.core.Maybe
   (-walk [this inner outer]

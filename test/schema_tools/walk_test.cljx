@@ -67,10 +67,8 @@
 
 ; Records
 
-#+clj
 (defrecord Test [a b])
 
-#+clj
 (deftest walk-record-test
   (let [named (name-schemas [:root] (Test. {:a s/Str} {:c {:d s/Int}}))]
     (is (= (-> named .-a meta :name) [:root :a]))
