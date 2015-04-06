@@ -7,7 +7,8 @@
 
 (cljs.closure/build
   (SourcePaths. ["src" "test" "target/generated/src"])
-  {:output-to "target/generated/js/out/tests.js"
+  {:main "schema-tools.runner"
+   :output-to "target/generated/js/out/tests.js"
    :source-map "target/generated/js/out/tests.map.js"
    :output-dir "target/generated/js/out"
    :optimizations :none
