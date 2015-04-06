@@ -1,9 +1,10 @@
 #!/bin/bash
 
 rev=$(git rev-parse HEAD)
+remoteurl=$(git ls-remote --get-url origin)
 
 if [[ ! -d doc ]]; then
-    git clone --branch gh-pages git@github.com:metosin/schema-tools.git doc
+    git clone --branch gh-pages ${remoteurl} doc
 fi
 (
 cd doc
