@@ -1,17 +1,14 @@
 (require 'cljs.closure)
 
-(defrecord SourcePaths [paths]
-  cljs.closure/Compilable
-  (-compile [_ opts]
-    (mapcat #(cljs.closure/-compile % opts) paths)))
-
 (cljs.closure/build
-  (SourcePaths. ["src" "test" "target/generated/src"])
+  ; Includes :source-paths and :test-paths already
+  "test"
   {:main "schema-tools.runner"
    :output-to "target/generated/js/out/tests.js"
    :source-map "target/generated/js/out/tests.map.js"
    :output-dir "target/generated/js/out"
    :optimizations :none
-   :target :nodejs})
+   :target :nodejs
+   :verbose true})
 
 (shutdown-agents)
