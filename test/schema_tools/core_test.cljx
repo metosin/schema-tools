@@ -1,6 +1,6 @@
 (ns schema-tools.core-test
-  (:require #+clj  [clojure.test :refer [deftest testing is]]
-            #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
+  (:require #+clj [clojure.test :refer [deftest testing is]]
+    #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
             [schema.core :as s]))
 
@@ -20,6 +20,26 @@
   (testing "can be used to extend schemas"
     (is (= (s/check (st/any-keyword-keys {(s/required-key "b") s/Bool}) {:a true, "b" true}) nil))))
 
+(deftest assoc-test
+  (let [schema {:a s/Str
+                (s/optional-key :b) s/Str
+                (s/required-key "c") s/Str
+                s/Keyword s/Str}]
+    (testing "odd number of arguments"
+      (is (thrown? IllegalArgumentException (st/assoc schema :b s/Int :c))))
+    (testing "happy case"
+      (is (= (st/assoc schema
+                       (s/optional-key :a) s/Int
+                       :b s/Int
+                       "c" s/Int
+                       (s/optional-key :d) s/Int
+                       s/Keyword s/Int)
+             {(s/optional-key :a) s/Int
+              :b s/Int
+              "c" s/Int
+              (s/optional-key :d) s/Int
+              s/Keyword s/Int})))))
+
 (deftest dissoc-test
   (let [schema {:a s/Str
                 (s/optional-key :b) s/Str
@@ -33,8 +53,8 @@
                 (s/required-key "c") s/Str
                 s/Keyword s/Str}]
     (is (= (st/select-keys schema [:a :b "c" :d])
-           {:a                   s/Str
-            (s/optional-key :b)  s/Str
+           {:a s/Str
+            (s/optional-key :b) s/Str
             (s/required-key "c") s/Str}))))
 
 (deftest get-in-test
@@ -77,7 +97,7 @@
     (is (= {(s/optional-key :a) s/Num
             (s/optional-key :b) s/Num
             (s/required-key :c) s/Str}
-           (st/merge {:a                  s/Str
+           (st/merge {:a s/Str
                       (s/optional-key :b) s/Str
                       (s/required-key :c) s/Str}
                      {(s/optional-key :a) s/Num
@@ -95,9 +115,9 @@
     (let [schema {:a s/Str
                   :b {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}}
           value {:a "kikka"
-                 :b {[1 2 3] {"d"  "kukka"
+                 :b {[1 2 3] {"d" "kukka"
                               ":d" "kikka"
-                              :d   "kukka"}}}]
+                              :d "kukka"}}}]
       (is (s/check schema value))
       (testing "select-schema drops unallowed keys"
         (is (= (st/select-schema schema value) {:a "kikka"

@@ -1,7 +1,7 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
             [schema-tools.util :as stu :include-macros true])
-  (:refer-clojure :exclude [dissoc select-keys get-in assoc-in update-in merge]))
+  (:refer-clojure :exclude [assoc dissoc select-keys get-in assoc-in update-in merge]))
 
 (def AnyKeys {s/Any s/Any})
 (defn any-keys [] AnyKeys)
@@ -14,9 +14,35 @@
 (defn- explicit-key-set [ks]
   (reduce (fn [s k] (conj s (explicit-key k))) #{} ks))
 
+(defn- key-in-schema [m k]
+  (cond
+    (contains? m k) k
+    (contains? m (s/optional-key k)) (s/optional-key k)
+    (contains? m (s/required-key k)) (s/required-key k)
+    (and (s/specific-key? k) (contains? m (s/explicit-schema-key k))) (s/explicit-schema-key k)
+    :else k))
+
+(defn- get-in-schema [m k & [default]]
+  (get m (key-in-schema m k) default))
+
 ;;
 ;; Core functions
 ;;
+
+(defn assoc
+  "Assoc[iate]s key & vals into Schema."
+  [schema & kvs]
+  (reduce
+    (fn [schema [k v]]
+      (when-not v
+        (throw (IllegalArgumentException.
+                 "assoc expects even number of arguments after map/vector, found odd number")))
+      (let [rk (key-in-schema schema k)]
+        (-> schema
+            (clojure.core/dissoc rk)
+            (clojure.core/assoc k v))))
+    schema
+    (partition 2 2 nil kvs)))
 
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
@@ -29,16 +55,6 @@
   [schema ks]
   (let [ks? (explicit-key-set ks)]
     (into {} (filter (comp ks? explicit-key key) schema))))
-
-(defn- key-in-schema [m k]
-  (cond
-    (contains? m k) k
-    (contains? m (s/optional-key k)) (s/optional-key k)
-    (contains? m (s/required-key k)) (s/required-key k)
-    :else k))
-
-(defn- get-in-schema [m k & [default]]
-  (get m (key-in-schema m k) default))
 
 (defn get-in
   "Returns the value in a nested associative Schema,
@@ -65,8 +81,8 @@
   [m [k & ks] v]
   (let [kis (key-in-schema m k)]
     (if ks
-      (assoc m kis (assoc-in (get-in-schema m k) ks v))
-      (assoc m kis v))))
+      (clojure.core/assoc m kis (assoc-in (get-in-schema m k) ks v))
+      (clojure.core/assoc m kis v))))
 
 (defn update-in
   "'Updates' a value in a nested associative Schema, where ks is a
@@ -77,18 +93,18 @@
   [m [k & ks] f & args]
   (let [kis (key-in-schema m k)]
     (if ks
-      (assoc m kis (apply update-in (get-in-schema m k) ks f args))
-      (assoc m kis (apply f (get-in-schema m k) args)))))
+      (clojure.core/assoc m kis (apply update-in (get-in-schema m k) ks f args))
+      (clojure.core/assoc m kis (apply f (get-in-schema m k) args)))))
 
 ;; (c) original https://github.com/weavejester/medley/blob/master/src/medley/core.cljx
 (defn update
   "Updates a value in a map with a function."
   {:arglists '([m k f & args])}
-  ([m k f] (assoc m (key-in-schema m k) (f (get-in-schema m k))))
-  ([m k f a1] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1)))
-  ([m k f a1 a2] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2)))
-  ([m k f a1 a2 a3] (assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2 a3)))
-  ([m k f a1 a2 a3 & args] (assoc m (key-in-schema m k) (apply f (get-in-schema m k) a1 a2 a3 args))))
+  ([m k f] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k))))
+  ([m k f a1] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1)))
+  ([m k f a1 a2] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2)))
+  ([m k f a1 a2 a3] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2 a3)))
+  ([m k f a1 a2 a3 & args] (clojure.core/assoc m (key-in-schema m k) (apply f (get-in-schema m k) a1 a2 a3 args))))
 
 ;; (c) original https://github.com/clojure/core.incubator/blob/master/src/main/clojure/clojure/core/incubator.clj
 (defn dissoc-in
@@ -101,7 +117,7 @@
       (if-let [nextmap (get m k)]
         (let [newmap (dissoc-in nextmap ks)]
           (if (seq newmap)
-            (assoc m k newmap)
+            (clojure.core/assoc m k newmap)
             (dissoc m k)))
         m)
       (dissoc m k))))
@@ -118,7 +134,7 @@
       (fn [acc m]
         (reduce
           (fn [acc [k v]]
-            (assoc (dissoc acc k) k v))
+            (clojure.core/assoc (dissoc acc k) k v))
           acc m)) maps)))
 
 ;;
