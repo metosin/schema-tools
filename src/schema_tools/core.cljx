@@ -134,15 +134,10 @@
         schema)
       (dissoc schema k))))
 
-;; (c) original https://github.com/weavejester/medley/blob/master/src/medley/core.cljx
 (defn update
   "Updates a value in a map with a function."
-  {:arglists '([m k f & args])}
-  ([m k f] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k))))
-  ([m k f a1] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1)))
-  ([m k f a1 a2] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2)))
-  ([m k f a1 a2 a3] (clojure.core/assoc m (key-in-schema m k) (f (get-in-schema m k) a1 a2 a3)))
-  ([m k f a1 a2 a3 & args] (clojure.core/assoc m (key-in-schema m k) (apply f (get-in-schema m k) a1 a2 a3 args))))
+  [schema k f & args]
+  (apply update-in schema [k] f args))
 
 (defn merge
   "Returns a Schema that consists of the rest of the Schemas conj-ed onto

@@ -113,9 +113,13 @@
         (is (nil? (meta (st/dissoc-in schema [:a :b :c]))))))))
 
 (deftest update-test
-  (is (= {:a 2} (st/update {:a 1} :a inc)))
-  (is (= {(s/optional-key :a) 2} (st/update {(s/optional-key :a) 1} :a inc)))
-  (is (= {(s/required-key :a) 2} (st/update {(s/required-key :a) 1} :a inc))))
+  (testing "update"
+    (is (= {:a 2} (st/update {:a 1} :a inc)))
+    (is (= {(s/optional-key :a) 2} (st/update {(s/optional-key :a) 1} :a inc)))
+    (is (= {(s/required-key :a) 2} (st/update {(s/required-key :a) 1} :a inc))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/update Kikka :a (constantly s/Str))))))
+    (is (nil? (meta (st/update Kikka :c (constantly s/Str)))))))
 
 (deftest merge-test
   (testing "is merged left to right"
