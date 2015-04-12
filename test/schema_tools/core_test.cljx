@@ -90,11 +90,14 @@
       (is (not (nil? (meta (st/assoc-in Kikka [:a] s/Str)))))
       (is (nil? (meta (st/assoc-in Kikka [:c :d] s/Str)))))))
 
-
 (deftest update-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}}]
-    (is (= (st/update-in schema [:a [1 2 3] "d"] (constantly s/Int))
-           {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}))))
+    (testing "update-in"
+      (is (= (st/update-in schema [:a [1 2 3] "d"] (constantly s/Int))
+             {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}})))
+    (testing "make anonymous if value changed"
+      (is (not (nil? (meta (st/update-in Kikka [:a] (constantly s/Str))))))
+      (is (nil? (meta (st/update-in Kikka [:c :d] (constantly s/Str))))))))
 
 (deftest dissoc-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str

@@ -110,11 +110,13 @@
   and any supplied args and return the new value, and returns a new
   nested Schema. If any levels do not exist, hash-maps will be
   created."
-  [m [k & ks] f & args]
-  (let [kis (key-in-schema m k)]
-    (if ks
-      (clojure.core/assoc m kis (apply update-in (get-in-schema m k) ks f args))
-      (clojure.core/assoc m kis (apply f (get-in-schema m k) args)))))
+  [schema [k & ks] f & args]
+  (maybe-anonymous
+    schema
+    (let [kis (key-in-schema schema k)]
+      (if ks
+        (clojure.core/assoc schema kis (apply update-in (get-in-schema schema k) ks f args))
+        (clojure.core/assoc schema kis (apply f (get-in-schema schema k) args))))))
 
 ;; (c) original https://github.com/weavejester/medley/blob/master/src/medley/core.cljx
 (defn update
