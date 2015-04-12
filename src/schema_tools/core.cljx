@@ -96,11 +96,13 @@
   "Associates a value in a nested associative Schema, where ks is a
   sequence of keys and v is the new value and returns a new nested Schema.
   If any levels do not exist, hash-maps will be created."
-  [m [k & ks] v]
-  (let [kis (key-in-schema m k)]
-    (if ks
-      (clojure.core/assoc m kis (assoc-in (get-in-schema m k) ks v))
-      (clojure.core/assoc m kis v))))
+  [schema [k & ks] v]
+  (maybe-anonymous
+    schema
+    (let [kis (key-in-schema schema k)]
+      (if ks
+        (clojure.core/assoc schema kis (assoc-in (get-in-schema schema k) ks v))
+        (clojure.core/assoc schema kis v)))))
 
 (defn update-in
   "'Updates' a value in a nested associative Schema, where ks is a

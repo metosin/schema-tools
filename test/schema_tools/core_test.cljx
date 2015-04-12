@@ -83,8 +83,13 @@
 
 (deftest assoc-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}}]
-    (is (= (st/assoc-in schema [:a [1 2 3] "d" :e :f] s/Str)
-           {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e {:f s/Str}}}}}))))
+    (testing "assoc-in"
+      (is (= (st/assoc-in schema [:a [1 2 3] "d" :e :f] s/Str)
+             {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e {:f s/Str}}}}})))
+    (testing "make anonymous if value changed"
+      (is (not (nil? (meta (st/assoc-in Kikka [:a] s/Str)))))
+      (is (nil? (meta (st/assoc-in Kikka [:c :d] s/Str)))))))
+
 
 (deftest update-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}}]
