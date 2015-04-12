@@ -4,7 +4,9 @@
             [schema-tools.core :as st]
             [schema.core :as s]))
 
-(s/defschema Kikka {:a s/Str :b s/Str})
+; TODO: defschema fails on CLJS - schema.core.defschema.call(null,schema_tools.core_test.Kikka,new cljs.core.Per
+#_(s/defschema Kikka {:a s/Str :b s/Str})
+(def Kikka (s/schema-with-name {:a s/Str :b s/Str} 'Kikka))
 
 (deftest any-keys-test
   (is (= (st/any-keys) {s/Any s/Any}))
@@ -27,7 +29,7 @@
                 (s/optional-key :b) s/Str
                 (s/required-key "c") s/Str
                 s/Keyword s/Str}]
-    (testing "odd number of arguments"
+    #+clj (testing "odd number of arguments"
       (is (thrown? IllegalArgumentException (st/assoc schema :b s/Int :c))))
     (testing "happy case"
       (is (= (st/assoc schema
