@@ -61,10 +61,14 @@
                 (s/optional-key :b) s/Str
                 (s/required-key "c") s/Str
                 s/Keyword s/Str}]
-    (is (= (st/select-keys schema [:a :b "c" :d])
-           {:a s/Str
-            (s/optional-key :b) s/Str
-            (s/required-key "c") s/Str}))))
+    (testing "select-keys"
+      (is (= (st/select-keys schema [:a :b "c" :d])
+             {:a s/Str
+              (s/optional-key :b) s/Str
+              (s/required-key "c") s/Str})))
+    (testing "make anonymous if value changed"
+      (is (not (nil? (meta (st/select-keys Kikka [:a :b])))))
+      (is (nil? (meta (st/select-keys Kikka [:a])))))))
 
 (deftest get-in-test
   (let [schema {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}

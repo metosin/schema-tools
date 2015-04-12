@@ -27,7 +27,7 @@
 
 (defn- maybe-anonymous [original current]
   (if (= original current)
-    current
+    original
     (vary-meta
       current
       (fn [meta]
@@ -69,8 +69,10 @@
 (defn select-keys
   "Like clojure.core/select-keys but handles boths optional-keys and required-keys."
   [schema ks]
-  (let [ks? (explicit-key-set ks)]
-    (into {} (filter (comp ks? explicit-key key) schema))))
+  (maybe-anonymous
+    schema
+    (let [ks? (explicit-key-set ks)]
+      (into {} (filter (comp ks? explicit-key key) schema)))))
 
 (defn get-in
   "Returns the value in a nested associative Schema,
