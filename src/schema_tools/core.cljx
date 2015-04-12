@@ -25,6 +25,17 @@
 (defn- get-in-schema [m k & [default]]
   (get m (key-in-schema m k) default))
 
+(defn- maybe-anonymous [original current]
+  (if (= original current)
+    current
+    (vary-meta
+      current
+      (fn [meta]
+        (let [new-meta (clojure.core/dissoc meta :name)]
+          (if (empty? new-meta)
+            nil
+            new-meta))))))
+
 ;;
 ;; Core functions
 ;;
@@ -32,17 +43,19 @@
 (defn assoc
   "Assoc[iate]s key & vals into Schema."
   [schema & kvs]
-  (reduce
-    (fn [schema [k v]]
-      (when-not v
-        (throw (IllegalArgumentException.
-                 "assoc expects even number of arguments after map/vector, found odd number")))
-      (let [rk (key-in-schema schema k)]
-        (-> schema
-            (clojure.core/dissoc rk)
-            (clojure.core/assoc k v))))
+  (maybe-anonymous
     schema
-    (partition 2 2 nil kvs)))
+    (reduce
+      (fn [schema [k v]]
+        (when-not v
+          (throw (IllegalArgumentException.
+                   "assoc expects even number of arguments after map/vector, found odd number")))
+        (let [rk (key-in-schema schema k)]
+          (-> schema
+              (clojure.core/dissoc rk)
+              (clojure.core/assoc k v))))
+      schema
+      (partition 2 2 nil kvs))))
 
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
