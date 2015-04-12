@@ -149,15 +149,17 @@
   the first. If a schema key occurs in more than one map, the mapping from
   the latter (left-to-right) will be the mapping in the result. Works only
   with Map schemas."
-  [& maps]
-  {:pre [(every? #(or (map? %) (nil? %)) maps)]}
-  (when (some identity maps)
-    (reduce
-      (fn [acc m]
-        (reduce
-          (fn [acc [k v]]
-            (clojure.core/assoc (dissoc acc k) k v))
-          acc m)) maps)))
+  [& schemas]
+  {:pre [(every? #(or (map? %) (nil? %)) schemas)]}
+  (maybe-anonymous
+    (first schemas)
+    (when (some identity schemas)
+      (reduce
+        (fn [acc m]
+          (reduce
+            (fn [acc [k v]]
+              (clojure.core/assoc (dissoc acc k) k v))
+            acc m)) schemas))))
 
 ;;
 ;; Extras

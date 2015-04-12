@@ -131,9 +131,12 @@
     (is (= nil (st/merge nil nil)))
     (is (= {:a s/Str} (st/merge {:a s/Str} nil)))
     (is (= {:a s/Str} (st/merge nil {:a s/Str}))))
-
   (testing "non-maps can't be mapped"
-    (is (thrown? #+clj AssertionError #+cljs js/Error (st/merge [s/Str] [s/Num])))))
+    (is (thrown? #+clj AssertionError #+cljs js/Error (st/merge [s/Str] [s/Num]))))
+  (testing "make anonymous if value changed"
+    (is (nil? (meta (st/merge {:b s/Str} Kikka))))
+    (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
+    (is (nil? (meta (st/merge Kikka {:c s/Str}))))))
 
 (deftest select-schema-test
   (testing "with strictly defined schema, when value has extra keys"
