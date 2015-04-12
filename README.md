@@ -4,6 +4,7 @@ Common utilities for working with [Prismatic Schema](https://github.com/Prismati
 * common Schema definitions: `any-keys`, `any-keyword-keys`
 * Schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * Schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
+  * removes the Schema name (meta-data `:name`) if the transformation fn returns a different schema value.
 * Protocol-based walker for manipulating Schemas: `schema-tools.walk/walk`
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
