@@ -102,11 +102,15 @@
 (deftest dissoc-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str
                                               :kikka s/Str}}}]
-    (is (= (st/dissoc-in schema [:a [1 2 3] "d"])
-           {:a {(s/optional-key [1 2 3]) {:kikka s/Str}}}))
-
+    (testing "dissoc-in"
+      (is (= (st/dissoc-in schema [:a [1 2 3] "d"])
+             {:a {(s/optional-key [1 2 3]) {:kikka s/Str}}})))
     (testing "resulting empty maps are removed"
-      (is (= (st/dissoc-in schema [:a [1 2 3]]) {})))))
+      (is (= (st/dissoc-in schema [:a [1 2 3]]) {})))
+    (testing "make anonymous if value changed"
+      (let [schema (s/schema-with-name {:a {:b {:c s/Str}}} 'Kikka)]
+        (is (not (nil? (meta (st/dissoc-in schema [:a :b :d])))))
+        (is (nil? (meta (st/dissoc-in schema [:a :b :c]))))))))
 
 (deftest update-test
   (is (= {:a 2} (st/update {:a 1} :a inc)))

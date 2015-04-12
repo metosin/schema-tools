@@ -123,16 +123,16 @@
   "Dissociates an entry from a nested associative Schema returning a new
   nested structure. keys is a sequence of keys. Any empty maps that result
   will not be present in the new Schema."
-  [m [k & ks]]
-  (let [k (key-in-schema m k)]
+  [schema [k & ks]]
+  (let [k (key-in-schema schema k)]
     (if ks
-      (if-let [nextmap (get m k)]
+      (if-let [nextmap (get schema k)]
         (let [newmap (dissoc-in nextmap ks)]
           (if (seq newmap)
-            (clojure.core/assoc m k newmap)
-            (dissoc m k)))
-        m)
-      (dissoc m k))))
+            (clojure.core/assoc schema k newmap)
+            (dissoc schema k)))
+        schema)
+      (dissoc schema k))))
 
 ;; (c) original https://github.com/weavejester/medley/blob/master/src/medley/core.cljx
 (defn update
