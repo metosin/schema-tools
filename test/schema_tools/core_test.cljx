@@ -177,22 +177,21 @@
                 (s/required-key :b) s/Str
                 :c s/Str
                 (s/required-key "d") s/Str}]
-
     (testing "without extra arguments makes all top-level keys optional"
       (is (= (keys (st/optional-keys schema))
              [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
-
     (testing "invalid input"
       (is (thrown-with-msg? #+clj AssertionError #+cljs js/Error
                             #"input should be nil or a vector of keys."
                             (st/optional-keys schema :ANY))))
-
     (testing "makes all given top-level keys are optional, ignoring missing keys"
-
       (is (= (st/optional-keys schema [:NON-EXISTING]) schema))
-
       (is (= (keys (st/optional-keys schema [:a :b "d" :NON-EXISTING]))
-             [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")])))))
+             [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")])))
+    (testing "make anonymous if value changed"
+      (let [schema (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka)]
+        (is (not (nil? (meta (st/optional-keys schema [])))))
+        (is (nil? (meta (st/optional-keys schema [:b]))))))))
 
 (deftest required-keys-test
   (let [schema {(s/required-key :a) s/Str

@@ -171,15 +171,18 @@
        (reduce stu/dissoc-in value)))
 
 (defn- transform-keys
-  [m f ks]
+  [schema f ks]
   (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
-  (let [ks? (explicit-key-set ks)]
-    (stu/map-keys (fn [k]
-                    (cond
-                      (and ks (not (ks? (explicit-key k)))) k
-                      (s/specific-key? k) (f (s/explicit-schema-key k))
-                      :else (f k)))
-                  m)))
+  (maybe-anonymous
+    schema
+    (let [ks? (explicit-key-set ks)]
+      (stu/map-keys
+        (fn [k]
+          (cond
+            (and ks (not (ks? (explicit-key k)))) k
+            (s/specific-key? k) (f (s/explicit-schema-key k))
+            :else (f k)))
+        schema))))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
