@@ -60,9 +60,11 @@
 (defn dissoc
   "Dissoc[iate]s keys from Schema."
   [schema & ks]
-  (reduce
-    (fn [schema k] (clojure.core/dissoc schema (key-in-schema schema k)))
-    schema ks))
+  (maybe-anonymous
+    schema
+    (reduce
+      (fn [schema k] (clojure.core/dissoc schema (key-in-schema schema k)))
+      schema ks)))
 
 (defn select-keys
   "Like clojure.core/select-keys but handles boths optional-keys and required-keys."

@@ -4,7 +4,7 @@
             [schema-tools.core :as st]
             [schema.core :as s]))
 
-(s/defschema Kikka {:a s/Str})
+(s/defschema Kikka {:a s/Str :b s/Str})
 
 (deftest any-keys-test
   (is (= (st/any-keys) {s/Any s/Any}))
@@ -43,14 +43,18 @@
               s/Keyword s/Int})))
     (testing "make anonymous if value changed"
       (is (not (nil? (meta (st/assoc Kikka :a s/Str)))))
-      (is (nil? (meta (st/assoc Kikka :b s/Str)))))))
+      (is (nil? (meta (st/assoc Kikka :c s/Str)))))))
 
 (deftest dissoc-test
   (let [schema {:a s/Str
                 (s/optional-key :b) s/Str
                 (s/required-key "c") s/Str
                 s/Keyword s/Str}]
-    (is (= (st/dissoc schema :a :b "c" :d) {s/Keyword s/Str}))))
+    (testing "dissoc"
+      (is (= (st/dissoc schema :a :b "c" :d) {s/Keyword s/Str})))
+    (testing "make anonymous if value changed"
+      (is (not (nil? (meta (st/dissoc Kikka :d)))))
+      (is (nil? (meta (st/dissoc Kikka :a)))))))
 
 (deftest select-keys-test
   (let [schema {:a s/Str
