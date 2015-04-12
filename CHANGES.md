@@ -1,4 +1,4 @@
-## 0.4.0 (12.4.2015)
+## 0.4.0 (xx.x.xxxx)
 
 - implemented `assoc`
 - dissoc away schema-name from meta-data (key `:name`) if the transforming functions have changed the schema.
