@@ -150,10 +150,11 @@
                  :b {[1 2 3] {"d" "kukka"
                               ":d" "kikka"
                               :d "kukka"}}}]
-      (is (s/check schema value))
-      (testing "select-schema drops unallowed keys"
-        (is (= (st/select-schema schema value) {:a "kikka"
-                                                :b {[1 2 3] {"d" "kukka"}}}))
+      (testing "is invalid"
+        (is (s/check schema value)))
+      (testing "select-schema drops disallowed keys and makes value valid"
+        (is (= (st/select-schema schema value)
+               {:a "kikka", :b {[1 2 3] {"d" "kukka"}}}))
         (is (= (s/check schema (st/select-schema schema value)) nil)))))
 
   (testing "with loosely defined schema, when value has extra keys"
@@ -164,13 +165,11 @@
                  :a {:b {"abba" "jabba"}
                      :c {[1 2 3] "kakka"}
                      :d :ILLEGAL-KEY}}]
-
-      (is (s/check schema value))
-
-      (testing "select-schema drops unallowed keys"
-        (is (= (st/select-schema schema value) {:kikka "kukka"
-                                                :a {:b {"abba" "jabba"}
-                                                    :c {[1 2 3] "kakka"}}}))
+      (testing "is invalid"
+        (is (s/check schema value)))
+      (testing "select-schema drops disallowed keys and makes value valid"
+        (is (= (st/select-schema schema value)
+               {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))
         (is (= (s/check schema (st/select-schema schema value)) nil))))))
 
 (deftest optional-keys-test
