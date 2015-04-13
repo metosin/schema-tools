@@ -1,7 +1,7 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
             [schema-tools.util :as stu :include-macros true])
-  (:refer-clojure :exclude [assoc dissoc select-keys get-in assoc-in update-in merge]))
+  (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (def AnyKeys {s/Any s/Any})
 (defn any-keys [] AnyKeys)
@@ -47,7 +47,7 @@
     schema
     (reduce
       (fn [schema [k v]]
-        (when-not v
+        #+clj (when-not v
           (throw (IllegalArgumentException.
                    "assoc expects even number of arguments after map/vector, found odd number")))
         (let [rk (key-in-schema schema k)]

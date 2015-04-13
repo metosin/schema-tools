@@ -2,11 +2,9 @@
   (:require #+clj [clojure.test :refer [deftest testing is]]
     #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
-            [schema.core :as s]))
+            [schema.core :as s :include-macros true]))
 
-; TODO: defschema fails on CLJS - schema.core.defschema.call(null,schema_tools.core_test.Kikka,new cljs.core.Per
-#_(s/defschema Kikka {:a s/Str :b s/Str})
-(def Kikka (s/schema-with-name {:a s/Str :b s/Str} 'Kikka))
+(s/defschema Kikka {:a s/Str :b s/Str})
 
 (deftest any-keys-test
   (is (= (st/any-keys) {s/Any s/Any}))
