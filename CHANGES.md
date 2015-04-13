@@ -1,8 +1,9 @@
-## 0.4.0 (xx.x.xxxx)
+## 0.4.0 (13.4.2015)
 
 - implemented `assoc`
 - dissoc away schema-name from meta-data (key `:name`) if the transforming functions have changed the schema.
   - `assoc`, `dissoc`, `select-keys`, `assoc-in`, `update-in`, `dissoc-in`, `update`, `merge`, `optional-keys`, `required-keys`
+  - fixes [#2](https://github.com/metosin/schema-tools/issues/2)
 
 ## 0.3.0 (21.3.2015)
 
