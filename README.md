@@ -15,7 +15,7 @@ Common utilities for working with [Prismatic Schema](https://github.com/Prismati
 
 ## Examples
 
-Comparison to normal `clojure.core` functions:
+Normal `clojure.core` functions don't work well with Schemas:
 
 ```clojure
 (require '[schema.core :as s])
@@ -24,13 +24,27 @@ Comparison to normal `clojure.core` functions:
                       (s/optional-key :city) s/Str
                       (s/required-key :country) {:name s/Str}})
 
-(select-keys Address [:street :city]) ; fail
+
+;; where's my city?
+(select-keys Address [:street :city])
 ; => {:street java.lang.String}
 
+; this should not return the original Schema name...
+(s/schema-name (select-keys Address [:street :city]))
+; => Address
+```
+
+With schema-tools:
+
+```clojure
 (require '[schema-tools.core :as st])
 
-(st/select-keys Address [:street :city]) ; works
+(st/select-keys Address [:street :city])
 ; => {:street java.lang.String, #schema.core.OptionalKey{:k :city} java.lang.String}
+
+(s/schema-name (st/select-keys Address [:street :city]))
+; nil
+
 ````
 
 Filtering out extra keys (without validation errors):
