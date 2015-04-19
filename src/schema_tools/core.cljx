@@ -166,7 +166,7 @@
   (->> value
        (s/check schema)
        stu/path-vals
-       (filter (comp #(= % 'disallowed-key) second))
+       (filter (comp (partial #{'disallowed-key}) second))
        (map first)
        (reduce stu/dissoc-in value)))
 

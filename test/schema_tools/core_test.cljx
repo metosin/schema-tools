@@ -170,6 +170,21 @@
       (testing "select-schema drops disallowed keys and makes value valid"
         (is (= (st/select-schema schema value)
                {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))
+        (is (= (s/check schema (st/select-schema schema value)) nil)))))
+
+  ;; TODO: does not work.
+  #_(testing "with regexp-keys"
+    (let [X- (s/pred #(re-find #"x-" (name %)) ":x-.*")
+          schema {X- s/Any
+                  :a s/Any}
+          value {:x-abba "kikka"
+                 :y-abba "kukka"
+                 :a "kakka"}]
+      (testing "is invalid"
+        (is (s/check schema value)))
+      (testing "select-schema drops disallowed keys and makes value valid"
+        (is (= (st/select-schema schema value)
+               {:x-abba "kikka", :a "kakka"}))
         (is (= (s/check schema (st/select-schema schema value)) nil))))))
 
 (deftest optional-keys-test
