@@ -31,7 +31,7 @@
     (vary-meta
       current
       (fn [meta]
-        (let [new-meta (clojure.core/dissoc meta :name)]
+        (let [new-meta (clojure.core/dissoc meta :name :ns)]
           (if (empty? new-meta)
             nil
             new-meta))))))
