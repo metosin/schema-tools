@@ -63,14 +63,6 @@ Filtering out extra keys (without validation errors):
 
 See the [tests](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.cljx).
 
-## Todo
-- [ ] `deep-merge`
-- [ ] Verify performance
-- [ ] Context-aware Schemas
-- [ ] XSD Generation(?)
-- [ ] Common predicates missing from the schema.core
-- [ ] Separate package for common finnish predicates, `YTunnus`, `Hetu` etc.
-
 ## License
 
 Copyright © 2014-2015 [Metosin Oy](http://www.metosin.fi)
