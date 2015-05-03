@@ -1,12 +1,12 @@
 ## 0.4.1
 
+- `resolve-schema` (clj only)
 - updated dependencies:
 
 ```clojure
 [prismatic/schema "0.4.2"] is available but we use "0.4.0"
 [codox "0.8.12"] is available but we use "0.8.11"
-[org.clojure/clojurescript "0.0-3211"] is available but we use "0.0-3196"
-```
+[org.clojure/clojurescript "0.0-3211"] is available but we use "0.0-3196"```
 
 ## 0.4.0 (13.4.2015)
 

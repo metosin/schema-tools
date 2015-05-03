@@ -193,3 +193,11 @@
   "Makes given map keys required. Defaults to all keys."
   ([m] (required-keys m nil))
   ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
+
+#+clj
+(defn resolve-schema
+  "Returns the schema var if the schema contains the :name and :ns
+  definitions (set by schema.core/defschema)."
+  [schema]
+  (if-let [schema-ns (s/schema-ns schema)]
+    (ns-resolve schema-ns (s/schema-name schema))))

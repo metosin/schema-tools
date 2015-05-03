@@ -228,3 +228,15 @@
       (let [schema (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka)]
         (is (not (nil? (meta (st/required-keys schema [])))))
         (is (nil? (meta (st/required-keys schema [:a]))))))))
+
+(s/defschema Omena
+  "Omena is an apple"
+  {:color (s/enum :green :red)})
+
+#+clj
+(deftest resolve-schema-test
+  (testing "defined schema can be resolved"
+    (is (= (st/resolve-schema Omena) #'Omena)))
+  (testing "just named schema can't be resolved"
+    (is (= (st/resolve-schema (s/schema-with-name {:ping s/Str} "Ping")) nil))))
+
