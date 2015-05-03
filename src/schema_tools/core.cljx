@@ -194,6 +194,14 @@
   ([m] (required-keys m nil))
   ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
 
+(defn schema-with-descrption [s d]
+  "Records description in schema's metadata."
+  (vary-meta s assoc :description d))
+
+(clojure.core/defn schema-description [schema]
+  "Returns the description of a schema attached via schema-with-description."
+  (-> schema meta :description))
+
 #+clj
 (defn resolve-schema
   "Returns the schema var if the schema contains the :name and :ns

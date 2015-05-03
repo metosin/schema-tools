@@ -229,6 +229,12 @@
         (is (not (nil? (meta (st/required-keys schema [])))))
         (is (nil? (meta (st/required-keys schema [:a]))))))))
 
+(deftest schema-description
+  (testing "schema-with-description"
+    (is (= (meta (st/schema-with-descrption {:ping s/Str} "It's a ping")) {:description "It's a ping"})))
+  (testing "schema-description"
+    (is (= (st/schema-description (st/schema-with-descrption {:ping s/Str} "It's a ping")) "It's a ping"))))
+
 (s/defschema Omena
   "Omena is an apple"
   {:color (s/enum :green :red)})
@@ -239,4 +245,3 @@
     (is (= (st/resolve-schema Omena) #'Omena)))
   (testing "just named schema can't be resolved"
     (is (= (st/resolve-schema (s/schema-with-name {:ping s/Str} "Ping")) nil))))
-
