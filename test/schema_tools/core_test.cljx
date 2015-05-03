@@ -231,9 +231,9 @@
 
 (deftest schema-description
   (testing "schema-with-description"
-    (is (= (meta (st/schema-with-descrption {:ping s/Str} "It's a ping")) {:description "It's a ping"})))
+    (is (= (meta (st/schema-with-description {:ping s/Str} "It's a ping")) {:description "It's a ping"})))
   (testing "schema-description"
-    (is (= (st/schema-description (st/schema-with-descrption {:ping s/Str} "It's a ping")) "It's a ping"))))
+    (is (= (st/schema-description (st/schema-with-description {:ping s/Str} "It's a ping")) "It's a ping"))))
 
 (s/defschema Omena
   "Omena is an apple"

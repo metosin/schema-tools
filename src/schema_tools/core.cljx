@@ -194,7 +194,7 @@
   ([m] (required-keys m nil))
   ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
 
-(defn schema-with-descrption [s d]
+(defn schema-with-description [s d]
   "Records description in schema's metadata."
   (vary-meta s assoc :description d))
 
