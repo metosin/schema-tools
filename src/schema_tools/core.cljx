@@ -209,3 +209,14 @@
   [schema]
   (if-let [schema-ns (s/schema-ns schema)]
     (ns-resolve schema-ns (s/schema-name schema))))
+
+#+clj
+(defn resolve-schema-description
+  "Returns the schema description either from either a) schema meta :description or
+  b) schema var meta :doc c) nil"
+  [schema]
+  (or (schema-description schema)
+      (if-let [schema-ns (s/schema-ns schema)]
+        (-> (ns-resolve schema-ns (s/schema-name schema))
+            meta
+            :doc))))

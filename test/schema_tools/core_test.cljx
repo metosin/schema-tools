@@ -245,3 +245,12 @@
     (is (= (st/resolve-schema Omena) #'Omena)))
   (testing "just named schema can't be resolved"
     (is (= (st/resolve-schema (s/schema-with-name {:ping s/Str} "Ping")) nil))))
+
+#+clj
+(deftest resolve-schema-description-test
+  (testing "schema with description"
+    (is (= (st/resolve-schema-description (st/schema-with-description Omena "Banaani")) "Banaani")))
+  (testing "schema with docstring"
+    (is (= (st/resolve-schema-description Omena) "Omena is an apple")))
+  (testing "schema"
+    (is (= (st/resolve-schema-description {:ping s/Str}) nil))))

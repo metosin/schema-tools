@@ -1,6 +1,6 @@
 ## 0.4.1
 
-- meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only)
+- meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
 - updated dependencies:
 
 ```clojure
