@@ -249,8 +249,10 @@
 #+clj
 (deftest resolve-schema-description-test
   (testing "schema with description"
-    (is (= (st/resolve-schema-description (st/schema-with-description Omena "Banaani")) "Banaani")))
+    (is (= "Banaani" (st/resolve-schema-description (st/schema-with-description Omena "Banaani")))))
   (testing "schema with docstring"
-    (is (= (st/resolve-schema-description Omena) "Omena is an apple")))
-  (testing "schema"
-    (is (= (st/resolve-schema-description {:ping s/Str}) nil))))
+    (is (= "Omena is an apple" (st/resolve-schema-description Omena))))
+  (testing "schema without docstring"
+    (is (= nil (st/resolve-schema-description Kikka))))
+  (testing "anonymous schema"
+    (is (= nil (st/resolve-schema-description {:ping s/Str})))))
