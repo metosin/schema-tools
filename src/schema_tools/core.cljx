@@ -194,12 +194,14 @@
   ([m] (required-keys m nil))
   ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
 
-(defn schema-with-description [s d]
+(defn schema-with-description
   "Records description in schema's metadata."
-  (vary-meta s assoc :description d))
+  [schema description]
+  (vary-meta schema assoc :description description))
 
-(clojure.core/defn schema-description [schema]
+(clojure.core/defn schema-description
   "Returns the description of a schema attached via schema-with-description."
+  [schema]
   (-> schema meta :description))
 
 #+clj
