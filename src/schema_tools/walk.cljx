@@ -4,10 +4,6 @@
 (defprotocol WalkableSchema
   (-walk [this inner outer]))
 
-#+cljs
-(defn- record? [x]
-  (satisfies? IRecord x))
-
 (defn walk
   {:added "0.3.0"}
   [this inner outer]
