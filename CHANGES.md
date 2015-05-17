@@ -1,4 +1,4 @@
-## 0.4.1
+## 0.4.1 (17.5.2015)
 
 - meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
 - updated dependencies:
