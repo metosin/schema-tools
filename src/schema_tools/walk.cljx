@@ -1,8 +1,13 @@
 (ns schema-tools.walk
-  (:require [schema.core :as s]))
+  (:require [schema.core :as s])
+  #+cljs (:refer-clojure :exclude [record?]))
 
 (defprotocol WalkableSchema
   (-walk [this inner outer]))
+
+#+cljs
+(defn- record? [x]
+  (satisfies? IRecord x))
 
 (defn walk
   {:added "0.3.0"}
@@ -41,7 +46,7 @@
     (outer (with-meta (s/recursive (inner (:derefable this))) (meta this))))
 
   schema.core.Predicate
-  (-walk [this inner outer]
+  (-walk [this _ outer]
     (outer this))
 
   schema.core.NamedSchema
