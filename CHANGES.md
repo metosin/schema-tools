@@ -1,3 +1,12 @@
+##
+
+- updated dependencies:
+
+```clojure
+[prismatic/schema "0.4.3"] is available but we use "0.4.2"
+[org.clojure/clojurescript "0.0-3297"] is available but we use "0.0-3269"
+```
+
 ## 0.4.1 (17.5.2015)
 
 - meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
