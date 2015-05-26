@@ -49,6 +49,20 @@
             (remove-disallowd-keys schema value)
             value))))))
 
+(defn- transform-keys
+  [schema f ks]
+  (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
+  (maybe-anonymous
+    schema
+    (let [ks? (explicit-key-set ks)]
+      (stu/map-keys
+        (fn [k]
+          (cond
+            (and ks (not (ks? (explicit-key k)))) k
+            (s/specific-key? k) (f (s/explicit-schema-key k))
+            :else (f k)))
+        schema))))
+
 ;;
 ;; Definitions
 ;;
@@ -188,20 +202,6 @@
   [schema value]
   ((remove-disallowd-keys-from-map schema) value))
 
-(defn- transform-keys
-  [schema f ks]
-  (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
-  (maybe-anonymous
-    schema
-    (let [ks? (explicit-key-set ks)]
-      (stu/map-keys
-        (fn [k]
-          (cond
-            (and ks (not (ks? (explicit-key k)))) k
-            (s/specific-key? k) (f (s/explicit-schema-key k))
-            :else (f k)))
-        schema))))
-
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
   ([m] (optional-keys m nil))
@@ -217,7 +217,7 @@
   [schema description]
   (vary-meta schema assoc :description description))
 
-(clojure.core/defn schema-description
+(defn schema-description
   "Returns the description of a schema attached via schema-with-description."
   [schema]
   (-> schema meta :description))
