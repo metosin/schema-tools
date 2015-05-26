@@ -1,5 +1,6 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
+            [schema.coerce :as sc]
             [schema-tools.util :as stu :include-macros true])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
@@ -160,15 +161,29 @@
 ;; Extras
 ;;
 
-(defn select-schema
-  "Removes all keys that are disallowed in the Schema."
-  [schema value]
-  (->> value
-       (s/check schema)
-       stu/path-vals
-       (filter (comp (partial #{'disallowed-key}) second))
-       (map first)
-       (reduce stu/dissoc-in value)))
+(let [remove-disallowd-keys
+      (fn [schema value]
+        (->> value
+             (s/check schema)
+             stu/path-vals
+             (filter (comp (partial #{'disallowed-key}) second))
+             (map first)
+             (reduce stu/dissoc-in value)))
+      remove-disallowd-keys-from-map
+      (fn [root-schema]
+        (sc/coercer
+          root-schema
+          (fn [schema]
+            (if (and (not (record? schema)) (map? schema))
+              (fn [value]
+                 (if (map? value)
+                   (remove-disallowd-keys schema value)
+                   value))))))]
+
+  (defn select-schema
+    "Removes all keys that are disallowed in the Schema."
+    [schema value]
+    ((remove-disallowd-keys-from-map schema) value)))
 
 (defn- transform-keys
   [schema f ks]
