@@ -1,5 +1,6 @@
-##
+## 0.4.2 (26.5.2015)
 
+- fix for [#7](https://github.com/metosin/schema-tools/issues/7)
 - updated dependencies:
 
 ```clojure
