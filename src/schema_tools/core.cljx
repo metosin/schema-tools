@@ -4,12 +4,6 @@
             [schema-tools.util :as stu :include-macros true])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
-(def AnyKeys {s/Any s/Any})
-(defn any-keys [] AnyKeys)
-
-(def AnyKeywordKeys {s/Keyword s/Any})
-(defn any-keyword-keys [& schemas] (apply clojure.core/merge AnyKeywordKeys schemas))
-
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
 
 (defn- explicit-key-set [ks]
@@ -54,6 +48,16 @@
           (if (map? value)
             (remove-disallowd-keys schema value)
             value))))))
+
+;;
+;; Definitions
+;;
+
+(def AnyKeys {s/Any s/Any})
+(defn any-keys [] AnyKeys)
+
+(def AnyKeywordKeys {s/Keyword s/Any})
+(defn any-keyword-keys [& schemas] (apply clojure.core/merge AnyKeywordKeys schemas))
 
 ;;
 ;; Core functions
