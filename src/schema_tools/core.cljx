@@ -203,8 +203,8 @@
 ;;
 
 (defn select-schema
-  "Removes all keys that are disallowed in the Schema. Takes an
-  optional coercer as second argument to coerce the value(s)."
+  "Removes all keys that are disallowed in the Schema. Takes an optional
+  coercer as second argument to coerce the selected value(s)."
   ([schema value]
    (select-schema schema (constantly nil) value))
   ([schema coercer value]
