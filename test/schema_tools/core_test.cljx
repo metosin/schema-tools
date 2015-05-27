@@ -2,6 +2,8 @@
   (:require #+clj [clojure.test :refer [deftest testing is]]
     #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
+            [schema.utils :as su]
+            [schema.coerce :as sc]
             [schema.core :as s :include-macros true]))
 
 (s/defschema Kikka {:a s/Str :b s/Str})
@@ -171,6 +173,14 @@
         (is (= (st/select-schema schema value)
                {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))
         (is (= (s/check schema (st/select-schema schema value)) nil)))))
+
+  (testing "with coercer"
+    (let [schema {:name s/Str, :sex (s/enum :male :female)}
+          value {:name "Linda", :age 66, :sex "female"}]
+      (testing "select-schema fails on type mismatch"
+        (is (= (su/error? (st/select-schema schema value)) true)))
+      (testing "select-schema with extra coercer succeeds"
+        (is (= (st/select-schema schema sc/json-coercion-matcher value) {:name "Linda" :sex :female})))))
 
   ;; TODO: does not work.
   #_(testing "with regexp-keys"

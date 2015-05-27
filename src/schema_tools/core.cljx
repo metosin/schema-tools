@@ -39,15 +39,20 @@
        (map first)
        (reduce stu/dissoc-in value)))
 
-(defn- remove-disallowd-keys-from-map [root-schema]
+(defn- strip-disallowd-keys-coercer [schema]
+  (if (and (not (record? schema)) (map? schema))
+    (fn [value]
+      (if (map? value)
+        (remove-disallowd-keys schema value)
+        value))))
+
+(defn- strip-disallowd-keys-and-coerce [schema coercer]
   (sc/coercer
-    root-schema
+    schema
     (fn [schema]
-      (if (and (not (record? schema)) (map? schema))
-        (fn [value]
-          (if (map? value)
-            (remove-disallowd-keys schema value)
-            value))))))
+      (if-let [coerced (strip-disallowd-keys-coercer schema)]
+        (or (coercer coerced) coerced)
+        (coercer schema)))))
 
 (defn- transform-keys
   [schema f ks]
@@ -198,9 +203,12 @@
 ;;
 
 (defn select-schema
-  "Removes all keys that are disallowed in the Schema."
-  [schema value]
-  ((remove-disallowd-keys-from-map schema) value))
+  "Removes all keys that are disallowed in the Schema. Takes an
+  optional coercer as second argument to coerce the value(s)."
+  ([schema value]
+   (select-schema schema (constantly nil) value))
+  ([schema coercer value]
+   ((strip-disallowd-keys-and-coerce schema coercer) value)))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
