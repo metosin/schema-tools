@@ -178,9 +178,10 @@
     (let [schema {:name s/Str, :sex (s/enum :male :female)}
           value {:name "Linda", :age 66, :sex "female"}]
       (testing "select-schema fails on type mismatch"
-        (is (= (su/error? (st/select-schema schema value)) true)))
+        (is (su/error? (st/select-schema schema value))))
       (testing "select-schema with extra coercer succeeds"
-        (is (= (st/select-schema schema sc/json-coercion-matcher value) {:name "Linda" :sex :female})))))
+        (is (= (st/select-schema schema sc/json-coercion-matcher value)
+               {:name "Linda" :sex :female})))))
 
   ;; TODO: does not work.
   #_(testing "with regexp-keys"
