@@ -1,7 +1,9 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
-            [schema.coerce :as sc]
-            [schema-tools.util :as stu :include-macros true])
+            #+clj [schema.macros :as sm]
+            [schema-tools.util :as stu :include-macros true]
+            [schema.utils :as su])
+  #+cljs (:require-macros [schema.macros :as sm])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
@@ -46,12 +48,33 @@
         (remove-disallowd-keys schema value)
         value))))
 
+(defn- safe-coercer
+  "Produce a function that coerces a datum without validation."
+  [schema coercion-matcher]
+  (s/start-walker
+    (su/memoize-id
+      (fn [s]
+        (let [walker (s/walker s)]
+          (if-let [coercer (coercion-matcher s)]
+            (fn [x]
+              (sm/try-catchall
+                (let [v (coercer x)]
+                  (if (su/error? v)
+                    x
+                    (let [walked (walker v)]
+                      (if (su/error? walked)
+                        x
+                        walked))))
+                (catch t (sm/validation-error s x t))))
+            walker))))
+    schema))
+
 (defn- strip-disallowd-keys-and-coerce [schema coercer]
-  (sc/coercer
+  (safe-coercer
     schema
     (fn [schema]
-      (if-let [coerced (strip-disallowd-keys-coercer schema)]
-        (or (coercer coerced) coerced)
+      (if-let [stripped (strip-disallowd-keys-coercer schema)]
+        (or (coercer stripped) stripped)
         (coercer schema)))))
 
 (defn- transform-keys
