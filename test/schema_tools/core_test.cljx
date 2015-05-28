@@ -180,7 +180,7 @@
       (testing "select-schema fails on type mismatch"
         (is (su/error? (st/select-schema schema value))))
       (testing "select-schema with extra coercer succeeds"
-        (is (= (st/select-schema schema sc/json-coercion-matcher value)
+        (is (= (st/select-schema sc/json-coercion-matcher schema value)
                {:name "Linda" :sex :female})))))
 
   ;; TODO: does not work.

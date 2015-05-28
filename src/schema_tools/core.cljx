@@ -206,8 +206,8 @@
   "Removes all keys that are disallowed in the Schema. Takes an optional
   coercer as second argument to coerce the selected value(s)."
   ([schema value]
-   (select-schema schema (constantly nil) value))
-  ([schema coercer value]
+   (select-schema (constantly nil) schema value))
+  ([coercer schema value]
    ((strip-disallowd-keys-and-coerce schema coercer) value)))
 
 (defn optional-keys
