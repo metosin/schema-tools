@@ -69,13 +69,16 @@
             walker))))
     schema))
 
+(defn- forwarding-coercer [coercer1 coercer2]
+  (fn [schema]
+    (if-let [coerced (coercer1 schema)]
+      (or (coercer2 coerced) coerced)
+      (coercer2 schema))))
+
 (defn- strip-disallowd-keys-and-coerce [schema coercer]
   (safe-coercer
     schema
-    (fn [schema]
-      (if-let [stripped (strip-disallowd-keys-coercer schema)]
-        (or (coercer stripped) stripped)
-        (coercer schema)))))
+    (forwarding-coercer strip-disallowd-keys-coercer coercer)))
 
 (defn- transform-keys
   [schema f ks]
