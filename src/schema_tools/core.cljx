@@ -41,7 +41,7 @@
        (map first)
        (reduce stu/dissoc-in value)))
 
-(defn- strip-disallowd-keys-coercer [schema]
+(defn- strip-disallowd-keys-matcher [schema]
   (if (and (not (record? schema)) (map? schema))
     (fn [value]
       (if (map? value)
@@ -69,16 +69,16 @@
             walker))))
     schema))
 
-(defn- forwarding-coercer [coercer1 coercer2]
+(defn forwarding-matcher [matcher matcher2]
   (fn [schema]
-    (if-let [coerced (coercer1 schema)]
-      (or (coercer2 coerced) coerced)
-      (coercer2 schema))))
+    (if-let [coerced (matcher schema)]
+      (or (matcher2 coerced) coerced)
+      (matcher2 schema))))
 
-(defn- strip-disallowd-keys-and-coerce [schema coercer]
+(defn- strip-disallowd-keys-and-coerce [schema matcher]
   (safe-coercer
     schema
-    (forwarding-coercer strip-disallowd-keys-coercer coercer)))
+    (forwarding-matcher strip-disallowd-keys-matcher matcher)))
 
 (defn- transform-keys
   [schema f ks]
