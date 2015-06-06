@@ -1,9 +1,8 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
-            #+clj [schema.macros :as sm]
+            [schema-tools.coerce :as stc]
             [schema-tools.util :as stu :include-macros true]
             [schema.utils :as su])
-  #+cljs (:require-macros [schema.macros :as sm])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
@@ -48,37 +47,10 @@
         (remove-disallowd-keys schema value)
         value))))
 
-(defn- safe-coercer
-  "Produce a function that coerces a datum without validation."
-  [schema coercion-matcher]
-  (s/start-walker
-    (su/memoize-id
-      (fn [s]
-        (let [walker (s/walker s)]
-          (if-let [coercer (coercion-matcher s)]
-            (fn [x]
-              (sm/try-catchall
-                (let [v (coercer x)]
-                  (if (su/error? v)
-                    x
-                    (let [walked (walker v)]
-                      (if (su/error? walked)
-                        x
-                        walked))))
-                (catch t (sm/validation-error s x t))))
-            walker))))
-    schema))
-
-(defn forwarding-matcher [matcher matcher2]
-  (fn [schema]
-    (if-let [coerced (matcher schema)]
-      (or (matcher2 coerced) coerced)
-      (matcher2 schema))))
-
 (defn- strip-disallowd-keys-and-coerce [schema matcher]
-  (safe-coercer
+  (stc/safe-coercer
     schema
-    (forwarding-matcher strip-disallowd-keys-matcher matcher)))
+    (stc/forwarding-matcher strip-disallowd-keys-matcher matcher)))
 
 (defn- transform-keys
   [schema f ks]
@@ -230,11 +202,11 @@
 
 (defn select-schema
   "Removes all keys that are disallowed in the Schema. Takes an optional
-  coercer as second argument to coerce the selected value(s)."
+  coercer matcher for coercing the selected value(s)."
   ([schema value]
    (select-schema (constantly nil) schema value))
-  ([coercer schema value]
-   ((strip-disallowd-keys-and-coerce schema coercer) value)))
+  ([matcher schema value]
+   ((strip-disallowd-keys-and-coerce schema matcher) value)))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
