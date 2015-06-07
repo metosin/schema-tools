@@ -27,7 +27,12 @@
             walker))))
     schema))
 
-(defn forwarding-matcher [matcher matcher2]
+;;
+;; Matchers
+;;
+
+(defn forwarding-matcher
+  [matcher matcher2]
   (fn [schema]
     (if-let [f (matcher schema)]
       (fn [x]
@@ -35,6 +40,9 @@
           (let [coercer (sc/coercer schema matcher2)]
             (coercer x1)))))))
 
-(defn or-matcher [& matchers]
+(defn or-matcher
+  "Creates a new matcher where the first matcher matching the
+  given schema is used."
+  [& matchers]
   (fn [schema]
     (some #(if-let [match (% schema)] match) matchers)))

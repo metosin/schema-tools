@@ -1,6 +1,7 @@
 ## 0.4.3
 
-- `select-schema` takes now optional coercer - which is called to all selected values.
+- `select-schema` takes now optional coercion matcher - to coerce values in a single sweep
+- `forwarding-matcher` & `or-matcher`
 
 ## 0.4.2 (26.5.2015)
 
