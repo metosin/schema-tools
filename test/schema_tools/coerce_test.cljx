@@ -20,6 +20,7 @@
                              x))))
         string->vec->long (stc/forwarding-matcher string->vec string->long)
         string->long->vec (stc/forwarding-matcher string->long string->vec)]
+
     (testing "string->vec->long is able to parse Long(s) and String(s) of Long(s)."
       (is (= ((sc/coercer {:a [Long]
                            :b [Long]
@@ -40,6 +41,7 @@
               :d [[1 2 3] [4 5 6] [7 8 9]]
               :e 1
               :f 1})))
+    
     (testing "string->long->vec is able to parse Long(s) and String(s) of Long(s)."
       (is (= ((sc/coercer {:a [Long]
                            :b [Long]
