@@ -10,11 +10,13 @@
   (let [string->vec (fn [schema]
                       (if (vector? schema)
                         (fn [x]
-                          (str/split x #","))))
+                          (if (string? x)
+                            (str/split x #",")))))
         string->long (fn [schema]
                        (if (= Long schema)
                          (fn [x]
-                           (Long/parseLong x))))
+                           (if (string? x)
+                             (Long/parseLong x)))))
         string->vec->long (stc/forwarding-matcher string->vec string->long)
         string->long->vec (stc/forwarding-matcher string->long string->vec)]
     (testing "string->vec->long is able to parse \"1,2,3\" "
