@@ -33,7 +33,9 @@
                                (value-fn x))))))
         m1 (base-matcher #(= String %) string? #(.toUpperCase %))
         m2 (base-matcher #(= Long %) number? inc)
-        m1-or2 (stc/or-matcher m1 m2)]
-    (testing ""
-      (is (= ((sc/coercer {:band String, :number Long} m1-or2)
-               {:band "kiss", :number 41}) {:band "KISS", :number 42})))))
+        m3 (base-matcher #(= Boolean %) (partial instance? Boolean) not)
+        m4 (base-matcher #(= String %) string? #(.toLowerCase %))
+        m1-or-m2-or-m3-or-m4 (stc/or-matcher m1 m2 m3 m4)]
+    (testing "or-matcher selects first matcher where schema matches"
+      (is (= ((sc/coercer {:band String, :number Long, :lucid Boolean} m1-or-m2-or-m3-or-m4)
+               {:band "kiss", :number 41, :lucid false}) {:band "KISS", :number 42, :lucid true})))))
