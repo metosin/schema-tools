@@ -36,9 +36,12 @@
   (fn [schema]
     (if-let [f (matcher schema)]
       (fn [x]
-        (if-let [x1 (f x)]
-          (let [coercer (sc/coercer schema matcher2)]
-            (coercer x1)))))))
+        (let [x1 (f x)]
+          (if (and x1 (not= x x1))
+            (let [coercer (sc/coercer schema matcher2)]
+              (coercer x1))
+            x1)))
+      (matcher2 schema))))
 
 (defn or-matcher
   "Creates a new matcher where the first matcher matching the
