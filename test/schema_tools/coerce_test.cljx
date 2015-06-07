@@ -20,40 +20,46 @@
                              x))))
         string->vec->long (stc/forwarding-matcher string->vec string->long)
         string->long->vec (stc/forwarding-matcher string->long string->vec)]
-    (testing "string->vec->long is able to parse both \"1,2,3\" and \"1\"."
+    (testing "string->vec->long is able to parse Long(s) and String(s) of Long(s)."
       (is (= ((sc/coercer {:a [Long]
                            :b [Long]
-                           :c [[Long]]
-                           :d Long
-                           :e Long}
+                           :c [Long]
+                           :d [[Long]]
+                           :e Long
+                           :f Long}
                           string->vec->long)
-               {:a "1,2,3"
-                :b ["1" "2" "3"]
-                :c ["1,2,3" "4,5,6" "7,8,9"]
-                :d 1
-                :e "1"})
+               {:a [1 2 3]
+                :b "1,2,3"
+                :c ["1" "2" "3"]
+                :d ["1,2,3" "4,5,6" "7,8,9"]
+                :e 1
+                :f "1"})
              {:a [1 2 3]
               :b [1 2 3]
-              :c [[1 2 3] [4 5 6] [7 8 9]]
-              :d 1
-              :e 1})))
-    (testing "string->vec->long is able to parse both \"1,2,3\" and \"1\"."
+              :c [1 2 3]
+              :d [[1 2 3] [4 5 6] [7 8 9]]
+              :e 1
+              :f 1})))
+    (testing "string->long->vec is able to parse Long(s) and String(s) of Long(s)."
       (is (= ((sc/coercer {:a [Long]
                            :b [Long]
-                           :c [[Long]]
-                           :d Long
-                           :e Long}
+                           :c [Long]
+                           :d [[Long]]
+                           :e Long
+                           :f Long}
                           string->long->vec)
-               {:a "1,2,3"
-                :b ["1" "2" "3"]
-                :c ["1,2,3" "4,5,6" "7,8,9"]
-                :d 1
-                :e "1"})
+               {:a [1 2 3]
+                :b "1,2,3"
+                :c ["1" "2" "3"]
+                :d ["1,2,3" "4,5,6" "7,8,9"]
+                :e 1
+                :f "1"})
              {:a [1 2 3]
               :b [1 2 3]
-              :c [[1 2 3] [4 5 6] [7 8 9]]
-              :d 1
-              :e 1})))))
+              :c [1 2 3]
+              :d [[1 2 3] [4 5 6] [7 8 9]]
+              :e 1
+              :f 1})))))
 
 (deftest or-matcher-test
   (let [base-matcher (fn [schema-pred value-pred value-fn]
