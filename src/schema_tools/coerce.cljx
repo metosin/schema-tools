@@ -35,6 +35,6 @@
           (let [coercer (sc/coercer schema matcher2)]
             (coercer x1)))))))
 
-(defn either-matcher [matcher matcher2]
+(defn or-matcher [matcher matcher2]
   (fn [schema]
     (or (matcher schema) (matcher2 schema))))
