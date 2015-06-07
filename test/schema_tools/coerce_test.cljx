@@ -23,3 +23,17 @@
       (is (= ((sc/coercer [Long] string->vec->long) "1,2,3") [1, 2, 3])))
     (testing "string->long->vec fails to parse \"1,2,3\" "
       (is (su/error? ((sc/coercer [Long] string->long->vec) "1,2,3"))))))
+
+(deftest or-matcher-test
+  (let [base-matcher (fn [schema-pred value-pred value-fn]
+                       (fn [schema]
+                         (if (schema-pred schema)
+                           (fn [x]
+                             (if (value-pred x)
+                               (value-fn x))))))
+        m1 (base-matcher #(= String %) string? #(.toUpperCase %))
+        m2 (base-matcher #(= Long %) number? inc)
+        m1-or2 (stc/or-matcher m1 m2)]
+    (testing ""
+      (is (= ((sc/coercer {:band String, :number Long} m1-or2)
+               {:band "kiss", :number 41}) {:band "KISS", :number 42})))))
