@@ -1,7 +1,9 @@
 (ns schema-tools.coerce
   (:require [schema.core :as s]
             [schema.utils :as su]
-            #+clj [schema.macros :as sm])
+            #+clj [schema.macros :as sm]
+            #+clj [schema.macros :as sm]
+            [schema.coerce :as sc])
   #+cljs (:require-macros [schema.macros :as sm]))
 
 (defn safe-coercer
@@ -27,6 +29,12 @@
 
 (defn forwarding-matcher [matcher matcher2]
   (fn [schema]
-    (if-let [coerced (matcher schema)]
-      (or (matcher2 coerced) coerced)
-      (matcher2 schema))))
+    (if-let [f (matcher schema)]
+      (fn [x]
+        (if-let [x1 (f x)]
+          (let [coercer (sc/coercer schema matcher2)]
+            (coercer x1)))))))
+
+(defn either-matcher [matcher matcher2]
+  (fn [schema]
+    (or (matcher schema) (matcher2 schema))))

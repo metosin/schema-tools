@@ -50,7 +50,7 @@
 (defn- strip-disallowd-keys-and-coerce [schema matcher]
   (stc/safe-coercer
     schema
-    (stc/forwarding-matcher strip-disallowd-keys-matcher matcher)))
+    (stc/either-matcher strip-disallowd-keys-matcher matcher)))
 
 (defn- transform-keys
   [schema f ks]
