@@ -38,7 +38,8 @@
   (fn [schema]
     (some #(if-let [match (% schema)] match) matchers)))
 
-(defn forwarding-matcher
+;; alpha
+(defn ^:no-doc forwarding-matcher
   "Creates a matcher where all matchers are combined with OR,
   but if the lead-matcher matches, it creates a sub-coercer and
   forwards the coerced value to tail-matchers."
