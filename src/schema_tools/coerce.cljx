@@ -36,7 +36,7 @@
   given schema is used."
   [& matchers]
   (fn [schema]
-    (some #(if-let [match (% schema)] match) matchers)))
+    (some #(% schema) matchers)))
 
 ;; alpha
 (defn ^:no-doc forwarding-matcher

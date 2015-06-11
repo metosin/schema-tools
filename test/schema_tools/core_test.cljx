@@ -174,21 +174,12 @@
                {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))
         (is (= (s/check schema (st/select-schema schema value)) nil)))))
 
-  (testing "with coercer"
+  (testing "with coercion matcher"
     (let [schema {:name s/Str, :sex (s/enum :male :female)}
           value {:name "Linda", :age 66, :sex "female"}]
       (testing "select-schema fails on type mismatch"
-        (is (not= nil? (s/check schema (st/select-schema schema value)))))
-      (testing "select-schema with extra coercer succeeds"
-        (is (= (st/select-schema sc/json-coercion-matcher schema value)
-               {:name "Linda" :sex :female})))))
-
-  (testing "invalid value after coersion"
-    (let [schema {:name s/Str, :sex (s/enum :male :female)}
-          value {:name "Linda", :age 66, :sex "female"}]
-      (testing "select-schema fails on type mismatch"
-        (is (not= nil? (s/check schema (st/select-schema schema value)))))
-      (testing "select-schema with extra coercer succeeds"
+        (is (s/check schema (st/select-schema schema value))))
+      (testing "select-schema with extra coercion matcher succeeds"
         (is (= (st/select-schema sc/json-coercion-matcher schema value)
                {:name "Linda" :sex :female})))))
 
