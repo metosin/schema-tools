@@ -1,6 +1,6 @@
-## 0.4.3
+## 0.4.3 (11.6.2015)
 
-- `select-schema` takes now optional coercion matcher - to coerce values in a single sweep
+- `select-schema` takes now optional coercion matcher - to coerce values safely in a single sweep
 - `or-matcher`
 
 ## 0.4.2 (26.5.2015)
