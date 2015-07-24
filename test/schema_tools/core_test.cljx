@@ -2,7 +2,6 @@
   (:require #+clj [clojure.test :refer [deftest testing is]]
     #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
-            [schema.utils :as su]
             [schema.coerce :as sc]
             [schema.core :as s :include-macros true]))
 
@@ -183,8 +182,7 @@
         (is (= (st/select-schema sc/json-coercion-matcher schema value)
                {:name "Linda" :sex :female})))))
 
-  ;; TODO: does not work.
-  #_(testing "with regexp-keys"
+  (testing "with regexp-keys"
     (let [X- (s/pred #(re-find #"x-" (name %)) ":x-.*")
           schema {X- s/Any
                   :a s/Any}

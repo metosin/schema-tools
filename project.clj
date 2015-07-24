@@ -7,7 +7,7 @@
             :comments "same as Clojure"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [prismatic/schema "0.4.3"]]
-  :plugins [[codox "0.8.12"]]
+  :plugins [[codox "0.8.13"]]
 
   :cljx {:builds [{:rules :clj
                    :source-paths ["src"]

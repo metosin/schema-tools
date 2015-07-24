@@ -1,3 +1,25 @@
+## 0.4.4
+
+- `select-schema` works with special key predicates (like regexp-keys):
+
+```clojure
+(st/select-schema
+  {(s/pred #(re-find #"x-" (name %)) ":x-.*") s/Any, :a String}
+  {:x-kikka "x-kikka"
+   :x-kukka "x-kukka"
+   :y-kikka "invalid key"
+   :a "a"
+   :z "disallowed key"
+   :b "isallowed key"})
+; {:a "a", :x-kikka "x-kikka", :x-kukka "x-kukka"}
+```
+
+- updated deps:
+
+```clojure
+[codox "0.8.13"] is available but we use "0.8.12"
+```
+
 ## 0.4.3 (11.6.2015)
 
 - `select-schema` takes now optional coercion matcher - to coerce values safely in a single sweep

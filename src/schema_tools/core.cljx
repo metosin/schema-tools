@@ -32,11 +32,24 @@
             nil
             new-meta))))))
 
+(defn- resolve-invalid-key [k]
+  (or
+    (if (instance? schema.utils.ValidationError k)
+      (some-> k su/validation-error-explain last last))
+    k))
+
+(defn- resolve-map-keys [m]
+  (into
+    (empty m)
+    (for [[k v] m]
+      [(resolve-invalid-key k) v])))
+
 (defn- remove-disallowd-keys [schema value]
   (->> value
        (s/check schema)
+       resolve-map-keys
        stu/path-vals
-       (filter (comp (partial #{'disallowed-key}) second))
+       (filter (comp (partial #{'disallowed-key 'invalid-key}) second))
        (map first)
        (reduce stu/dissoc-in value)))
 
