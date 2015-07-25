@@ -26,14 +26,13 @@ Normal `clojure.core` functions don't work well with Schemas:
                       (s/optional-key :city) s/Str
                       (s/required-key :country) {:name s/Str}})
 
-
 ;; where's my city?
 (select-keys Address [:street :city])
-; => {:street java.lang.String}
+; {:street java.lang.String}
 
 ; this should not return the original Schema name...
 (s/schema-name (select-keys Address [:street :city]))
-; => Address
+; Address
 ```
 
 With schema-tools:
@@ -42,12 +41,12 @@ With schema-tools:
 (require '[schema-tools.core :as st])
 
 (st/select-keys Address [:street :city])
-; => {:street java.lang.String, #schema.core.OptionalKey{:k :city} java.lang.String}
+; {:street java.lang.String, #schema.core.OptionalKey{:k :city} java.lang.String}
 
 (s/schema-name (st/select-keys Address [:street :city]))
 ; nil
+```
 
-````
 
 Filtering out extra keys (without validation errors):
 
@@ -62,7 +61,7 @@ Filtering out extra keys (without validation errors):
 
 ## Usage
 
-See the [tests](https://github.com/metosin/schema-tools/blob/master/test/schema_tools/core_test.cljx).
+See the [tests](https://github.com/metosin/schema-tools/tree/master/test/schema_tools).
 
 ## License
 
