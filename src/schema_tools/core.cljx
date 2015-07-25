@@ -1,8 +1,11 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
+            [schema.coerce :as sc]
             [schema-tools.coerce :as stc]
-            [schema-tools.util :as stu :include-macros true]
+            [schema-tools.util :as stu]
+            #+clj [schema.macros :as sm]
             [schema.utils :as su])
+  #+cljs (:require-macros [schema.macros :as sm])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
@@ -32,39 +35,6 @@
             nil
             new-meta))))))
 
-(defn- resolve-invalid-key [k]
-  (or
-    (if (instance? schema.utils.ValidationError k)
-      (some-> k su/validation-error-explain last last))
-    k))
-
-(defn- resolve-map-keys [m]
-  (into
-    (empty m)
-    (for [[k v] m]
-      [(resolve-invalid-key k) v])))
-
-(defn- remove-disallowd-keys [schema value]
-  (->> value
-       (s/check schema)
-       resolve-map-keys
-       stu/path-vals
-       (filter (comp (partial #{'disallowed-key 'invalid-key}) second))
-       (map first)
-       (reduce stu/dissoc-in value)))
-
-(defn- strip-disallowd-keys-matcher [schema]
-  (if (and (not (record? schema)) (map? schema))
-    (fn [value]
-      (if (map? value)
-        (remove-disallowd-keys schema value)
-        value))))
-
-(defn- strip-disallowd-keys-and-coerce [schema matcher]
-  (stc/safe-coercer
-    schema
-    (stc/or-matcher strip-disallowd-keys-matcher matcher)))
-
 (defn- transform-keys
   [schema f ks]
   (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
@@ -78,6 +48,11 @@
             (s/specific-key? k) (f (s/explicit-schema-key k))
             :else (f k)))
         schema))))
+
+(defn- error! [schema value error]
+  (sm/error!
+    (su/format* "Value does not match schema: %s" (pr-str error))
+    {:schema schema :value value :error error}))
 
 ;;
 ;; Definitions
@@ -213,13 +188,18 @@
 ;; Extras
 ;;
 
-(defn select-schema
-  "Removes all keys that are disallowed in the Schema. Takes an optional
-  coercer matcher for coercing the selected value(s)."
+(defn select-schema!
+  "Strips all disallowed keys from nested Map schemas via coercion. Takes an optional
+  coercion matcher for extra coercing the selected value(s) on a single sweep. If a value
+  can't be coerced to match the schema ExceptionInfo is thrown (like schema.core/validate)."
   ([schema value]
-   (select-schema (constantly nil) schema value))
+   (select-schema! (constantly nil) schema value))
   ([matcher schema value]
-   ((strip-disallowd-keys-and-coerce schema matcher) value)))
+   (let [coercer (sc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher))
+         coerced (coercer value)]
+     (if-let [error (and (su/error? coerced) (su/error-val coerced))]
+       (error! schema value error)
+       coerced))))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."

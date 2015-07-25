@@ -2,7 +2,6 @@
   (:require #+clj [clojure.test :refer [deftest testing is]]
     #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
             [schema-tools.core :as st]
-            [schema.coerce :as sc]
             [schema.core :as s :include-macros true]))
 
 (s/defschema Kikka {:a s/Str :b s/Str})
@@ -142,59 +141,6 @@
     (is (nil? (meta (st/merge {:b s/Str} Kikka))))
     (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
     (is (nil? (meta (st/merge Kikka {:c s/Str}))))))
-
-(deftest select-schema-test
-  (testing "with strictly defined schema, when value has extra keys"
-    (let [schema {:a s/Str
-                  :b {(s/optional-key [1 2 3]) [{(s/required-key "d") s/Str}]}}
-          value {:a "kikka"
-                 :b {[1 2 3] [{"d" "kukka"
-                               ":d" "kikka"
-                               :d "kukka"}]}}]
-      (testing "is invalid"
-        (is (s/check schema value)))
-      (testing "select-schema drops disallowed keys and makes value valid"
-        (is (= (st/select-schema schema value)
-               {:a "kikka", :b {[1 2 3] [{"d" "kukka"}]}}))
-        (is (= (s/check schema (st/select-schema schema value)) nil)))))
-
-  (testing "with loosely defined schema, when value has extra keys"
-    (let [schema {s/Keyword s/Str
-                  :a {:b {s/Str s/Str}
-                      :c {s/Any s/Str}}}
-          value {:kikka "kukka"
-                 :a {:b {"abba" "jabba"}
-                     :c {[1 2 3] "kakka"}
-                     :d :ILLEGAL-KEY}}]
-      (testing "is invalid"
-        (is (s/check schema value)))
-      (testing "select-schema drops disallowed keys and makes value valid"
-        (is (= (st/select-schema schema value)
-               {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))
-        (is (= (s/check schema (st/select-schema schema value)) nil)))))
-
-  (testing "with coercion matcher"
-    (let [schema {:name s/Str, :sex (s/enum :male :female)}
-          value {:name "Linda", :age 66, :sex "female"}]
-      (testing "select-schema fails on type mismatch"
-        (is (s/check schema (st/select-schema schema value))))
-      (testing "select-schema with extra coercion matcher succeeds"
-        (is (= (st/select-schema sc/json-coercion-matcher schema value)
-               {:name "Linda" :sex :female})))))
-
-  (testing "with regexp-keys"
-    (let [X- (s/pred #(re-find #"x-" (name %)) ":x-.*")
-          schema {X- s/Any
-                  :a s/Any}
-          value {:x-abba "kikka"
-                 :y-abba "kukka"
-                 :a "kakka"}]
-      (testing "is invalid"
-        (is (s/check schema value)))
-      (testing "select-schema drops disallowed keys and makes value valid"
-        (is (= (st/select-schema schema value)
-               {:x-abba "kikka", :a "kakka"}))
-        (is (= (s/check schema (st/select-schema schema value)) nil))))))
 
 (deftest optional-keys-test
   (let [schema {(s/optional-key :a) s/Str
