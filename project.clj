@@ -32,8 +32,8 @@
   :profiles {:dev {:plugins [[com.keminglabs/cljx "0.6.0"]
                              [jonase/eastwood "0.2.1"]]
                    :dependencies [[criterium "0.4.3"]
-                                  [org.clojure/clojure "1.7.0-beta3"]
+                                  [org.clojure/clojure "1.7.0"]
                                   [org.clojure/clojurescript "0.0-3308"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-alpha5"]]}}
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.7"]
             "test-clj" ["all" "do" ["cljx" "once"] ["test"] ["check"]]})
