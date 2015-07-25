@@ -1,6 +1,7 @@
 ## 0.4.4
 
 - `select-schema` works with special key predicates (like regexp-keys):
+- remove `safe-coercer`
 
 ```clojure
 (st/select-schema
