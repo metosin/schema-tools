@@ -12,10 +12,10 @@
 (defn invalid? [schema value]
   (not (valid? schema value)))
 
-(deftest select-schema!-test
+(deftest select-schema-test
 
   (testing "simple case"
-    (is (= (st/select-schema! s/Str "kikka") "kikka")))
+    (is (= (st/select-schema "kikka" s/Str) "kikka")))
 
   (testing "strictly defined schema, with disallowed keys"
     (let [schema {:a s/Str
@@ -29,7 +29,7 @@
         (is (invalid? schema value)))
 
       (testing "select-schema! drops disallowed keys making value match schema"
-        (let [selected (st/select-schema! schema value)]
+        (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
           (is (= selected {:a "kikka", :b {[1 2 3] [{"d" "kukka"}]}}))))))
 
@@ -46,22 +46,22 @@
         (is (invalid? schema value)))
 
       (testing "select-schema! drops disallowed keys making value match schema"
-        (let [selected (st/select-schema! schema value)]
+        (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
           (is (= selected {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))))))
 
   (testing "other errors cause schema.utils.ErrorContainer"
-    (is (thrown? clojure.lang.ExceptionInfo (st/select-schema! {:a s/Str} {:a 123}))))
+    (is (thrown? clojure.lang.ExceptionInfo (st/select-schema {:a 123} {:a s/Str}))))
 
   (testing "with coercion matcher"
     (let [schema {:name s/Str, :sex (s/enum :male :female)}
           value {:name "Linda", :age 66, :sex "female"}]
 
       (testing "select-schema! fails on type mismatch"
-        (is (thrown? clojure.lang.ExceptionInfo (st/select-schema! schema value))))
+        (is (thrown? clojure.lang.ExceptionInfo (st/select-schema value schema))))
 
       (testing "select-schema! with extra coercion matcher succeeds"
-        (let [selected (st/select-schema! sc/json-coercion-matcher schema value)]
+        (let [selected (st/select-schema value schema sc/json-coercion-matcher)]
           (is (valid? schema selected))
           (is (= selected {:name "Linda" :sex :female}))))))
 
@@ -77,6 +77,12 @@
         (is (invalid? schema value)))
 
       (testing "select-schema! drops disallowed keys making value match schema"
-        (let [selected (st/select-schema! schema value)]
+        (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
-          (is (= selected {:x-abba "kikka", :a "kakka"})))))))
+          (is (= selected {:x-abba "kikka", :a "kakka"}))))))
+
+  (testing "using with pre 0.5.0 argument order"
+    (is (thrown-with-msg?
+          clojure.lang.ExceptionInfo
+          #"Illegal argument order - breaking change in 0.5.0."
+          (st/select-schema (s/enum :a :b) :b)))))

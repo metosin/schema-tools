@@ -76,8 +76,8 @@
     (reduce
       (fn [schema [k v]]
         #+clj (when-not v
-          (throw (IllegalArgumentException.
-                   "assoc expects even number of arguments after map/vector, found odd number")))
+                (throw (IllegalArgumentException.
+                         "assoc expects even number of arguments after map/vector, found odd number")))
         (let [rk (key-in-schema schema k)]
           (-> schema
               (clojure.core/dissoc rk)
@@ -107,18 +107,18 @@
   where ks is a sequence of keys. Returns nil if the key
   is not present, or the not-found value if supplied."
   ([m ks]
-    (get-in m ks nil))
+   (get-in m ks nil))
   ([m ks not-found]
-    (loop [sentinel #+clj (Object.) #+cljs (js/Object.)
-           m m
-           ks (seq ks)]
-      (if ks
-        (let [k (first ks)]
-          (let [m (get-in-schema m k sentinel)]
-            (if (identical? sentinel m)
-              not-found
-              (recur sentinel m (next ks)))))
-        m))))
+   (loop [sentinel #+clj (Object.) #+cljs (js/Object.)
+          m m
+          ks (seq ks)]
+     (if ks
+       (let [k (first ks)]
+         (let [m (get-in-schema m k sentinel)]
+           (if (identical? sentinel m)
+             not-found
+             (recur sentinel m (next ks)))))
+       m))))
 
 (defn assoc-in
   "Associates a value in a nested associative Schema, where ks is a
@@ -188,13 +188,23 @@
 ;; Extras
 ;;
 
-(defn select-schema!
+(defn select-schema
   "Strips all disallowed keys from nested Map schemas via coercion. Takes an optional
   coercion matcher for extra coercing the selected value(s) on a single sweep. If a value
   can't be coerced to match the schema ExceptionInfo is thrown (like schema.core/validate)."
-  ([schema value]
-   (select-schema! (constantly nil) schema value))
-  ([matcher schema value]
+  ([value schema]
+   (select-schema value schema (constantly nil)))
+  ([value schema matcher]
+
+   ; temporary migration check for upgrading to 0.5.0+
+   (try
+     (s/explain schema)
+     (catch Exception _
+       (throw (ex-info "Illegal argument order - breaking change in 0.5.0."
+                       {:value value
+                        :schema schema
+                        :matcher matcher}))))
+
    (let [coercer (sc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher))
          coerced (coercer value)]
      (if-let [error (and (su/error? coerced) (su/error-val coerced))]

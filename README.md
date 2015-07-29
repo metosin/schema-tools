@@ -2,7 +2,7 @@
 
 Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps, both Clojure & ClojureScript.
 * common Schema definitions: `any-keys`, `any-keyword-keys`
-* schema-aware selectors: `get-in`, `select-keys`, `select-schema!`
+* schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
   * removes the schema name and ns if the schema (value) has changed.
 * meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
@@ -47,23 +47,28 @@ With schema-tools:
 ; nil
 ```
 
-### select-schema!
+### select-schema
 
 Filtering out illegal keys using coercion:
 
 ```clojure
-(st/select-schema! Address {:street "Keskustori 8"
-                            :city "Tampere"
-                            :description "Metosin HQ" ; disallowed-key
-                            :country {:weather "-18" ; disallowed-key
-                                      :name "Finland"}})
+(st/select-schema {:street "Keskustori 8"
+                   :city "Tampere"
+                   :description "Metosin HQ" ; disallowed-key
+                   :country {:weather "-18" ; disallowed-key
+                             :name "Finland"}}
+                  Address)
 ; {:city "Tampere", :street "Keskustori 8", :country {:name "Finland"}}
 ```
 
 Json-coercion with filtering out illegal keys in a single sweep:
 
 ```clojure
-(st/select-schema! {:beer (s/enum :ipa :apa)} {:beer "ipa" :taste "good"})
+(s/defschema Beer {:beer (s/enum :ipa :apa)})
+
+(def ipa {:beer "ipa" :taste "good"})
+
+(st/select-schema ipa Beer)
 ; clojure.lang.ExceptionInfo: Value does not match schema: {:beer (not (#{:ipa :apa} "ipa"))}
 ;     data: {:type :schema.core/error,
 ;            :schema {:beer {:vs #{:ipa :apa}}},
@@ -72,7 +77,7 @@ Json-coercion with filtering out illegal keys in a single sweep:
            
 (require '[schema.coerce :as sc])
 
-(st/select-schema! sc/json-coercion-matcher {:beer (s/enum :ipa :apa)} {:beer "ipa" :taste "good"})
+(st/select-schema ipa Beer sc/json-coercion-matcher)
 ; {:beer :ipa}
 ```
 

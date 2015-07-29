@@ -3,25 +3,29 @@
 - remove `safe-coercer`
 - new `map-filter-matcher` to strip illegal keys from non-record maps
   - original code by [abp](https://gist.github.com/abp/0c4106eba7b72802347b)
-- **breaking**: `select-schema` is dropped in favor of `select-schema!`
-  - `select-schema!` uses schema coercion (`map-filter-matcher`) to drop illegal keys
+- **breaking**: `select-schema` signature and functionality has changed
+  - fn argument order has changed to be consistent with other fns
+    - `[schema value]` -> `[value schema]`
+    - `[matcher schema value]` -> `[value schema matcher]`
+    - to help migration: throws ex-info with message `"Illegal argument order - breaking change in 0.5.0."` if second argument is not a schema
+  - uses schema coercion (`map-filter-matcher`) to drop illegal keys
     - fixes [#4](https://github.com/metosin/schema-tools/issues/4) - works now also with predicate keys
     - if a value can't be coerced, Exception is thrown - just like from `schema.core/validate`
 
 ```clojure
-(st/select-schema!
-  {(s/pred #(re-find #"x-" (name %)) ":x-.*") s/Any, :a String}
+(st/select-schema
   {:a "a"
    :z "disallowed key"
    :b "disallowed key"
    :x-kikka "x-kikka"
    :x-kukka "x-kukka"
-   :y-kikka "invalid key"})
+   :y-kikka "invalid key"}
+  {(s/pred #(re-find #"x-" (name %)) ":x-.*") s/Any, :a String})
 ; {:a "a", :x-kikka "x-kikka", :x-kukka "x-kukka"}
 ```
 
 ```clojure
-(st/select-schema! {:beer (s/enum :ipa :apa)} {:beer "ipa" :taste "good"})
+(st/select-schema {:beer "ipa" :taste "good"} {:beer (s/enum :ipa :apa)} )
 ; clojure.lang.ExceptionInfo: Value does not match schema: {:beer (not (#{:ipa :apa} "ipa"))}
 ;     data: {:type :schema.core/error,
 ;            :schema {:beer {:vs #{:ipa :apa}}},
@@ -30,7 +34,7 @@
            
 (require '[schema.coerce :as sc])
 
-(st/select-schema! sc/json-coercion-matcher {:beer (s/enum :ipa :apa)} {:beer "ipa" :taste "good"})
+(st/select-schema {:beer "ipa" :taste "good"} {:beer (s/enum :ipa :apa)} sc/json-coercion-matcher)
 ; {:beer :ipa}
 ```
 
