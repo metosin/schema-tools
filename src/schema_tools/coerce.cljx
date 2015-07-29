@@ -6,30 +6,38 @@
             [schema.coerce :as sc])
   #+cljs (:require-macros [schema.macros :as sm]))
 
-(defn safe-coercer
-  "Produce a function that coerces a datum without validation."
-  [schema coercion-matcher]
-  (s/start-walker
-    (su/memoize-id
-      (fn [s]
-        (let [walker (s/walker s)]
-          (if-let [coercer (coercion-matcher s)]
-            (fn [x]
-              (sm/try-catchall
-                (let [v (coercer x)]
-                  (if (su/error? v)
-                    x
-                    (let [walked (walker v)]
-                      (if (su/error? walked)
-                        x
-                        walked))))
-                (catch t (sm/validation-error s x t))))
-            walker))))
-    schema))
+; original: https://gist.github.com/abp/0c4106eba7b72802347b
+(defn- filter-schema-keys
+  [m schema-keys extra-keys-walker]
+  (reduce-kv (fn [m k _]
+               (if (or (contains? schema-keys k)
+                       (and extra-keys-walker
+                            (not (su/error? (extra-keys-walker k)))))
+                 m
+                 (dissoc m k)))
+             m
+             m))
 
 ;;
 ;; Matchers
 ;;
+
+; original: https://gist.github.com/abp/0c4106eba7b72802347b
+(defn map-filter-matcher
+  "Creates a matcher which removes all illegal keys from non-record maps."
+  [schema]
+  (if (and (map? schema) (not (record? schema)))
+    (let [extra-keys-schema (s/find-extra-keys-schema schema)
+          extra-keys-walker (if extra-keys-schema (s/walker extra-keys-schema))
+          explicit-keys (some->> (dissoc schema extra-keys-schema)
+                                 keys
+                                 (mapv s/explicit-schema-key)
+                                 set)]
+      (if (or extra-keys-walker (seq explicit-keys))
+        (fn [x]
+          (if (map? x)
+            (filter-schema-keys x explicit-keys extra-keys-walker)
+            x))))))
 
 (defn or-matcher
   "Creates a matcher where the first matcher matching the
