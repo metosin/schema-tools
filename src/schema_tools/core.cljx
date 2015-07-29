@@ -49,10 +49,8 @@
             :else (f k)))
         schema))))
 
-(defn- error! [schema value error]
-  (sm/error!
-    (su/format* "Value does not match schema: %s" (pr-str error))
-    {:schema schema :value value :error error}))
+(defn- error! [message schema value error]
+  (sm/error! message {:schema schema :value value :error error}))
 
 ;;
 ;; Definitions
@@ -208,7 +206,9 @@
    (let [coercer (sc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher))
          coerced (coercer value)]
      (if-let [error (and (su/error? coerced) (su/error-val coerced))]
-       (error! schema value error)
+       (error!
+         (str "Could not coerce value to schema: " (pr-str error))
+         schema value error)
        coerced))))
 
 (defn optional-keys

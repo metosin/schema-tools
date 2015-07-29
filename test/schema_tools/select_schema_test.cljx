@@ -28,7 +28,7 @@
       (testing "value does not match schema"
         (is (invalid? schema value)))
 
-      (testing "select-schema! drops disallowed keys making value match schema"
+      (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
           (is (= selected {:a "kikka", :b {[1 2 3] [{"d" "kukka"}]}}))))))
@@ -45,22 +45,28 @@
       (testing "value does not match schema"
         (is (invalid? schema value)))
 
-      (testing "select-schema! drops disallowed keys making value match schema"
+      (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
           (is (= selected {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))))))
 
-  (testing "other errors cause schema.utils.ErrorContainer"
-    (is (thrown? clojure.lang.ExceptionInfo (st/select-schema {:a 123} {:a s/Str}))))
+  (testing "other errors cause coercion exception"
+    (is (thrown-with-msg?
+          clojure.lang.ExceptionInfo
+          #"Could not coerce value to schema"
+          (st/select-schema {:a 123} {:a s/Str}))))
 
   (testing "with coercion matcher"
     (let [schema {:name s/Str, :sex (s/enum :male :female)}
           value {:name "Linda", :age 66, :sex "female"}]
 
-      (testing "select-schema! fails on type mismatch"
-        (is (thrown? clojure.lang.ExceptionInfo (st/select-schema value schema))))
+      (testing "select-schema fails on type mismatch"
+        (is (thrown-with-msg?
+              clojure.lang.ExceptionInfo
+              #"Could not coerce value to schema"
+              (st/select-schema value schema))))
 
-      (testing "select-schema! with extra coercion matcher succeeds"
+      (testing "select-schema with extra coercion matcher succeeds"
         (let [selected (st/select-schema value schema sc/json-coercion-matcher)]
           (is (valid? schema selected))
           (is (= selected {:name "Linda" :sex :female}))))))
@@ -76,7 +82,7 @@
       (testing "value does not match schema"
         (is (invalid? schema value)))
 
-      (testing "select-schema! drops disallowed keys making value match schema"
+      (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
           (is (= selected {:x-abba "kikka", :a "kakka"}))))))
