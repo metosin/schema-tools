@@ -1,4 +1,4 @@
-## 0.5.0
+## 0.5.0 (29.7.2015)
 
 - remove `safe-coercer`
 - new `map-filter-matcher` to strip illegal keys from non-record maps
