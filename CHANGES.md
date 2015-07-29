@@ -26,7 +26,7 @@
 
 ```clojure
 (st/select-schema {:beer "ipa" :taste "good"} {:beer (s/enum :ipa :apa)} )
-; clojure.lang.ExceptionInfo: Value does not match schema: {:beer (not (#{:ipa :apa} "ipa"))}
+; clojure.lang.ExceptionInfo: Could not coerce value to schema: {:beer (not (#{:ipa :apa} "ipa"))}
 ;     data: {:type :schema.core/error,
 ;            :schema {:beer {:vs #{:ipa :apa}}},
 ;            :value {:beer "ipa", :taste "good"},

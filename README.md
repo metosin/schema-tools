@@ -49,7 +49,7 @@ With schema-tools:
 
 ### select-schema
 
-Filtering out illegal keys using coercion:
+Filtering out illegal schema keys using coercion:
 
 ```clojure
 (st/select-schema {:street "Keskustori 8"
@@ -61,7 +61,7 @@ Filtering out illegal keys using coercion:
 ; {:city "Tampere", :street "Keskustori 8", :country {:name "Finland"}}
 ```
 
-Json-coercion with filtering out illegal keys in a single sweep:
+Filtering out illegal schema map keys using coercion with additional Json-coercion - in a single sweep:
 
 ```clojure
 (s/defschema Beer {:beer (s/enum :ipa :apa)})
@@ -69,7 +69,7 @@ Json-coercion with filtering out illegal keys in a single sweep:
 (def ipa {:beer "ipa" :taste "good"})
 
 (st/select-schema ipa Beer)
-; clojure.lang.ExceptionInfo: Value does not match schema: {:beer (not (#{:ipa :apa} "ipa"))}
+; clojure.lang.ExceptionInfo: Could not coerce value to schema: {:beer (not (#{:ipa :apa} "ipa"))}
 ;     data: {:type :schema.core/error,
 ;            :schema {:beer {:vs #{:ipa :apa}}},
 ;            :value {:beer "ipa", :taste "good"},
