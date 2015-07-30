@@ -54,16 +54,16 @@ If a given value can't be coerced to match a schema, ex-info is thrown (like `sc
 ```clojure
 (require '[schema-tools.coerce :as stc])
 
-(def matcher (constantly nil))
+(def coercer (stc/coercer String (constantly nil)))
 
-(stc/coerce 123 (stc/coercer String matcher))
+(stc/coerce 123 coercer)
 ; clojure.lang.ExceptionInfo: Could not coerce value to schema: (not (instance? java.lang.String 123))
 ;      error: (not (instance? java.lang.String 123))
 ;     schema: java.lang.String
 ;       type: :schema.core/error
 ;      value: 123
 
-(stc/coerce "123" (stc/coercer String matchr))
+(stc/coerce "123" coercer)
 ; "123"
 ```
 
