@@ -1,3 +1,9 @@
+## 0.5.1 
+
+- new functions in `schema-tools.coerce` (idea by [Michael Griffiths](https://github.com/metosin/schema-tools/issues/10#issuecomment-124976346)
+   - `coercer` to create a coercer, which throws exception if the value can't be coerced to match the schema.
+   - `coerce` to apply coercion, which throws exception if the value can't be coerced to match the schema.
+
 ## 0.5.0 (29.7.2015)
 
 - remove `safe-coercer`

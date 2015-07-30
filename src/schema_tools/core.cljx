@@ -48,10 +48,6 @@
             (s/specific-key? k) (f (s/explicit-schema-key k))
             :else (f k)))
         schema))))
-
-(defn- error! [message schema value error]
-  (sm/error! message {:schema schema :value value :error error}))
-
 ;;
 ;; Definitions
 ;;
@@ -194,7 +190,7 @@
    (select-schema value schema (constantly nil)))
   ([value schema matcher]
 
-   ; temporary migration check for upgrading to 0.5.0+
+    ; temporary migration check for upgrading to 0.5.0+
    (try
      (s/explain schema)
      (catch Exception _
@@ -203,13 +199,7 @@
                         :schema schema
                         :matcher matcher}))))
 
-   (let [coercer (sc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher))
-         coerced (coercer value)]
-     (if-let [error (and (su/error? coerced) (su/error-val coerced))]
-       (error!
-         (str "Could not coerce value to schema: " (pr-str error))
-         schema value error)
-       coerced))))
+   (stc/coerce value (stc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher)))))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."

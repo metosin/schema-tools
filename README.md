@@ -6,7 +6,7 @@ Common utilities for working with [Prismatic Schema](https://github.com/Prismati
 * schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
   * removes the schema name and ns if the schema (value) has changed.
 * meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
-* coercion tools: `or-matcher`, `map-filter-matcher`
+* coercion tools: `or-matcher`, `map-filter-matcher`, `coercer`, `coerce`
 * Protocol-based walker for manipulating Schemas: `schema-tools.walk/walk`
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
@@ -47,9 +47,29 @@ With schema-tools:
 ; nil
 ```
 
-### select-schema
+### Coercion
 
-Filtering out illegal schema keys using coercion:
+If a given value can't be coerced to match a schema, ex-info is thrown (like `schema.core/validate`):
+
+```clojure
+(require '[schema-tools.coerce :as stc])
+
+(def matcher (constantly nil))
+
+(stc/coerce 123 (stc/coercer String matcher))
+; clojure.lang.ExceptionInfo: Could not coerce value to schema: (not (instance? java.lang.String 123))
+;      error: (not (instance? java.lang.String 123))
+;     schema: java.lang.String
+;       type: :schema.core/error
+;      value: 123
+
+(stc/coerce "123" (stc/coercer String matchr))
+; "123"
+```
+
+### Select Schema
+
+Filtering out illegal schema keys (using coercion):
 
 ```clojure
 (st/select-schema {:street "Keskustori 8"
