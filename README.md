@@ -54,17 +54,33 @@ If a given value can't be coerced to match a schema, ex-info is thrown (like `sc
 ```clojure
 (require '[schema-tools.coerce :as stc])
 
-(def coercer (stc/coercer String (constantly nil)))
+(def matcher (constantly nil))
+(def coercer (stc/coercer String matcher))
 
-(stc/coerce 123 coercer)
+(coercer 123)
 ; clojure.lang.ExceptionInfo: Could not coerce value to schema: (not (instance? java.lang.String 123))
 ;      error: (not (instance? java.lang.String 123))
 ;     schema: java.lang.String
-;       type: :schema.core/error
+;       type: :schema-tools.coerce/error
 ;      value: 123
 
-(stc/coerce "123" coercer)
+(coercer "123")
 ; "123"
+
+; same behavior with coerce (creates coercer on each invocation, slower)
+(stc/coerce 123 String matcher)
+(stc/coerce "123" String matcher)
+```
+
+Coercion error `:type` can be overridden in both cases with an extra argument.
+
+```clojure
+(stc/coerce 123 String matcher :domain/horror)
+; clojure.lang.ExceptionInfo: Could not coerce value to schema: (not (instance? java.lang.String 123))
+;      error: (not (instance? java.lang.String 123))
+;     schema: java.lang.String
+;       type: :domain/horror
+;      value: 123
 ```
 
 ### Select Schema

@@ -199,7 +199,7 @@
                         :schema schema
                         :matcher matcher}))))
 
-   (stc/coerce value (stc/coercer schema (stc/or-matcher stc/map-filter-matcher matcher)))))
+   (stc/coerce value schema (stc/or-matcher stc/map-filter-matcher matcher))))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."

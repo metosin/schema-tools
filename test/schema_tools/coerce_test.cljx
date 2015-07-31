@@ -79,3 +79,71 @@
                           (stc/or-matcher m1 m2 m3 m4))
                {:band "kiss", :number 41, :lucid false})
              {:band "KISS", :number 42, :lucid true})))))
+
+(deftest coercer-test
+
+  (testing "default case"
+
+    (let [matcher {String #(if (string? %) (.toUpperCase %) %)}
+          coercer (stc/coercer String matcher)]
+
+      (testing "successfull coercion retuns coerced value"
+        (is (= (coercer "kikka") "KIKKA")))
+
+      (testing "failed coercion throws ex-info"
+        (try
+          (coercer 123)
+          (catch Exception e
+            (let [{:keys [schema type value]} (ex-data e)]
+              (is (= type :schema-tools.coerce/error))
+              (is (= schema String))
+              (is (= value 123))))))))
+
+  (testing "custom type"
+    (let [matcher {String #(if (string? %) (.toUpperCase %) %)}
+          coercer (stc/coercer String matcher ::horror)]
+
+      (testing "successfull coercion retuns coerced value"
+        (is (= (coercer "kikka") "KIKKA")))
+
+      (testing "failed coercion throws ex-info"
+        (try
+          (coercer 123)
+          (catch Exception e
+            (let [{:keys [schema type value]} (ex-data e)]
+              (is (= type ::horror))
+              (is (= schema String))
+              (is (= value 123)))))))))
+
+(deftest coerce-test
+
+  (testing "default case"
+
+    (let [matcher {String #(if (string? %) (.toUpperCase %) %)}]
+
+      (testing "successfull coerce retuns coerced value"
+        (is (= (stc/coerce "kikka" String matcher) "KIKKA")))
+
+      (testing "failed coercion throws ex-info"
+        (try
+          (stc/coerce 123 String matcher)
+          (catch Exception e
+            (let [{:keys [schema type value]} (ex-data e)]
+              (is (= type :schema-tools.coerce/error))
+              (is (= schema String))
+              (is (= value 123))))))))
+
+  (testing "custom type"
+    (let [matcher {String #(if (string? %) (.toUpperCase %) %)}]
+
+      (testing "successfull coercion retuns coerced value"
+        (is (= (stc/coerce "kikka" String matcher ::horror) "KIKKA")))
+
+      (testing "failed coercion throws ex-info"
+        (try
+          (stc/coerce 123 String matcher ::horror)
+          (catch Exception e
+            (let [{:keys [schema type value]} (ex-data e)]
+              (is (= type ::horror))
+              (is (= schema String))
+              (is (= value 123)))))))))

@@ -10,12 +10,13 @@
 ;; Internals
 ;;
 
-(defn- coerce-or-error! [value schema coercer]
+(defn- coerce-or-error! [value schema coercer type]
   (let [coerced (coercer value)]
     (if-let [error (su/error-val coerced)]
-      (sm/error!
-        (str "Could not coerce value to schema: " (pr-str error))
-        {:schema schema :value value :error error})
+      (throw
+        (ex-info
+          (str "Could not coerce value to schema: " (pr-str error))
+          {:type type :schema schema :value value :error error}))
       coerced)))
 
 ; original: https://gist.github.com/abp/0c4106eba7b72802347b
@@ -83,15 +84,20 @@
 
 (defn coercer
   "Produce a function that simultaneously coerces and validates a value against a schema.
-  If a value can't be coerced to match the schema, an ex-info is thrown (like schema.core/validate)."
-  [schema matcher]
-  (let [coercer (sc/coercer schema matcher)]
-    (fn [value]
-      (coerce-or-error! value schema coercer))))
+  If a value can't be coerced to match the schema, an ex-info is thrown - like schema.core/validate,
+  but with overridable :type, defaulting to :schema-tools.coerce/error."
+  ([schema matcher]
+   (coercer schema matcher ::error))
+  ([schema matcher type]
+   (let [coercer (sc/coercer schema matcher)]
+     (fn [value]
+       (coerce-or-error! value schema coercer type)))))
 
 (defn coerce
   "Simultaneously coerces and validates a value to match the given schema. If a value can't
-  be coerced to match the schema, an ex-info is thrown (like schema.core/validate). To get
-  schema info as ex-data, one should use a coercer created with schema-tools.coerce/coercer."
-  [value coercer]
-  (coerce-or-error! value nil coercer))
+  be coerced to match the schema, an ex-info is thrown - like schema.core/validate,
+  but with overridable :type, defaulting to :schema-tools.coerce/error."
+  ([value schema matcher]
+    (coerce value schema matcher ::error))
+  ([value schema matcher type]
+   ((coercer schema matcher type) value)))
