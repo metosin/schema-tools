@@ -1,10 +1,7 @@
 (ns schema-tools.coerce
   (:require [schema.core :as s]
             [schema.utils :as su]
-            #+clj [schema.macros :as sm]
-            #+clj [schema.macros :as sm]
-            [schema.coerce :as sc])
-  #+cljs (:require-macros [schema.macros :as sm]))
+            [schema.coerce :as sc]))
 
 ;;
 ;; Internals

@@ -1,11 +1,7 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
-            [schema.coerce :as sc]
             [schema-tools.coerce :as stc]
-            [schema-tools.util :as stu]
-            #+clj [schema.macros :as sm]
-            [schema.utils :as su])
-  #+cljs (:require-macros [schema.macros :as sm])
+            [schema-tools.util :as stu])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
