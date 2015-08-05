@@ -1,8 +1,8 @@
-## 0.5.1 
+## 0.5.1 (5.8.2015)
 
-- new functions in `schema-tools.coerce` (idea by [Michael Griffiths](https://github.com/metosin/schema-tools/issues/10#issuecomment-124976346))
+- new functions in `schema-tools.coerce` (idea by [Michael Griffiths](https://github.com/metosin/schema-tools/issues/10#issuecomment-124976346) & ring-swagger)
    - `coercer` to create a coercer, which throws exception if the value can't be coerced to match the schema.
-   - `coerce` to create and apply a coercer, which throws exception if the value can't be coerced to match the schema. 
+   - `coerce` to create and apply a coercer, which throws exception if the value can't be coerced to match the schema.
    - error `:type` can overridden, defaulting to `:schema-tools.coerce/error`
 
 ## 0.5.0 (29.7.2015)
