@@ -1,3 +1,13 @@
+## 0.5.2 (19.8.2015)
+
+- fixed `select-schema` WARNING on ClojureScript.
+- updated dependencies:
+
+```clojure
+[prismatic/schema "0.4.4"] is available but we use "0.4.3"
+[org.clojure/clojurescript "1.7.107"] is available but we use "1.7.28"
+```
+
 ## 0.5.1 (5.8.2015)
 
 - new functions in `schema-tools.coerce` (idea by [Michael Griffiths](https://github.com/metosin/schema-tools/issues/10#issuecomment-124976346) & ring-swagger)

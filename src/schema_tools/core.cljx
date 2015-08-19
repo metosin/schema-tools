@@ -189,7 +189,7 @@
     ; temporary migration check for upgrading to 0.5.0+
    (try
      (s/explain schema)
-     (catch Exception _
+     (catch #+clj Exception #+cljs js/Error _
        (throw (ex-info "Illegal argument order - breaking change in 0.5.0."
                        {:value value
                         :schema schema

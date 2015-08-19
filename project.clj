@@ -1,4 +1,4 @@
-(defproject metosin/schema-tools "0.5.1"
+(defproject metosin/schema-tools "0.5.2"
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
@@ -6,7 +6,7 @@
             :distribution :repo
             :comments "same as Clojure"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [prismatic/schema "0.4.3"]]
+                 [prismatic/schema "0.4.4"]]
   :plugins [[codox "0.8.13"]]
 
   :cljx {:builds [{:rules :clj
@@ -33,7 +33,7 @@
                              [jonase/eastwood "0.2.1"]]
                    :dependencies [[criterium "0.4.3"]
                                   [org.clojure/clojure "1.7.0"]
-                                  [org.clojure/clojurescript "1.7.28"]]}
+                                  [org.clojure/clojurescript "1.7.107"]]}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.7"]
             "test-clj" ["all" "do" ["cljx" "once"] ["test"] ["check"]]})
