@@ -5,8 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [prismatic/schema "0.4.4"]]
+  :dependencies [[prismatic/schema "0.4.4"]]
   :plugins [[codox "0.8.13"]]
 
   :cljx {:builds [{:rules :clj
@@ -34,6 +33,6 @@
                    :dependencies [[criterium "0.4.3"]
                                   [org.clojure/clojure "1.7.0"]
                                   [org.clojure/clojurescript "1.7.107"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
-  :aliases {"all" ["with-profile" "dev:dev,1.7"]
+             :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}}
+  :aliases {"all" ["with-profile" "dev:dev,1.6"]
             "test-clj" ["all" "do" ["cljx" "once"] ["test"] ["check"]]})
