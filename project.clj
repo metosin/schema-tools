@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[prismatic/schema "0.4.4"]]
+  :dependencies [[prismatic/schema "1.0.1"]]
   :plugins [[codox "0.8.13"]]
 
   :cljx {:builds [{:rules :clj
