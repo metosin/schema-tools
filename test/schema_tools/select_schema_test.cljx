@@ -15,7 +15,7 @@
 (deftest select-schema-test
 
   (testing "simple case"
-    (is (= (st/select-schema "kikka" s/Str) "kikka")))
+    (is (= "kikka" (st/select-schema "kikka" s/Str))))
 
   (testing "strictly defined schema, with disallowed keys"
     (let [schema {:a s/Str
@@ -31,7 +31,7 @@
       (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
-          (is (= selected {:a "kikka", :b {[1 2 3] [{"d" "kukka"}]}}))))))
+          (is (= {:a "kikka", :b {[1 2 3] [{"d" "kukka"}]}} selected))))))
 
   (testing "loosely defined schema, with disallowed keys"
     (let [schema {s/Keyword s/Str
@@ -48,7 +48,7 @@
       (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
-          (is (= selected {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}}))))))
+          (is (= {:kikka "kukka", :a {:b {"abba" "jabba"}, :c {[1 2 3] "kakka"}}} selected))))))
 
   (testing "other errors cause coercion exception"
     (is (thrown-with-msg?
@@ -69,7 +69,7 @@
       (testing "select-schema with extra coercion matcher succeeds"
         (let [selected (st/select-schema value schema sc/json-coercion-matcher)]
           (is (valid? schema selected))
-          (is (= selected {:name "Linda" :sex :female}))))))
+          (is (= {:name "Linda" :sex :female} selected))))))
 
   (testing "with predicate keys"
     (let [x- (s/pred #(re-find #"x-" (name %)) ":x-.*")
@@ -85,7 +85,7 @@
       (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
-          (is (= selected {:x-abba "kikka", :a "kakka"}))))))
+          (is (= {:x-abba "kikka", :a "kakka"} selected))))))
 
   (testing "using with pre 0.5.0 argument order"
     (is (thrown-with-msg?

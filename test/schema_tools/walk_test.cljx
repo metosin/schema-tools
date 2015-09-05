@@ -9,7 +9,7 @@
     (let [s {:a s/Str
              :b s/Int
              :s (s/maybe s/Str)}]
-      (is (= (sw/walk s identity identity) s))))
+      (is (= s (sw/walk s identity identity)))))
 
   (testing "inner is called with the MapEntries"
     (let [k (atom [])]
@@ -18,15 +18,15 @@
                  (swap! k conj x)
                  x)
                identity)
-      (is (= @k [[:a s/Str] [:b s/Str]]))))
+      (is (= [[:a s/Str] [:b s/Str]] @k))))
 
   (testing "elements can be replaced"
-    (is (= (sw/walk {:a s/Str :b s/Str}
+    (is (= {:a (s/maybe s/Str)
+            :b (s/maybe s/Str)}
+           (sw/walk {:a s/Str :b s/Str}
                     (fn [[k v]]
                       [k (s/maybe v)])
-                    identity)
-           {:a (s/maybe s/Str)
-            :b (s/maybe s/Str)})))
+                    identity))))
 
   (testing "Insides of schemas are walked and can be replaced"
     (letfn [(replace-str [s]
@@ -36,8 +36,8 @@
                            s/Int
                            (replace-str x)))
                        identity))]
-      (is (= (replace-str {:a (s/maybe s/Str)})
-             {:a (s/maybe s/Int)})))))
+      (is (= {:a (s/maybe s/Int)}
+             (replace-str {:a (s/maybe s/Str)}))))))
 
 (defn map-entry? [x]
   #+clj
@@ -61,9 +61,9 @@
 (deftest name-schemas-test
   (let [named (name-schemas [:root] {:a {:b s/Str}
                                      :b {:c {:d s/Int}}})]
-    (is (= (-> named :a meta :name) [:root :a]))
-    (is (= (-> named :b meta :name) [:root :b]))
-    (is (= (-> named :b :c meta :name) [:root :b :c]))))
+    (is (= [:root :a] (-> named :a meta :name)))
+    (is (= [:root :b] (-> named :b meta :name)))
+    (is (= [:root :b :c] (-> named :b :c meta :name)))))
 
 (deftest leaf-schema-test
   (are [schema]
@@ -87,8 +87,8 @@
 
 (deftest walk-record-test
   (let [named (name-schemas [:root] (Test. {:a s/Str} {:c {:d s/Int}}))]
-    (is (= (-> named .-a meta :name) [:root :a]))
-    (is (= (-> named .-b meta :name) [:root :b]))
+    (is (= [:root :a] (-> named .-a meta :name)))
+    (is (= [:root :b] (-> named .-b meta :name)))
     (is (instance? Test named))))
 
 (deftest conditional-test
