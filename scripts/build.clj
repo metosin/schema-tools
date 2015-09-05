@@ -8,7 +8,6 @@
    :source-map "target/generated/js/out/tests.map.js"
    :output-dir "target/generated/js/out"
    :optimizations :none
-   :target :nodejs
-   :verbose true})
+   :target :nodejs})
 
 (shutdown-agents)

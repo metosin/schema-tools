@@ -2,7 +2,8 @@
   (:require [cljs.test :as test]
             [cljs.nodejs :as nodejs]
             schema-tools.core-test
-            schema-tools.walk-test))
+            schema-tools.walk-test
+            schema-tools.experimental.walk-test))
 
 (nodejs/enable-util-print!)
 
