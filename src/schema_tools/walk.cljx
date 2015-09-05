@@ -58,6 +58,15 @@
   (-walk [this inner outer]
     (outer (with-meta (s/named (inner (:schema this)) (:name this)) (meta this))))
 
+  schema.core.ConditionalSchema
+  (-walk [this inner outer]
+    (outer (with-meta (s/->ConditionalSchema
+                        (mapcat (fn [[pred schema]]
+                                  [pred (inner schema)])
+                                (:preds-and-schemas this))
+                        (:error-symbol this))
+                      (meta this))))
+
   schema.core.CondPre
   (-walk [this inner outer]
     (outer (with-meta (apply s/cond-pre (map inner (:schemas this))) (meta this)))))

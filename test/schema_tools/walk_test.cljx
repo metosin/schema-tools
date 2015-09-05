@@ -75,6 +75,13 @@
     (is (= (-> named .-b meta :name) [:root :b]))
     (is (instance? Test named))))
 
+(deftest conditional-test
+  (let [k (atom [])]
+    (sw/walk (s/conditional :a {:a s/Str} :b {:b s/Num} (constantly true) {:c s/Bool})
+             (fn [x] (swap! k conj x) x)
+             identity)
+    (is (= [{:a s/Str} {:b s/Num} {:c s/Bool}] @k))))
+
 (deftest condpre-test
   (let [k (atom [])]
     (sw/walk (s/cond-pre [s/Str] s/Str)
