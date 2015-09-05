@@ -1,3 +1,7 @@
+## 0.6.0 (x.x.2015)
+
+- **BREAKING**: Supports and depends on Schema 1.0.0
+
 ## 0.5.2 (19.8.2015)
 
 - fixed `select-schema` WARNING on ClojureScript.
