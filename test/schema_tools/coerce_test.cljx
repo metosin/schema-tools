@@ -19,7 +19,7 @@
                          (fn [x]
                            (if (string? x)
                              #+clj (Long/parseLong x)
-                             #+cljs (js/Number.parseInt x 10)
+                             #+cljs (js/parseInt x 10)
                              x))))
         string->vec->long (stc/forwarding-matcher string->vec string->long)
         string->long->vec (stc/forwarding-matcher string->long string->vec)]
