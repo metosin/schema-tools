@@ -3,6 +3,8 @@
             [cljs.nodejs :as nodejs]
             schema-tools.core-test
             schema-tools.walk-test
+            schema-tools.select-schema-test
+            schema-tools.coerce-test
             schema-tools.experimental.walk-test))
 
 (nodejs/enable-util-print!)

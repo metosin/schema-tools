@@ -52,7 +52,7 @@
 
   (testing "other errors cause coercion exception"
     (is (thrown-with-msg?
-          clojure.lang.ExceptionInfo
+          #+clj clojure.lang.ExceptionInfo #+cljs js/Error
           #"Could not coerce value to schema"
           (st/select-schema {:a 123} {:a s/Str}))))
 
@@ -62,7 +62,7 @@
 
       (testing "select-schema fails on type mismatch"
         (is (thrown-with-msg?
-              clojure.lang.ExceptionInfo
+              #+clj clojure.lang.ExceptionInfo #+cljs js/Error
               #"Could not coerce value to schema"
               (st/select-schema value schema))))
 
@@ -89,6 +89,6 @@
 
   (testing "using with pre 0.5.0 argument order"
     (is (thrown-with-msg?
-          clojure.lang.ExceptionInfo
+          #+clj clojure.lang.ExceptionInfo #+cljs js/Error
           #"Illegal argument order - breaking change in 0.5.0."
           (st/select-schema (s/enum :a :b) :b)))))
