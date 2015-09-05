@@ -11,6 +11,16 @@
 (defn- record? [x]
   (satisfies? IRecord x))
 
+(defn- schema-record?
+  "Tests if the parameter is Schema record. I.e. not vector, map or other
+   collection but implements Schema protocol."
+  [x]
+  (and (record? x)
+       #+clj
+       (instance? schema.core.Schema x)
+       #+cljs
+       (satisfies? schema.core.Schema x)))
+
 (defn walk
   "Calls inner for sub-schemas of this schema, creating new Schema of the same
    type as given and preserving the metadata. Calls outer with the created
@@ -18,7 +28,11 @@
   {:added "0.3.0"}
   [this inner outer]
   (cond
+    ; Schemas with children
     (satisfies? WalkableSchema this) (-walk this inner outer)
+    ; Leaf schemas - Rest Schema records should be the leaf schemas.
+    (schema-record? this) (outer this)
+    ; Regular clojure datastructures
     (record? this) (outer (with-meta (reduce (fn [r x] (conj r (inner x))) this this) (meta this)))
     #+clj (list? this) #+clj (outer (with-meta (apply list (map inner this)) (meta this)))
     (seq? this) (outer (with-meta (doall (map inner this)) (meta this)))

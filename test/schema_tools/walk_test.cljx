@@ -1,6 +1,6 @@
 (ns schema-tools.walk-test
-  (:require #+clj  [clojure.test :refer [deftest testing is]]
-            #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
+  (:require #+clj  [clojure.test :refer [deftest testing is are]]
+            #+cljs [cljs.test :as test :refer-macros [deftest testing is are]]
             [schema-tools.walk :as sw]
             [schema.core :as s]))
 
@@ -64,6 +64,22 @@
     (is (= (-> named :a meta :name) [:root :a]))
     (is (= (-> named :b meta :name) [:root :b]))
     (is (= (-> named :b :c meta :name) [:root :b :c]))))
+
+(deftest leaf-schema-test
+  (are [schema]
+       (testing (pr-str schema)
+         (let [fail (atom false)
+               success (atom false)]
+           (sw/walk schema (fn [x] (reset! fail true) x) (fn [x] (reset! success true) x))
+           (is (not @fail))
+           (is @success)))
+
+       s/Any
+       (s/eq 5)
+       (s/isa ::parent)
+       (s/enum :parent :child)
+       (s/pred odd? 'odd)
+       (s/protocol schema.core.Schema)))
 
 ; Records
 
