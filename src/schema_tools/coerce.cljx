@@ -1,5 +1,6 @@
 (ns schema-tools.coerce
   (:require [schema.core :as s]
+            [schema.spec.core :as ss]
             [schema.utils :as su]
             [schema.coerce :as sc]))
 
@@ -18,11 +19,11 @@
 
 ; original: https://gist.github.com/abp/0c4106eba7b72802347b
 (defn- filter-schema-keys
-  [m schema-keys extra-keys-walker]
+  [m schema-keys extra-keys-checker]
   (reduce-kv (fn [m k _]
                (if (or (contains? schema-keys k)
-                       (and extra-keys-walker
-                            (not (su/error? (extra-keys-walker k)))))
+                       (and extra-keys-checker
+                            (not (su/error? (extra-keys-checker k)))))
                  m
                  (dissoc m k)))
              m
@@ -36,17 +37,19 @@
 (defn map-filter-matcher
   "Creates a matcher which removes all illegal keys from non-record maps."
   [schema]
-  (if (and (map? schema) (not (record? schema)))
-    (let [extra-keys-schema (s/find-extra-keys-schema schema)
-          extra-keys-walker (if extra-keys-schema (s/walker extra-keys-schema))
-          explicit-keys (some->> (dissoc schema extra-keys-schema)
-                                 keys
-                                 (mapv s/explicit-schema-key)
-                                 set)]
-      (if (or extra-keys-walker (seq explicit-keys))
+  (when (and (map? schema) (not (record? schema)))
+    (let [extra-keys-schema  (s/find-extra-keys-schema schema)
+          extra-keys-checker (when extra-keys-schema
+                               (ss/checker (s/spec extra-keys-schema)
+                                           {:return-walked? true}))
+          explicit-keys      (some->> (dissoc schema extra-keys-schema)
+                                      keys
+                                      (mapv s/explicit-schema-key)
+                                      set)]
+      (when (or extra-keys-checker (seq explicit-keys))
         (fn [x]
           (if (map? x)
-            (filter-schema-keys x explicit-keys extra-keys-walker)
+            (filter-schema-keys x explicit-keys extra-keys-checker)
             x))))))
 
 (defn or-matcher
