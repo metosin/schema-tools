@@ -1,4 +1,6 @@
 (ns schema-tools.walk
+  "Provides walk function which can be used to transform schemas while
+   preserving their structure and type."
   (:require [schema.core :as s])
   #+cljs (:refer-clojure :exclude [record?]))
 
@@ -10,6 +12,9 @@
   (satisfies? IRecord x))
 
 (defn walk
+  "Calls inner for sub-schemas of this schema, creating new Schema of the same
+   type as given and preserving the metadata. Calls outer with the created
+   Schema."
   {:added "0.3.0"}
   [this inner outer]
   (cond
@@ -51,4 +56,8 @@
 
   schema.core.NamedSchema
   (-walk [this inner outer]
-    (outer (with-meta (s/named (inner (:schema this)) (:name this)) (meta this)))))
+    (outer (with-meta (s/named (inner (:schema this)) (:name this)) (meta this))))
+
+  schema.core.CondPre
+  (-walk [this inner outer]
+    (outer (with-meta (apply s/cond-pre (map inner (:schemas this))) (meta this)))))

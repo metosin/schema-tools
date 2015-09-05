@@ -74,3 +74,10 @@
     (is (= (-> named .-a meta :name) [:root :a]))
     (is (= (-> named .-b meta :name) [:root :b]))
     (is (instance? Test named))))
+
+(deftest condpre-test
+  (let [k (atom [])]
+    (sw/walk (s/cond-pre [s/Str] s/Str)
+             (fn [x] (swap! k conj x) x)
+             identity)
+    (is (= [[s/Str] s/Str] @k))))
