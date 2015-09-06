@@ -1,6 +1,12 @@
 ## 0.6.0 (x.x.2015)
 
 - **BREAKING**: Supports and depends on Schema 1.0.0
+- `schema-tools.walk`
+    - Added support for walking `Conditional` and `CondPre` schemas.
+    - Made sure leaf schemas (such as enum, pred, eq) are walked properly,
+    i.e. `inner` is not called for them as they don't have sub-schemas.
+    - Added `schema-tools.experimental.walk` which provides support for
+    `schema.experimental.abstract-map`
 
 ## 0.5.2 (19.8.2015)
 
@@ -52,7 +58,7 @@
 ;            :schema {:beer {:vs #{:ipa :apa}}},
 ;            :value {:beer "ipa", :taste "good"},
 ;            :error {:beer (not (#{:ipa :apa} "ipa"))}}
-           
+
 (require '[schema.coerce :as sc])
 
 (st/select-schema {:beer "ipa" :taste "good"} {:beer (s/enum :ipa :apa)} sc/json-coercion-matcher)
