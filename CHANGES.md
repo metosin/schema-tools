@@ -10,7 +10,7 @@
 - Updated dependencies:
 
 ```clojure
-[prismatic/schema "1.0.1"] is available but we use "0.4.3"
+[prismatic/schema "1.0.1"] is available but we use "0.4.4"
 ```
 
 ## 0.5.2 (19.8.2015)
