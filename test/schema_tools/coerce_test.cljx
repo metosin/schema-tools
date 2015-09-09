@@ -66,6 +66,9 @@
                :e 1
                :f "1"}))))))
 
+(defn boolean? [x]
+  (or (true? x) (false? x)))
+
 (deftest or-matcher-test
   (let [base-matcher (fn [schema-pred value-pred value-fn]
                        (fn [schema]
@@ -75,7 +78,7 @@
                                (value-fn x))))))
         m1 (base-matcher #(= s/Str %) string? #(string/upper-case %))
         m2 (base-matcher #(= s/Int %) number? inc)
-        m3 (base-matcher #(= s/Bool %) (partial instance? s/Bool) not)
+        m3 (base-matcher #(= s/Bool %) boolean? not)
         m4 (base-matcher #(= s/Str %) string? #(string/lower-case %))]
     (testing "or-matcher selects first matcher where schema matches"
       (is (= {:band "KISS", :number 42, :lucid true}
