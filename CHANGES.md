@@ -7,6 +7,11 @@
     i.e. `inner` is not called for them as they don't have sub-schemas.
     - Added `schema-tools.experimental.walk` which provides support for
     `schema.experimental.abstract-map`
+- Updated dependencies:
+
+```clojure
+[prismatic/schema "1.0.1"] is available but we use "0.4.3"
+```
 
 ## 0.5.2 (19.8.2015)
 
