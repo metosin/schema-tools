@@ -75,9 +75,8 @@
   schema.core.ConditionalSchema
   (-walk [this inner outer]
     (outer (with-meta (s/->ConditionalSchema
-                        (mapcat (fn [[pred schema]]
-                                  [pred (inner schema)])
-                                (:preds-and-schemas this))
+                        (for [[pred schema] (:preds-and-schemas this)]
+                          [pred (inner schema)])
                         (:error-symbol this))
                       (meta this))))
 
