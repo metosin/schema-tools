@@ -1,3 +1,7 @@
+## 0.6.1 (29.9.2015)
+
+- Fixed `walk` for `ConditionalSchema`
+
 ## 0.6.0 (9.9.2015)
 
 - **BREAKING**: Supports and depends on Schema 1.0.0
