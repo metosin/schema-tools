@@ -75,8 +75,8 @@
   schema.core.ConditionalSchema
   (-walk [this inner outer]
     (outer (with-meta (s/->ConditionalSchema
-                        (for [[pred schema] (:preds-and-schemas this)]
-                          [pred (inner schema)])
+                        (doall (for [[pred schema] (:preds-and-schemas this)]
+                                 [pred (inner schema)]))
                         (:error-symbol this))
                       (meta this))))
 
