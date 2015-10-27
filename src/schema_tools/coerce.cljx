@@ -40,8 +40,10 @@
   (when (and (map? schema) (not (record? schema)))
     (let [extra-keys-schema  (s/find-extra-keys-schema schema)
           extra-keys-checker (when extra-keys-schema
-                               (ss/checker (s/spec extra-keys-schema)
-                                           {:return-walked? true}))
+                               (ss/run-checker (fn [s params]
+                                                 (ss/checker (s/spec s) params))
+                                               true
+                                               extra-keys-schema))
           explicit-keys      (some->> (dissoc schema extra-keys-schema)
                                       keys
                                       (mapv s/explicit-schema-key)
