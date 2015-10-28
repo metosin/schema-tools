@@ -1,5 +1,6 @@
-## Unreleased
+## 0.6.2 (28.10.2015)
 
+- Fix select-schema bug introduced in 0.6.0: [#21](https://github.com/metosin/schema-tools/issues/21)
 - `schema-tools.walk`
     - Added support for `s/constrained`
 - Updated dependencies:
