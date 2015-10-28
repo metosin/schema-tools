@@ -82,4 +82,8 @@
 
   schema.core.CondPre
   (-walk [this inner outer]
-    (outer (with-meta (apply s/cond-pre (map inner (:schemas this))) (meta this)))))
+    (outer (with-meta (apply s/cond-pre (map inner (:schemas this))) (meta this))))
+
+  schema.core.Constrained
+  (-walk [this inner outer]
+    (outer (with-meta (s/constrained (inner (:schema this)) (:postcondition this) (:pred-name this)) (meta this)))))

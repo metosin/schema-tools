@@ -1,3 +1,13 @@
+## Unreleased
+
+- `schema-tools.walk`
+    - Added support for `s/constrained`
+- Updated dependencies:
+
+```clojure
+[prismatic/schema "1.0.2"] is available but we use "1.0.1"
+```
+
 ## 0.6.1 (29.9.2015)
 
 - Fixed `walk` for `ConditionalSchema`

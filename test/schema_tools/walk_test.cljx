@@ -104,3 +104,10 @@
              (fn [x] (swap! k conj x) x)
              identity)
     (is (= [[s/Str] s/Str] @k))))
+
+(deftest constrained-test
+  (let [k (atom [])]
+    (sw/walk (s/constrained s/Int even?)
+             (fn [x] (swap! k conj x) x)
+             identity)
+    (is (= [s/Int] @k))))
