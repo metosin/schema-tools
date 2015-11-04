@@ -1,6 +1,6 @@
 (ns schema-tools.core-test
-  (:require #+clj [clojure.test :refer [deftest testing is]]
-    #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
+  (:require #?(:clj  [clojure.test :refer [deftest testing is]]
+               :cljs [cljs.test :as test :refer-macros [deftest testing is]])
             [schema-tools.core :as st]
             [schema.core :as s :include-macros true]))
 
@@ -27,8 +27,9 @@
                 (s/optional-key :b) s/Str
                 (s/required-key "c") s/Str
                 s/Keyword s/Str}]
-    #+clj (testing "odd number of arguments"
-      (is (thrown? IllegalArgumentException (st/assoc schema :b s/Int :c))))
+    #?(:clj (testing "odd number of arguments"
+              (is (thrown? IllegalArgumentException
+                           (st/assoc schema :b s/Int :c)))))
     (testing "happy case"
       (is (= {(s/optional-key :a) s/Int
               :b s/Int
@@ -136,7 +137,7 @@
     (is (= {:a s/Str} (st/merge {:a s/Str} nil)))
     (is (= {:a s/Str} (st/merge nil {:a s/Str}))))
   (testing "non-maps can't be mapped"
-    (is (thrown? #+clj AssertionError #+cljs js/Error (st/merge [s/Str] [s/Num]))))
+    (is (thrown? #?(:clj AssertionError :cljs js/Error) (st/merge [s/Str] [s/Num]))))
   (testing "make anonymous if value changed"
     (is (nil? (meta (st/merge {:b s/Str} Kikka))))
     (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
@@ -151,7 +152,7 @@
       (is (= (keys (st/optional-keys schema))
              [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
     (testing "invalid input"
-      (is (thrown-with-msg? #+clj AssertionError #+cljs js/Error
+      (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
                             #"input should be nil or a vector of keys."
                             (st/optional-keys schema :ANY))))
     (testing "makes all given top-level keys are optional, ignoring missing keys"
@@ -172,7 +173,7 @@
       (is (= [:a :b :c (s/required-key "d")]
              (keys (st/required-keys schema)))))
     (testing "invalid input"
-      (is (thrown-with-msg? #+clj AssertionError #+cljs js/Error
+      (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
                             #"input should be nil or a vector of keys."
                             (st/required-keys schema :ANY))))
     (testing "makes all given top-level keys are required, ignoring missing keys"
@@ -194,20 +195,20 @@
   "Omena is an apple"
   {:color (s/enum :green :red)})
 
-#+clj
-(deftest resolve-schema-test
-  (testing "defined schema can be resolved"
-    (is (= #'Omena (st/resolve-schema Omena))))
-  (testing "just named schema can't be resolved"
-    (is (= nil (st/resolve-schema (s/schema-with-name {:ping s/Str} "Ping"))))))
+#?(:clj
+   (deftest resolve-schema-test
+     (testing "defined schema can be resolved"
+       (is (= #'Omena (st/resolve-schema Omena))))
+     (testing "just named schema can't be resolved"
+       (is (= nil (st/resolve-schema (s/schema-with-name {:ping s/Str} "Ping")))))))
 
-#+clj
-(deftest resolve-schema-description-test
-  (testing "schema with description"
-    (is (= "Banaani" (st/resolve-schema-description (st/schema-with-description Omena "Banaani")))))
-  (testing "schema with docstring"
-    (is (= "Omena is an apple" (st/resolve-schema-description Omena))))
-  (testing "schema without docstring"
-    (is (= nil (st/resolve-schema-description Kikka))))
-  (testing "anonymous schema"
-    (is (= nil (st/resolve-schema-description {:ping s/Str})))))
+#?(:clj
+   (deftest resolve-schema-description-test
+     (testing "schema with description"
+       (is (= "Banaani" (st/resolve-schema-description (st/schema-with-description Omena "Banaani")))))
+     (testing "schema with docstring"
+       (is (= "Omena is an apple" (st/resolve-schema-description Omena))))
+     (testing "schema without docstring"
+       (is (= nil (st/resolve-schema-description Kikka))))
+     (testing "anonymous schema"
+       (is (= nil (st/resolve-schema-description {:ping s/Str}))))))

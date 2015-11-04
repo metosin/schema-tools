@@ -1,6 +1,6 @@
 (ns schema-tools.coerce-test
-  (:require #+clj [clojure.test :refer [deftest testing is]]
-            #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
+  (:require #?(:clj  [clojure.test :refer [deftest testing is]]
+               :cljs [cljs.test :as test :refer-macros [deftest testing is]])
             [clojure.string :as string]
             [schema.core :as s]
             [schema.coerce :as sc]
@@ -18,8 +18,8 @@
                        (if (= s/Int schema)
                          (fn [x]
                            (if (string? x)
-                             #+clj (Long/parseLong x)
-                             #+cljs (js/parseInt x 10)
+                             #?(:clj  (Long/parseLong x)
+                                :cljs (js/parseInt x 10))
                              x))))
         string->vec->long (stc/forwarding-matcher string->vec string->long)
         string->long->vec (stc/forwarding-matcher string->long string->vec)]
@@ -99,7 +99,7 @@
       (testing "failed coercion throws ex-info"
         (try
           (coercer 123)
-          (catch #+clj Exception #+cljs js/Error e
+          (catch #?(:clj Exception :cljs js/Error) e
             (let [{:keys [schema type value]} (ex-data e)]
               (is (= :schema-tools.coerce/error type))
               (is (= s/Str schema))
@@ -115,7 +115,7 @@
       (testing "failed coercion throws ex-info"
         (try
           (coercer 123)
-          (catch #+clj Exception #+cljs js/Error e
+          (catch #?(:clj Exception :cljs js/Error) e
             (let [{:keys [schema type value]} (ex-data e)]
               (is (= ::horror type))
               (is (= s/Str schema))
@@ -133,7 +133,7 @@
       (testing "failed coercion throws ex-info"
         (try
           (stc/coerce 123 s/Str matcher)
-          (catch #+clj Exception #+cljs js/Error e
+          (catch #?(:clj Exception :cljs js/Error) e
             (let [{:keys [schema type value]} (ex-data e)]
               (is (= :schema-tools.coerce/error type))
               (is (= s/Str schema))
@@ -148,7 +148,7 @@
       (testing "failed coercion throws ex-info"
         (try
           (stc/coerce 123 s/Str matcher ::horror)
-          (catch #+clj Exception #+cljs js/Error e
+          (catch #?(:clj Exception :cljs js/Error) e
             (let [{:keys [schema type value]} (ex-data e)]
               (is (= ::horror type))
               (is (= s/Str schema))

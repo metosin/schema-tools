@@ -1,6 +1,6 @@
 (ns schema-tools.experimental.walk-test
-  (:require #+clj  [clojure.test :refer [deftest testing is]]
-            #+cljs [cljs.test :as test :refer-macros [deftest testing is]]
+  (:require #?(:clj  [clojure.test :refer [deftest testing is]]
+               :cljs [cljs.test :as test :refer-macros [deftest testing is]])
             schema-tools.experimental.walk
             [schema-tools.walk :as sw]
             [schema.core :as s]

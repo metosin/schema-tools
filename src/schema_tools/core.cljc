@@ -65,9 +65,9 @@
     schema
     (reduce
       (fn [schema [k v]]
-        #+clj (when-not v
-                (throw (IllegalArgumentException.
-                         "assoc expects even number of arguments after map/vector, found odd number")))
+        #?(:clj (when-not v
+                  (throw (IllegalArgumentException.
+                           "assoc expects even number of arguments after map/vector, found odd number"))))
         (let [rk (key-in-schema schema k)]
           (-> schema
               (clojure.core/dissoc rk)
@@ -99,7 +99,7 @@
   ([m ks]
    (get-in m ks nil))
   ([m ks not-found]
-   (loop [sentinel #+clj (Object.) #+cljs (js/Object.)
+   (loop [sentinel #?(:clj (Object.) :cljs (js/Object.))
           m m
           ks (seq ks)]
      (if ks
@@ -189,7 +189,7 @@
     ; temporary migration check for upgrading to 0.5.0+
    (try
      (s/explain schema)
-     (catch #+clj Exception #+cljs js/Error _
+     (catch #?(:clj Exception :cljs js/Error) _
        (throw (ex-info "Illegal argument order - breaking change in 0.5.0."
                        {:value value
                         :schema schema
@@ -217,22 +217,22 @@
   [schema]
   (-> schema meta :description))
 
-#+clj
-(defn resolve-schema
-  "Returns the schema var if the schema contains the :name and :ns
-  definitions (set by schema.core/defschema)."
-  [schema]
-  (if-let [schema-ns (s/schema-ns schema)]
-    (ns-resolve schema-ns (s/schema-name schema))))
+#?(:clj
+   (defn resolve-schema
+     "Returns the schema var if the schema contains the :name and :ns
+     definitions (set by schema.core/defschema)."
+     [schema]
+     (if-let [schema-ns (s/schema-ns schema)]
+       (ns-resolve schema-ns (s/schema-name schema)))))
 
-#+clj
-(defn resolve-schema-description
-  "Returns the schema description, in this lookup order:
-  a) schema meta :description
-  b) schema var meta :doc if not \"\"
-  c) nil"
-  [schema]
-  (or (schema-description schema)
-      (if-let [schema-ns (s/schema-ns schema)]
-        (let [doc (-> (ns-resolve schema-ns (s/schema-name schema)) meta :doc)]
-          (if-not (= "" doc) doc)))))
+#?(:clj
+   (defn resolve-schema-description
+     "Returns the schema description, in this lookup order:
+     a) schema meta :description
+     b) schema var meta :doc if not \"\"
+     c) nil"
+     [schema]
+     (or (schema-description schema)
+         (if-let [schema-ns (s/schema-ns schema)]
+           (let [doc (-> (ns-resolve schema-ns (s/schema-name schema)) meta :doc)]
+             (if-not (= "" doc) doc))))))

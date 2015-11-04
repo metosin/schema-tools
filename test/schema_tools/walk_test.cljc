@@ -1,6 +1,6 @@
 (ns schema-tools.walk-test
-  (:require #+clj  [clojure.test :refer [deftest testing is are]]
-            #+cljs [cljs.test :as test :refer-macros [deftest testing is are]]
+  (:require #?(:clj  [clojure.test :refer [deftest testing is are]]
+               :cljs [cljs.test :as test :refer-macros [deftest testing is are]])
             [schema-tools.walk :as sw]
             [schema.core :as s]))
 
@@ -40,10 +40,8 @@
              (replace-str {:a (s/maybe s/Str)}))))))
 
 (defn map-entry? [x]
-  #+clj
-  (instance? clojure.lang.IMapEntry x)
-  #+cljs
-  (satisfies? IMapEntry x))
+  #?(:clj  (instance? clojure.lang.IMapEntry x)
+     :cljs (satisfies? IMapEntry x)))
 
 (defn name-schemas [names schema]
   (sw/walk schema
