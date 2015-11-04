@@ -2,6 +2,11 @@
 
 - Converted source from Cljx to cljc
 - Dropped support for Clojure 1.6
+- Updated dependencies:
+
+```clojure
+[prismatic/schema "1.0.3"] is available but we use "1.0.2"
+```
 
 ## 0.6.2 (28.10.2015)
 

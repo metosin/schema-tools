@@ -1,4 +1,5 @@
 (ns schema-tools.walk-test
+  (:refer-clojure :exclude [map-entry?])
   (:require #?(:clj  [clojure.test :refer [deftest testing is are]]
                :cljs [cljs.test :as test :refer-macros [deftest testing is are]])
             [schema-tools.walk :as sw]
