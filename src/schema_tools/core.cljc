@@ -85,7 +85,7 @@
       schema ks)))
 
 (defn select-keys
-  "Like clojure.core/select-keys but handles boths optional-keys and required-keys."
+  "Like `clojure.core/select-keys` but handles boths optional-keys and required-keys."
   [schema ks]
   (maybe-anonymous
     schema
@@ -94,8 +94,8 @@
 
 (defn get-in
   "Returns the value in a nested associative Schema,
-  where ks is a sequence of keys. Returns nil if the key
-  is not present, or the not-found value if supplied."
+  where `ks` is a sequence of keys. Returns `nil` if the key
+  is not present, or the `not-found` value if supplied."
   ([m ks]
    (get-in m ks nil))
   ([m ks not-found]
@@ -111,8 +111,8 @@
        m))))
 
 (defn assoc-in
-  "Associates a value in a nested associative Schema, where ks is a
-  sequence of keys and v is the new value and returns a new nested Schema.
+  "Associates a value in a nested associative Schema, where `ks` is a
+  sequence of keys and `v` is the new value and returns a new nested Schema.
   If any levels do not exist, hash-maps will be created."
   [schema [k & ks] v]
   (maybe-anonymous
@@ -123,8 +123,8 @@
         (clojure.core/assoc schema kis v)))))
 
 (defn update-in
-  "'Updates' a value in a nested associative Schema, where ks is a
-  sequence of keys and f is a function that will take the old value
+  "'Updates' a value in a nested associative Schema, where `ks` is a
+  sequence of keys and `f` is a function that will take the old value
   and any supplied args and return the new value, and returns a new
   nested Schema. If any levels do not exist, hash-maps will be
   created."
@@ -181,7 +181,7 @@
 (defn select-schema
   "Strips all disallowed keys from nested Map schemas via coercion. Takes an optional
   coercion matcher for extra coercing the selected value(s) on a single sweep. If a value
-  can't be coerced to match the schema ExceptionInfo is thrown (like schema.core/validate)."
+  can't be coerced to match the schema `ExceptionInfo` is thrown (like `schema.core/validate`)."
   ([value schema]
    (select-schema value schema (constantly nil)))
   ([value schema matcher]
@@ -219,8 +219,8 @@
 
 #?(:clj
    (defn resolve-schema
-     "Returns the schema var if the schema contains the :name and :ns
-     definitions (set by schema.core/defschema)."
+     "Returns the schema var if the schema contains the `:name` and `:ns`
+     definitions (set by `schema.core/defschema`)."
      [schema]
      (if-let [schema-ns (s/schema-ns schema)]
        (ns-resolve schema-ns (s/schema-name schema)))))

@@ -6,10 +6,11 @@
             :distribution :repo
             :comments "same as Clojure"}
   :dependencies [[prismatic/schema "1.0.3"]]
-  :plugins [[codox "0.8.13"]]
+  :plugins [[funcool/codeina "0.3.0"]]
 
-  :codox {:src-dir-uri "http://github.com/metosin/schema-tools/blob/master/"
-          :src-linenum-anchor-prefix "L"}
+  :codeina {:target "doc"
+            :src-uri "http://github.com/metosin/schema-tools/blob/master/"
+            :src-uri-prefix "#L"}
 
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.1"]]
                    :dependencies [[criterium "0.4.3"]

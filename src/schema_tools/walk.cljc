@@ -20,8 +20,8 @@
           :cljs (satisfies? schema.core.Schema x))))
 
 (defn walk
-  "Calls inner for sub-schemas of this schema, creating new Schema of the same
-   type as given and preserving the metadata. Calls outer with the created
+  "Calls `inner for sub-schemas of this schema, creating new Schema of the same
+   type as given and preserving the metadata. Calls `outer with the created
    Schema."
   {:added "0.3.0"}
   [this inner outer]

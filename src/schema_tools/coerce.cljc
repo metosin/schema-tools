@@ -85,9 +85,9 @@
 ;;
 
 (defn coercer
-  "Produce a function that simultaneously coerces and validates a value against a schema.
-  If a value can't be coerced to match the schema, an ex-info is thrown - like schema.core/validate,
-  but with overridable :type, defaulting to :schema-tools.coerce/error."
+  "Produce a function that simultaneously coerces and validates a value against a `schema.`
+  If a value can't be coerced to match the schema, an `ex-info` is thrown - like `schema.core/validate`,
+  but with overridable `:type`, defaulting to `:schema-tools.coerce/error.`"
   ([schema matcher]
    (coercer schema matcher ::error))
   ([schema matcher type]
@@ -96,9 +96,9 @@
        (coerce-or-error! value schema coercer type)))))
 
 (defn coerce
-  "Simultaneously coerces and validates a value to match the given schema. If a value can't
-  be coerced to match the schema, an ex-info is thrown - like schema.core/validate,
-  but with overridable :type, defaulting to :schema-tools.coerce/error."
+  "Simultaneously coerces and validates a value to match the given `schema.` If a `value` can't
+  be coerced to match the `schema`, an `ex-info` is thrown - like `schema.core/validate`,
+  but with overridable `:type`, defaulting to `:schema-tools.coerce/error.`"
   ([value schema matcher]
     (coerce value schema matcher ::error))
   ([value schema matcher type]
