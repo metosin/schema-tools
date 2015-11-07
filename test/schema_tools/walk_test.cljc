@@ -62,7 +62,14 @@
                                      :b {:c {:d s/Int}}})]
     (is (= [:root :a] (-> named :a meta :name)))
     (is (= [:root :b] (-> named :b meta :name)))
-    (is (= [:root :b :c] (-> named :b :c meta :name)))))
+    (is (= [:root :b :c] (-> named :b :c meta :name))))
+
+  (let [named (name-schemas [:root] {:a {:b (with-meta [s/Str s/Int s/Bool] {:foo "bar"})}})]
+    (is (= [:root :a] (-> named :a meta :name)))
+    (is (= [s/Str s/Int s/Bool] (-> named :a :b))
+        "IMapEntry walk doesn't lose entries for other vectors")
+    (is (= "bar" (-> named :a :b meta :foo))
+        "IMapEntry walk keeps metadata")))
 
 (deftest leaf-schema-test
   (are [schema]

@@ -35,7 +35,7 @@
 (extend-protocol WalkableSchema
   #?@(:clj [clojure.lang.IMapEntry
             (-walk [this inner outer]
-                   (outer (vec (map inner this))))])
+                   (outer (with-meta (vec (map inner this)) (meta this))))])
 
   schema.core.Maybe
   (-walk [this inner outer]
