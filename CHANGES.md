@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Fixed problem with `walk` losing metadata for IMapEntries (or vectors) on
+Clojure 1.8
 - Converted source from Cljx to cljc
 - Dropped support for Clojure 1.6
 - Updated dependencies:
