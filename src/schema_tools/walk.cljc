@@ -1,15 +1,10 @@
 (ns schema-tools.walk
   "Provides walk function which can be used to transform schemas while
    preserving their structure and type."
-  (:require [schema.core :as s])
-  #?(:cljs (:refer-clojure :exclude [record?])))
+  (:require [schema.core :as s]))
 
 (defprotocol WalkableSchema
   (-walk [this inner outer]))
-
-#?(:cljs
-   (defn- record? [x]
-     (satisfies? IRecord x)))
 
 (defn- schema-record?
   "Tests if the parameter is Schema record. I.e. not vector, map or other
