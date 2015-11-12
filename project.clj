@@ -16,6 +16,6 @@
                    :dependencies [[criterium "0.4.3"]
                                   [org.clojure/clojure "1.7.0"]
                                   [org.clojure/clojurescript "1.7.145"]]}
-             :1.8 {:dependencies [[org.clojure/clojure "1.8.0-beta2"]]}}
+             :1.8 {:dependencies [[org.clojure/clojure "1.8.0-RC1"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.8"]
             "test-clj" ["all" "do" ["test"] ["check"]]})
