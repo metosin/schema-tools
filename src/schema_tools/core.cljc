@@ -9,16 +9,32 @@
 (defn- explicit-key-set [ks]
   (reduce (fn [s k] (conj s (explicit-key k))) #{} ks))
 
+(defn- single-sequence-element? [x]
+  (instance? schema.core.One x))
+
+(defn- index-in-schema [m k]
+  (let [last-idx (dec (count m))]
+    (cond
+      (<= k last-idx) k
+      (not (single-sequence-element? (get m last-idx))) last-idx
+      :else nil)))
+
 (defn- key-in-schema [m k]
   (cond
+    (and (sequential? m) (number? k)) (index-in-schema m k)
     (contains? m k) k
     (contains? m (s/optional-key k)) (s/optional-key k)
     (contains? m (s/required-key k)) (s/required-key k)
     (and (s/specific-key? k) (contains? m (s/explicit-schema-key k))) (s/explicit-schema-key k)
     :else k))
 
+(defn- schema-value [m]
+  (cond
+    (single-sequence-element? m) (:schema m)
+    :else m))
+
 (defn- get-in-schema [m k & [default]]
-  (get m (key-in-schema m k) default))
+  (schema-value (get m (key-in-schema m k) default)))
 
 (defn- maybe-anonymous [original current]
   (if (= original current)

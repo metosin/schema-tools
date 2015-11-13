@@ -80,7 +80,23 @@
     (is (= nil (st/get-in schema [:e])))
     (testing "works with defaults"
       (is (= s/Str (st/get-in schema [:e] s/Str)))
-      (is (= {:a s/Str} (st/get-in schema [:e :a] {:a s/Str}))))))
+      (is (= {:a s/Str} (st/get-in schema [:e :a] {:a s/Str})))))
+  (let [uniform-schema      [s/Str]
+        schema-with-singles [(s/one s/Str "0") (s/optional s/Int "1") s/Keyword]
+        bounded-schema      [(s/one s/Int "0") (s/optional s/Int "1")]
+        complex-schema {:a [(s/one {:b s/Int} "0") [s/Str]]}]
+    (testing "works with sequences"
+      (is (= s/Str (st/get-in uniform-schema [0])))
+      (is (= s/Str (st/get-in uniform-schema [1000])))
+      (is (= s/Str (st/get-in schema-with-singles [0])))
+      (is (= s/Int (st/get-in schema-with-singles [1])))
+      (is (= s/Keyword (st/get-in schema-with-singles [2])))
+      (is (= s/Keyword (st/get-in schema-with-singles [1000])))
+      (is (= s/Int (st/get-in bounded-schema [1])))
+      (is (= nil (st/get-in bounded-schema [2])))
+      (is (= s/Str (st/get-in complex-schema [:a 1 1000])))
+      (is (= s/Str (st/get-in complex-schema [:a 1000 1])))
+      (is (= s/Int (st/get-in complex-schema [:a 0 :b]))))))
 
 (deftest assoc-in-test
   (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}}]
