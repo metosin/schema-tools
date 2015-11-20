@@ -1,7 +1,8 @@
 (ns schema-tools.core
   (:require [schema.core :as s]
             [schema-tools.coerce :as stc]
-            [schema-tools.util :as stu])
+            [schema-tools.util :as stu]
+            [schema-tools.core.impl :as impl])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
@@ -28,13 +29,8 @@
     (and (s/specific-key? k) (contains? m (s/explicit-schema-key k))) (s/explicit-schema-key k)
     :else k))
 
-(defn- schema-value [m]
-  (cond
-    (single-sequence-element? m) (:schema m)
-    :else m))
-
 (defn- get-in-schema [m k & [default]]
-  (schema-value (get m (key-in-schema m k) default)))
+  (impl/schema-value (get m (key-in-schema m k) default)))
 
 (defn- maybe-anonymous [original current]
   (if (= original current)

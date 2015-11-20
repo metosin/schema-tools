@@ -94,7 +94,16 @@
     (is (= nil (st/get-in bounded-schema [2])))
     (is (= s/Str (st/get-in complex-schema [:a 1 1000])))
     (is (= s/Str (st/get-in complex-schema [:a 1000 1])))
-    (is (= s/Int (st/get-in complex-schema [:a 0 :b])))))
+    (is (= s/Int (st/get-in complex-schema [:a 0 :b]))))
+
+  (testing "maybe"
+    (is (= s/Str (st/get-in {:a (s/maybe {:b s/Str})} [:a :b]))))
+
+  (testing "named"
+    (is (= s/Str (st/get-in {:a (s/named {:b s/Str} 'FooBar)} [:a :b]))))
+
+  (testing "constrained"
+    (is (= s/Str (st/get-in {:a (s/constrained {:b s/Str} odd?)} [:a :b])))))
 
 (def assoc-in-schema
   {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}})
