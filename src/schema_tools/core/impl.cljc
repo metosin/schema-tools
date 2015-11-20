@@ -25,7 +25,7 @@
   schema.core.Constrained
   (schema-value [this] (:schema this))
 
-  Object
+  #?(:clj Object :cljs js/Object)
   (schema-value [this] this)
 
   nil
