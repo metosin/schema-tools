@@ -22,112 +22,118 @@
   (testing "can be used to extend schemas"
     (is (= nil (s/check (st/any-keyword-keys {(s/required-key "b") s/Bool}) {:a true, "b" true})))))
 
+(def basic-schema
+  {:a s/Str
+   (s/optional-key :b) s/Str
+   (s/required-key "c") s/Str
+   s/Keyword s/Str})
+
 (deftest assoc-test
-  (let [schema {:a s/Str
-                (s/optional-key :b) s/Str
-                (s/required-key "c") s/Str
-                s/Keyword s/Str}]
-    #?(:clj (testing "odd number of arguments"
-              (is (thrown? IllegalArgumentException
-                           (st/assoc schema :b s/Int :c)))))
-    (testing "happy case"
-      (is (= {(s/optional-key :a) s/Int
-              :b s/Int
-              "c" s/Int
-              (s/optional-key :d) s/Int
-              s/Keyword s/Int}
-             (st/assoc schema
-                       (s/optional-key :a) s/Int
-                       :b s/Int
-                       "c" s/Int
-                       (s/optional-key :d) s/Int
-                       s/Keyword s/Int))))
-    (testing "make anonymous if value changed"
-      (is (not (nil? (meta (st/assoc Kikka :a s/Str)))))
-      (is (nil? (meta (st/assoc Kikka :c s/Str)))))))
+  #?(:clj (testing "odd number of arguments"
+            (is (thrown? IllegalArgumentException
+                         (st/assoc basic-schema :b s/Int :c)))))
+  (testing "happy case"
+    (is (= {(s/optional-key :a) s/Int
+            :b s/Int
+            "c" s/Int
+            (s/optional-key :d) s/Int
+            s/Keyword s/Int}
+           (st/assoc basic-schema
+                     (s/optional-key :a) s/Int
+                     :b s/Int
+                     "c" s/Int
+                     (s/optional-key :d) s/Int
+                     s/Keyword s/Int))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/assoc Kikka :a s/Str)))))
+    (is (nil? (meta (st/assoc Kikka :c s/Str))))))
 
 (deftest dissoc-test
-  (let [schema {:a s/Str
-                (s/optional-key :b) s/Str
-                (s/required-key "c") s/Str
-                s/Keyword s/Str}]
-    (testing "dissoc"
-      (is (= {s/Keyword s/Str} (st/dissoc schema :a :b "c" :d))))
-    (testing "make anonymous if value changed"
-      (is (not (nil? (meta (st/dissoc Kikka :d)))))
-      (is (nil? (meta (st/dissoc Kikka :a)))))))
+  (testing "dissoc"
+    (is (= {s/Keyword s/Str} (st/dissoc basic-schema :a :b "c" :d))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/dissoc Kikka :d)))))
+    (is (nil? (meta (st/dissoc Kikka :a))))))
 
 (deftest select-keys-test
-  (let [schema {:a s/Str
-                (s/optional-key :b) s/Str
-                (s/required-key "c") s/Str
-                s/Keyword s/Str}]
-    (testing "select-keys"
-      (is (= {:a s/Str
-              (s/optional-key :b) s/Str
-              (s/required-key "c") s/Str}
-             (st/select-keys schema [:a :b "c" :d]))))
-    (testing "make anonymous if value changed"
-      (is (not (nil? (meta (st/select-keys Kikka [:a :b])))))
-      (is (nil? (meta (st/select-keys Kikka [:a])))))))
+  (testing "select-keys"
+    (is (= {:a s/Str
+            (s/optional-key :b) s/Str
+            (s/required-key "c") s/Str}
+           (st/select-keys basic-schema [:a :b "c" :d]))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/select-keys Kikka [:a :b])))))
+    (is (nil? (meta (st/select-keys Kikka [:a]))))))
+
+(def get-in-schema
+  {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
+   (s/optional-key "d") {s/Keyword s/Str}})
+
+(def uniform-schema [s/Str])
+(def schema-with-singles [(s/one s/Str "0") (s/optional s/Int "1") s/Keyword])
+(def bounded-schema [(s/one s/Int "0") (s/optional s/Int "1")])
+(def complex-schema {:a [(s/one {:b s/Int} "0") [s/Str]]})
 
 (deftest get-in-test
-  (let [schema {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
-                (s/optional-key "d") {s/Keyword s/Str}}]
-    (is (= s/Str (st/get-in schema [:a (s/optional-key :b) (s/required-key :c)])))
-    (is (= s/Str (st/get-in schema [:a :b :c])))
-    (is (= s/Str (st/get-in schema ["d" s/Keyword])))
-    (is (= nil (st/get-in schema [:e])))
-    (testing "works with defaults"
-      (is (= s/Str (st/get-in schema [:e] s/Str)))
-      (is (= {:a s/Str} (st/get-in schema [:e :a] {:a s/Str})))))
-  (let [uniform-schema      [s/Str]
-        schema-with-singles [(s/one s/Str "0") (s/optional s/Int "1") s/Keyword]
-        bounded-schema      [(s/one s/Int "0") (s/optional s/Int "1")]
-        complex-schema {:a [(s/one {:b s/Int} "0") [s/Str]]}]
-    (testing "works with sequences"
-      (is (= s/Str (st/get-in uniform-schema [0])))
-      (is (= s/Str (st/get-in uniform-schema [1000])))
-      (is (= s/Str (st/get-in schema-with-singles [0])))
-      (is (= s/Int (st/get-in schema-with-singles [1])))
-      (is (= s/Keyword (st/get-in schema-with-singles [2])))
-      (is (= s/Keyword (st/get-in schema-with-singles [1000])))
-      (is (= s/Int (st/get-in bounded-schema [1])))
-      (is (= nil (st/get-in bounded-schema [2])))
-      (is (= s/Str (st/get-in complex-schema [:a 1 1000])))
-      (is (= s/Str (st/get-in complex-schema [:a 1000 1])))
-      (is (= s/Int (st/get-in complex-schema [:a 0 :b]))))))
+  (is (= s/Str (st/get-in get-in-schema [:a (s/optional-key :b) (s/required-key :c)])))
+  (is (= s/Str (st/get-in get-in-schema [:a :b :c])))
+  (is (= s/Str (st/get-in get-in-schema ["d" s/Keyword])))
+  (is (= nil (st/get-in get-in-schema [:e])))
+  (testing "works with defaults"
+    (is (= s/Str (st/get-in get-in-schema [:e] s/Str)))
+    (is (= {:a s/Str} (st/get-in get-in-schema [:e :a] {:a s/Str}))))
+
+  (testing "works with sequences"
+    (is (= s/Str (st/get-in uniform-schema [0])))
+    (is (= s/Str (st/get-in uniform-schema [1000])))
+    (is (= s/Str (st/get-in schema-with-singles [0])))
+    (is (= s/Int (st/get-in schema-with-singles [1])))
+    (is (= s/Keyword (st/get-in schema-with-singles [2])))
+    (is (= s/Keyword (st/get-in schema-with-singles [1000])))
+    (is (= s/Int (st/get-in bounded-schema [1])))
+    (is (= nil (st/get-in bounded-schema [2])))
+    (is (= s/Str (st/get-in complex-schema [:a 1 1000])))
+    (is (= s/Str (st/get-in complex-schema [:a 1000 1])))
+    (is (= s/Int (st/get-in complex-schema [:a 0 :b])))))
+
+(def assoc-in-schema
+  {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}})
 
 (deftest assoc-in-test
-  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}}]
-    (testing "assoc-in"
-      (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e {:f s/Str}}}}}
-             (st/assoc-in schema [:a [1 2 3] "d" :e :f] s/Str))))
-    (testing "make anonymous if value changed"
-      (is (not (nil? (meta (st/assoc-in Kikka [:a] s/Str)))))
-      (is (nil? (meta (st/assoc-in Kikka [:c :d] s/Str)))))))
+  (testing "assoc-in"
+    (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e {:f s/Str}}}}}
+           (st/assoc-in assoc-in-schema [:a [1 2 3] "d" :e :f] s/Str))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/assoc-in Kikka [:a] s/Str)))))
+    (is (nil? (meta (st/assoc-in Kikka [:c :d] s/Str))))))
+
+(def update-in-schema
+  {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}})
 
 (deftest update-in-test
-  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str}}}]
-    (testing "update-in"
-      (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}
-             (st/update-in schema [:a [1 2 3] "d"] (constantly s/Int)))))
-    (testing "make anonymous if value changed"
-      (is (not (nil? (meta (st/update-in Kikka [:a] (constantly s/Str))))))
-      (is (nil? (meta (st/update-in Kikka [:c :d] (constantly s/Str))))))))
+  (testing "update-in"
+    (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}
+           (st/update-in update-in-schema [:a [1 2 3] "d"] (constantly s/Int)))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/update-in Kikka [:a] (constantly s/Str))))))
+    (is (nil? (meta (st/update-in Kikka [:c :d] (constantly s/Str)))))))
+
+(def dissoc-in-schema
+  {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str
+                                 :kikka s/Str}}})
+
+(def dissoc-in-schema-2
+  (s/schema-with-name {:a {:b {:c s/Str}}} 'Kikka))
 
 (deftest dissoc-in-test
-  (let [schema {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Str
-                                              :kikka s/Str}}}]
-    (testing "dissoc-in"
-      (is (= {:a {(s/optional-key [1 2 3]) {:kikka s/Str}}}
-             (st/dissoc-in schema [:a [1 2 3] "d"]))))
-    (testing "resulting empty maps are removed"
-      (is (= {} (st/dissoc-in schema [:a [1 2 3]]))))
-    (testing "make anonymous if value changed"
-      (let [schema (s/schema-with-name {:a {:b {:c s/Str}}} 'Kikka)]
-        (is (not (nil? (meta (st/dissoc-in schema [:a :b :d])))))
-        (is (nil? (meta (st/dissoc-in schema [:a :b :c]))))))))
+  (testing "dissoc-in"
+    (is (= {:a {(s/optional-key [1 2 3]) {:kikka s/Str}}}
+           (st/dissoc-in dissoc-in-schema [:a [1 2 3] "d"]))))
+  (testing "resulting empty maps are removed"
+    (is (= {} (st/dissoc-in dissoc-in-schema [:a [1 2 3]]))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/dissoc-in dissoc-in-schema-2 [:a :b :d])))))
+    (is (nil? (meta (st/dissoc-in dissoc-in-schema-2 [:a :b :c]))))))
 
 (deftest update-test
   (testing "update"
@@ -159,47 +165,55 @@
     (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
     (is (nil? (meta (st/merge Kikka {:c s/Str}))))))
 
+(def optional-keys-schema
+  {(s/optional-key :a) s/Str
+   (s/required-key :b) s/Str
+   :c s/Str
+   (s/required-key "d") s/Str})
+
+(def optional-keys-schema-2
+  (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka))
+
 (deftest optional-keys-test
-  (let [schema {(s/optional-key :a) s/Str
-                (s/required-key :b) s/Str
-                :c s/Str
-                (s/required-key "d") s/Str}]
-    (testing "without extra arguments makes all top-level keys optional"
-      (is (= (keys (st/optional-keys schema))
-             [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
-    (testing "invalid input"
-      (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
-                            #"input should be nil or a vector of keys."
-                            (st/optional-keys schema :ANY))))
-    (testing "makes all given top-level keys are optional, ignoring missing keys"
-      (is (= schema (st/optional-keys schema [:NON-EXISTING])))
-      (is (= [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")]
-             (keys (st/optional-keys schema [:a :b "d" :NON-EXISTING])))))
-    (testing "make anonymous if value changed"
-      (let [schema (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka)]
-        (is (not (nil? (meta (st/optional-keys schema [])))))
-        (is (nil? (meta (st/optional-keys schema [:b]))))))))
+  (testing "without extra arguments makes all top-level keys optional"
+    (is (= (keys (st/optional-keys optional-keys-schema))
+           [(s/optional-key :a) (s/optional-key :b) (s/optional-key :c) (s/optional-key "d")])))
+  (testing "invalid input"
+    (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
+                          #"input should be nil or a vector of keys."
+                          (st/optional-keys optional-keys-schema :ANY))))
+  (testing "makes all given top-level keys are optional, ignoring missing keys"
+    (is (= optional-keys-schema (st/optional-keys optional-keys-schema [:NON-EXISTING])))
+    (is (= [(s/optional-key :a) (s/optional-key :b) :c (s/optional-key "d")]
+           (keys (st/optional-keys optional-keys-schema [:a :b "d" :NON-EXISTING])))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/optional-keys optional-keys-schema-2 [])))))
+    (is (nil? (meta (st/optional-keys optional-keys-schema-2 [:b]))))))
+
+(def required-keys-schema
+  {(s/required-key :a) s/Str
+   (s/optional-key :b) s/Str
+   :c s/Str
+   (s/optional-key "d") s/Str})
+
+(def required-keys-schema-2
+  (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka))
 
 (deftest required-keys-test
-  (let [schema {(s/required-key :a) s/Str
-                (s/optional-key :b) s/Str
-                :c s/Str
-                (s/optional-key "d") s/Str}]
-    (testing "without extra arguments makes all top-level keys required"
-      (is (= [:a :b :c (s/required-key "d")]
-             (keys (st/required-keys schema)))))
-    (testing "invalid input"
-      (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
-                            #"input should be nil or a vector of keys."
-                            (st/required-keys schema :ANY))))
-    (testing "makes all given top-level keys are required, ignoring missing keys"
-      (is (= schema (st/required-keys schema [:NON-EXISTING])))
-      (is (= [:a :b :c (s/required-key "d")]
-             (keys (st/required-keys schema [:b [1 2 3] "d" :NON-EXISTING])))))
-    (testing "make anonymous if value changed"
-      (let [schema (s/schema-with-name {(s/optional-key :a) s/Str, :b s/Str} 'Kikka)]
-        (is (not (nil? (meta (st/required-keys schema [])))))
-        (is (nil? (meta (st/required-keys schema [:a]))))))))
+  (testing "without extra arguments makes all top-level keys required"
+    (is (= [:a :b :c (s/required-key "d")]
+           (keys (st/required-keys required-keys-schema)))))
+  (testing "invalid input"
+    (is (thrown-with-msg? #?(:clj AssertionError :cljs js/Error)
+                          #"input should be nil or a vector of keys."
+                          (st/required-keys required-keys-schema :ANY))))
+  (testing "makes all given top-level keys are required, ignoring missing keys"
+    (is (= required-keys-schema (st/required-keys required-keys-schema [:NON-EXISTING])))
+    (is (= [:a :b :c (s/required-key "d")]
+           (keys (st/required-keys required-keys-schema [:b [1 2 3] "d" :NON-EXISTING])))))
+  (testing "make anonymous if value changed"
+    (is (not (nil? (meta (st/required-keys required-keys-schema-2 [])))))
+    (is (nil? (meta (st/required-keys required-keys-schema-2 [:a]))))))
 
 (deftest schema-description
   (testing "schema-with-description"
