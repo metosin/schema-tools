@@ -104,6 +104,11 @@
     (let [ks? (explicit-key-set ks)]
       (into {} (filter (comp ks? explicit-key key) schema)))))
 
+(defn schema-value
+  "Returns the sub-schema or sub-schemas of given schema."
+  [s]
+  (impl/schema-value s))
+
 (defn get-in
   "Returns the value in a nested associative Schema,
   where `ks` is a sequence of keys. Returns `nil` if the key
@@ -112,7 +117,7 @@
    (get-in m ks nil))
   ([m ks not-found]
    (loop [sentinel #?(:clj (Object.) :cljs (js/Object.))
-          m m
+          m (impl/schema-value m)
           ks (seq ks)]
      (if ks
        (let [k (first ks)]

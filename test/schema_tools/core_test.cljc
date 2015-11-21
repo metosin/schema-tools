@@ -97,13 +97,47 @@
     (is (= s/Int (st/get-in complex-schema [:a 0 :b]))))
 
   (testing "maybe"
+    (is (= s/Str (st/schema-value (s/maybe s/Str))))
     (is (= s/Str (st/get-in {:a (s/maybe {:b s/Str})} [:a :b]))))
 
   (testing "named"
+    (is (= s/Str (st/schema-value (s/named s/Str 'FooBar))))
     (is (= s/Str (st/get-in {:a (s/named {:b s/Str} 'FooBar)} [:a :b]))))
 
   (testing "constrained"
-    (is (= s/Str (st/get-in {:a (s/constrained {:b s/Str} odd?)} [:a :b])))))
+    (is (= s/Str (st/schema-value (s/constrained s/Str odd?))))
+    (is (= s/Str (st/get-in {:a (s/constrained {:b s/Str} odd?)} [:a :b]))))
+
+  (testing "both"
+    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/both {:a s/Str} {:a s/Int}) )))
+    (is (= s/Str (st/get-in {:a (s/both s/Str)} [:a 0])))
+    (is (= s/Int (st/get-in {:a (s/both s/Str s/Int)} [:a 1])))
+    (is (= s/Str (st/get-in (s/both {:a s/Str} {:a s/Int}) [0 :a])))
+    (is (= s/Int (st/get-in (s/both {:a s/Str} {:a s/Int}) [1 :a]))))
+
+  (testing "either"
+    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/either {:a s/Str} {:a s/Int}) )))
+    (is (= s/Str (st/get-in {:a (s/either s/Str)} [:a 0])))
+    (is (= s/Int (st/get-in {:a (s/either s/Str s/Int)} [:a 1])))
+    (is (= s/Str (st/get-in (s/either {:a s/Str} {:a s/Int}) [0 :a])))
+    (is (= s/Int (st/get-in (s/either {:a s/Str} {:a s/Int}) [1 :a]))))
+
+  (testing "conditional"
+    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/conditional odd? {:a s/Str} even? {:a s/Int}) )))
+    (is (= s/Str (st/get-in {:a (s/conditional odd? s/Str)} [:a 0])))
+    (is (= s/Int (st/get-in {:a (s/conditional odd? s/Str even? s/Int)} [:a 1])))
+    (is (= s/Str (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [0 :a])))
+    (is (= s/Int (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [1 :a]))))
+
+  (testing "cond-pre"
+    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/cond-pre {:a s/Str} {:a s/Int}) )))
+    (is (= s/Str (st/get-in {:a (s/cond-pre s/Str)} [:a 0])))
+    (is (= s/Int (st/get-in {:a (s/cond-pre s/Str s/Int)} [:a 1])))
+    (is (= s/Str (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [0 :a])))
+    (is (= s/Int (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [1 :a]))))
+
+  (testing "enum"
+    (is (= #{:a :b} (st/schema-value (s/enum :a :b))))))
 
 (def assoc-in-schema
   {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}})

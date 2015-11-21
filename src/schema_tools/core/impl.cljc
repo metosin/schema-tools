@@ -11,19 +11,32 @@
   schema.core.Maybe
   (schema-value [this] (:schema this))
 
-  ; schema.core.Both
-  ; schema.core.Either
-  ; schema.core.Recursive
+  schema.core.Both
+  (schema-value [this] (vec (:schemas this)))
+
+  schema.core.Either
+  (schema-value [this] (vec (:schemas this)))
+
+  #?@(:clj [schema.core.Recursive
+            (schema-value [this] @(:derefable this))])
+
   ; schema.core.Predicate
+  ; (schema-value [this] (:p? this))
 
   schema.core.NamedSchema
   (schema-value [this] (:schema this))
 
-  ; schema.core.ConditionalSchema
-  ; schema.core.CondPre
+  schema.core.ConditionalSchema
+  (schema-value [this] (vec (map second (:preds-and-schemas this))))
+
+  schema.core.CondPre
+  (schema-value [this] (vec (:schemas this)))
 
   schema.core.Constrained
   (schema-value [this] (:schema this))
+
+  schema.core.EnumSchema
+  (schema-value [this] (:vs this))
 
   #?(:clj Object :cljs js/Object)
   (schema-value [this] this)
