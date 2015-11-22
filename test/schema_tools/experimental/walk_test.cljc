@@ -16,8 +16,8 @@
 
 (deftest abstract-map-test
   (let [k (atom [])]
-    (sw/walk Animal (fn [x] (swap! k conj x) x) identity)
+    (sw/walk (fn [x] (swap! k conj x) x) identity Animal)
     (is (= [Cat {:age s/Num, :vegan? s/Bool}] @k)))
   (let [k (atom [])]
-    (sw/walk Cat (fn [x] (swap! k conj x) x) identity)
+    (sw/walk (fn [x] (swap! k conj x) x) identity Cat)
     (is (= [Animal {:age s/Num, :vegan? s/Bool, :fav-catnip s/Str, :type (s/enum :cat)}] @k))))

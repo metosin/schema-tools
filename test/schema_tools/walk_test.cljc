@@ -11,8 +11,37 @@
     (let [s {:a s/Str
              :b s/Int
              :s (s/maybe s/Str)}]
-      (is (= s (sw/walk s identity identity)))))
+      (is (= s (sw/walk identity identity s)))))
 
+  (testing "inner is called with the MapEntries"
+    (let [k (atom [])]
+      (sw/walk (fn [x]
+                 (swap! k conj x)
+                 x)
+               identity
+               {:a s/Str :b s/Str})
+      (is (= [[:a s/Str] [:b s/Str]] @k))))
+
+  (testing "elements can be replaced"
+    (is (= {:a (s/maybe s/Str)
+            :b (s/maybe s/Str)}
+           (sw/walk (fn [[k v]]
+                      [k (s/maybe v)])
+                    identity
+                    {:a s/Str :b s/Str}))))
+
+  (testing "Insides of schemas are walked and can be replaced"
+    (letfn [(replace-str [s]
+              (sw/walk (fn [x]
+                         (if (= x s/Str)
+                           s/Int
+                           (replace-str x)))
+                       identity
+                       s))]
+      (is (= {:a (s/maybe s/Int)}
+             (replace-str {:a (s/maybe s/Str)}))))))
+
+(deftest legacy-walk-arguments-test
   (testing "inner is called with the MapEntries"
     (let [k (atom [])]
       (sw/walk {:a s/Str :b s/Str}
@@ -20,34 +49,14 @@
                  (swap! k conj x)
                  x)
                identity)
-      (is (= [[:a s/Str] [:b s/Str]] @k))))
-
-  (testing "elements can be replaced"
-    (is (= {:a (s/maybe s/Str)
-            :b (s/maybe s/Str)}
-           (sw/walk {:a s/Str :b s/Str}
-                    (fn [[k v]]
-                      [k (s/maybe v)])
-                    identity))))
-
-  (testing "Insides of schemas are walked and can be replaced"
-    (letfn [(replace-str [s]
-              (sw/walk s
-                       (fn [x]
-                         (if (= x s/Str)
-                           s/Int
-                           (replace-str x)))
-                       identity))]
-      (is (= {:a (s/maybe s/Int)}
-             (replace-str {:a (s/maybe s/Str)}))))))
+      (is (= [[:a s/Str] [:b s/Str]] @k)))))
 
 (defn map-entry? [x]
   #?(:clj  (instance? clojure.lang.IMapEntry x)
      :cljs (satisfies? IMapEntry x)))
 
 (defn name-schemas [names schema]
-  (sw/walk schema
-           (fn [x]
+  (sw/walk (fn [x]
              (if (map-entry? x)
                [(key x) (name-schemas (conj names (s/explicit-schema-key (key x))) (val x))]
                (name-schemas names x)))
@@ -56,7 +65,8 @@
                (if-not (s/schema-name x)
                  (with-meta x {:name names})
                  x)
-               x))))
+               x))
+           schema))
 
 (deftest name-schemas-test
   (let [named (name-schemas [:root] {:a {:b s/Str}
@@ -77,7 +87,7 @@
        (testing (pr-str schema)
          (let [fail (atom false)
                success (atom false)]
-           (sw/walk schema (fn [x] (reset! fail true) x) (fn [x] (reset! success true) x))
+           (sw/walk (fn [x] (reset! fail true) x) (fn [x] (reset! success true) x) schema)
            (is (not @fail))
            (is @success)))
 
@@ -100,23 +110,23 @@
 
 (deftest conditional-test
   (let [k (atom [])]
-    (sw/walk (s/conditional :a {:a s/Str} :b {:b s/Num} (constantly true) {:c s/Bool})
-             (fn [x] (swap! k conj x) x)
-             identity)
+    (sw/walk (fn [x] (swap! k conj x) x)
+             identity
+             (s/conditional :a {:a s/Str} :b {:b s/Num} (constantly true) {:c s/Bool}))
     (is (= [{:a s/Str} {:b s/Num} {:c s/Bool}] @k))))
 
 (deftest condpre-test
   (let [k (atom [])]
-    (sw/walk (s/cond-pre [s/Str] s/Str)
-             (fn [x] (swap! k conj x) x)
-             identity)
+    (sw/walk (fn [x] (swap! k conj x) x)
+             identity
+             (s/cond-pre [s/Str] s/Str))
     (is (= [[s/Str] s/Str] @k))))
 
 (deftest constrained-test
   (let [k (atom [])]
-    (sw/walk (s/constrained s/Int even?)
-             (fn [x] (swap! k conj x) x)
-             identity)
+    (sw/walk (fn [x] (swap! k conj x) x)
+             identity
+             (s/constrained s/Int even?))
     (is (= [s/Int] @k))))
 
 (defn recursive-optional-keys [m]
