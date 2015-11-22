@@ -75,4 +75,4 @@
 
   schema.core.Constrained
   (-walk [this inner outer]
-    (outer (with-meta (s/constrained (inner (:schema this)) (:postcondition this) (:pred-name this)) (meta this)))))
+    (outer (with-meta (s/constrained (inner (:schema this)) (:postcondition this) (:post-name this)) (meta this)))))
