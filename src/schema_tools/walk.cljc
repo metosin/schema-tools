@@ -19,6 +19,7 @@
   type as given and preserving the metadata. Calls `outer` with the created
   Schema."
   {:added "0.3.0"}
+  ; FIXME: The argument order is different to clojure.walk/walk
   [this inner outer]
   (cond
     ; Schemas with children
@@ -31,6 +32,22 @@
     (seq? this) (outer (with-meta (doall (map inner this)) (meta this)))
     (coll? this) (outer (with-meta (into (empty this) (map inner this)) (meta this)))
     :else (outer this)))
+
+(defn postwalk
+  "Performs a depth-first, post-order traversal of `schema`.  Calls `f` on
+  each sub-form, uses f's return value in place of the original.
+  Works with Schemas implementing schema-tools.walk/WalkableSchema,
+  implementation is provided for built-in schemas.
+  Consumes seqs as with doall."
+  {:added "0.8"}
+  [f schema]
+  (walk schema (partial postwalk f) f))
+
+(defn prewalk
+  "Like postwalk, but does pre-order traversal."
+  {:added "0.8"}
+  [f schema]
+  (walk (f schema) (partial prewalk f) identity))
 
 (extend-protocol WalkableSchema
   #?@(:clj [clojure.lang.IMapEntry

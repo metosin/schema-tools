@@ -3,6 +3,7 @@
   (:require #?(:clj  [clojure.test :refer [deftest testing is are]]
                :cljs [cljs.test :as test :refer-macros [deftest testing is are]])
             [schema-tools.walk :as sw]
+            [schema-tools.core :as st]
             [schema.core :as s]))
 
 (deftest walk-test
@@ -117,3 +118,24 @@
              (fn [x] (swap! k conj x) x)
              identity)
     (is (= [s/Int] @k))))
+
+(defn recursive-optional-keys [m]
+  (sw/postwalk (fn [s]
+                 ; FIXME: Should a helper fn be provided to check if value is a map schema?
+                 (if (and (map? s) (not (record? s)))
+                   (st/optional-keys s)
+                   s))
+               m))
+
+(deftest recursive-optional-keys-test
+  (is (= {(s/optional-key :a) s/Str
+          (s/optional-key :b) {(s/optional-key :c) s/Str}}
+         (recursive-optional-keys {:a s/Str
+                                   :b {:c s/Str}})))
+
+  (is (= (s/constrained {(s/optional-key :a) s/Str
+                         (s/optional-key :b) {(s/optional-key :c) s/Str}}
+                        map?)
+         (recursive-optional-keys (s/constrained {:a s/Str
+                                                  :b {:c s/Str}}
+                                                 map?)))))

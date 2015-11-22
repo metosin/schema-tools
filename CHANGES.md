@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add `postwalk` and `prewalk` to `schema-tools.walk`
+
 ## 0.7.0 (8.11.2015)
 
 - Fixed problem with `walk` losing metadata for IMapEntries (or vectors) on
