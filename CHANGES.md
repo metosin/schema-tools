@@ -1,6 +1,11 @@
 ## Unreleased
 
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
+- Updated dependencies:
+
+```clj
+[prismatic/schema "1.0.4"] is available but we use "1.0.3"
+```
 
 ## 0.7.0 (8.11.2015)
 
