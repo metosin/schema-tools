@@ -85,10 +85,4 @@
       (testing "select-schema drops disallowed keys making value match schema"
         (let [selected (st/select-schema value schema)]
           (is (valid? schema selected))
-          (is (= {:x-abba "kikka", :a "kakka"} selected))))))
-
-  (testing "using with pre 0.5.0 argument order"
-    (is (thrown-with-msg?
-          #?(:clj clojure.lang.ExceptionInfo :cljs js/Error)
-          #"Illegal argument order - breaking change in 0.5.0."
-          (st/select-schema (s/enum :a :b) :b)))))
+          (is (= {:x-abba "kikka", :a "kakka"} selected)))))))

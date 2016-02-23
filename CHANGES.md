@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
+- `select-schema` migration helper has been dropped off
 - Updated dependencies:
 
 ```clj

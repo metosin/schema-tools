@@ -202,16 +202,6 @@
   ([value schema]
    (select-schema value schema (constantly nil)))
   ([value schema matcher]
-
-    ; temporary migration check for upgrading to 0.5.0+
-   (try
-     (s/explain schema)
-     (catch #?(:clj Exception :cljs js/Error) _
-       (throw (ex-info "Illegal argument order - breaking change in 0.5.0."
-                       {:value value
-                        :schema schema
-                        :matcher matcher}))))
-
    (stc/coerce value schema (stc/or-matcher stc/map-filter-matcher matcher))))
 
 (defn optional-keys
