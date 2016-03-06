@@ -13,7 +13,7 @@
             :src-uri-prefix "#L"}
 
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.3"]]
-                   :dependencies [[criterium "0.4.3"]
+                   :dependencies [[criterium "0.4.4"]
                                   [org.clojure/clojure "1.7.0"]
                                   [org.clojure/clojurescript "1.7.145"]]}
              :1.8 {:dependencies [[org.clojure/clojure "1.8.0-RC3"]]}}
