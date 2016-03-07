@@ -1,8 +1,8 @@
 (ns schema-tools.core-test
-  (:require #?(:clj  [clojure.test :refer [deftest testing is]]
+  (:require #?(:clj [clojure.test :refer [deftest testing is]]
                :cljs [cljs.test :as test :refer-macros [deftest testing is]])
-            [schema-tools.core :as st]
-            [schema.core :as s :include-macros true]))
+                    [schema-tools.core :as st]
+                    [schema.core :as s :include-macros true]))
 
 (s/defschema Kikka {:a s/Str :b s/Str})
 
@@ -96,48 +96,54 @@
     (is (= s/Str (st/get-in complex-schema [:a 1000 1])))
     (is (= s/Int (st/get-in complex-schema [:a 0 :b]))))
 
-  (testing "maybe"
-    (is (= s/Str (st/schema-value (s/maybe s/Str))))
-    (is (= s/Str (st/get-in {:a (s/maybe {:b s/Str})} [:a :b]))))
+  (testing "schema records in path are walked over as normal records"
+    (let [schema {:a (s/maybe {:b s/Str})}]
+      (is (= (s/maybe {:b s/Str}) (st/get-in schema [:a])))
+      (is (= {:b s/Str} (st/get-in schema [:a :schema])))
+      (is (= s/Str (st/get-in schema [:a :schema :b])))))
 
-  (testing "named"
-    (is (= s/Str (st/schema-value (s/named s/Str 'FooBar))))
-    (is (= s/Str (st/get-in {:a (s/named {:b s/Str} 'FooBar)} [:a :b]))))
+  #_(testing "maybe"
+      (is (= s/Str (st/schema-value (s/maybe s/Str))))
+      (is (= s/Str (st/get-in {:a (s/maybe {:b s/Str})} [:a :b]))))
 
-  (testing "constrained"
-    (is (= s/Str (st/schema-value (s/constrained s/Str odd?))))
-    (is (= s/Str (st/get-in {:a (s/constrained {:b s/Str} odd?)} [:a :b]))))
+  #_(testing "named"
+      (is (= s/Str (st/schema-value (s/named s/Str 'FooBar))))
+      (is (= s/Str (st/get-in {:a (s/named {:b s/Str} 'FooBar)} [:a :b]))))
 
-  (testing "both"
-    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/both {:a s/Str} {:a s/Int}) )))
-    (is (= s/Str (st/get-in {:a (s/both s/Str)} [:a 0])))
-    (is (= s/Int (st/get-in {:a (s/both s/Str s/Int)} [:a 1])))
-    (is (= s/Str (st/get-in (s/both {:a s/Str} {:a s/Int}) [0 :a])))
-    (is (= s/Int (st/get-in (s/both {:a s/Str} {:a s/Int}) [1 :a]))))
+  #_(testing "constrained"
+      (is (= s/Str (st/schema-value (s/constrained s/Str odd?))))
+      (is (= s/Str (st/get-in {:a (s/constrained {:b s/Str} odd?)} [:a :b]))))
 
-  (testing "either"
-    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/either {:a s/Str} {:a s/Int}) )))
-    (is (= s/Str (st/get-in {:a (s/either s/Str)} [:a 0])))
-    (is (= s/Int (st/get-in {:a (s/either s/Str s/Int)} [:a 1])))
-    (is (= s/Str (st/get-in (s/either {:a s/Str} {:a s/Int}) [0 :a])))
-    (is (= s/Int (st/get-in (s/either {:a s/Str} {:a s/Int}) [1 :a]))))
+  #_(testing "both"
+      (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/both {:a s/Str} {:a s/Int}))))
+      (is (= s/Str (st/get-in {:a (s/both s/Str)} [:a 0])))
+      (is (= s/Int (st/get-in {:a (s/both s/Str s/Int)} [:a 1])))
+      (is (= s/Str (st/get-in (s/both {:a s/Str} {:a s/Int}) [0 :a])))
+      (is (= s/Int (st/get-in (s/both {:a s/Str} {:a s/Int}) [1 :a]))))
 
-  (testing "conditional"
-    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/conditional odd? {:a s/Str} even? {:a s/Int}) )))
-    (is (= s/Str (st/get-in {:a (s/conditional odd? s/Str)} [:a 0])))
-    (is (= s/Int (st/get-in {:a (s/conditional odd? s/Str even? s/Int)} [:a 1])))
-    (is (= s/Str (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [0 :a])))
-    (is (= s/Int (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [1 :a]))))
+  #_(testing "either"
+      (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/either {:a s/Str} {:a s/Int}))))
+      (is (= s/Str (st/get-in {:a (s/either s/Str)} [:a 0])))
+      (is (= s/Int (st/get-in {:a (s/either s/Str s/Int)} [:a 1])))
+      (is (= s/Str (st/get-in (s/either {:a s/Str} {:a s/Int}) [0 :a])))
+      (is (= s/Int (st/get-in (s/either {:a s/Str} {:a s/Int}) [1 :a]))))
 
-  (testing "cond-pre"
-    (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/cond-pre {:a s/Str} {:a s/Int}) )))
-    (is (= s/Str (st/get-in {:a (s/cond-pre s/Str)} [:a 0])))
-    (is (= s/Int (st/get-in {:a (s/cond-pre s/Str s/Int)} [:a 1])))
-    (is (= s/Str (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [0 :a])))
-    (is (= s/Int (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [1 :a]))))
+  #_(testing "conditional"
+      (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/conditional odd? {:a s/Str} even? {:a s/Int}))))
+      (is (= s/Str (st/get-in {:a (s/conditional odd? s/Str)} [:a 0])))
+      (is (= s/Int (st/get-in {:a (s/conditional odd? s/Str even? s/Int)} [:a 1])))
+      (is (= s/Str (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [0 :a])))
+      (is (= s/Int (st/get-in (s/conditional odd? {:a s/Str} even? {:a s/Int}) [1 :a]))))
 
-  (testing "enum"
-    (is (= #{:a :b} (st/schema-value (s/enum :a :b))))))
+  #_(testing "cond-pre"
+      (is (= [{:a s/Str} {:a s/Int}] (st/schema-value (s/cond-pre {:a s/Str} {:a s/Int}))))
+      (is (= s/Str (st/get-in {:a (s/cond-pre s/Str)} [:a 0])))
+      (is (= s/Int (st/get-in {:a (s/cond-pre s/Str s/Int)} [:a 1])))
+      (is (= s/Str (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [0 :a])))
+      (is (= s/Int (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [1 :a]))))
+
+  #_(testing "enum"
+      (is (= #{:a :b} (st/schema-value (s/enum :a :b))))))
 
 (def assoc-in-schema
   {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}})
@@ -146,6 +152,11 @@
   (testing "assoc-in"
     (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {:e {:f s/Str}}}}}
            (st/assoc-in assoc-in-schema [:a [1 2 3] "d" :e :f] s/Str))))
+  (testing "schema records in path are walked over as normal records"
+    (let [schema {:a (s/maybe {:b s/Str})}]
+      (is (= {:a s/Str} (st/update-in schema [:a] (constantly s/Str))))
+      (is (= {:a (s/maybe {:b s/Int})} (st/update-in schema [:a :schema :b] (constantly s/Int))))
+      (is (= {:a (s/map->Maybe {:schema {:b s/Str} :b s/Int})} (st/update-in schema [:a :b] (constantly s/Int))))))
   (testing "make anonymous if value changed"
     (is (not (nil? (meta (st/assoc-in Kikka [:a] s/Str)))))
     (is (nil? (meta (st/assoc-in Kikka [:c :d] s/Str))))))
@@ -156,7 +167,13 @@
 (deftest update-in-test
   (testing "update-in"
     (is (= {:a {(s/optional-key [1 2 3]) {(s/required-key "d") s/Int}}}
-           (st/update-in update-in-schema [:a [1 2 3] "d"] (constantly s/Int)))))
+           (st/update-in update-in-schema [:a [1 2 3] "d"] (constantly s/Int))))
+    (is (= {:a {:b s/Str, :c s/Int}} (st/update-in {:a {:b s/Str}} [:a :c] (constantly s/Int)))))
+  (testing "schema records in path are walked over as normal records"
+    (let [schema {:a (s/maybe {:b s/Str})}]
+      (is (= {:a s/Str} (st/update-in schema [:a] (constantly s/Str))))
+      (is (= {:a (s/maybe {:b s/Int})} (st/update-in schema [:a :schema :b] (constantly s/Int))))
+      (is (= {:a (s/map->Maybe {:schema {:b s/Str} :b s/Int})} (st/update-in schema [:a :b] (constantly s/Int))))))
   (testing "make anonymous if value changed"
     (is (not (nil? (meta (st/update-in Kikka [:a] (constantly s/Str))))))
     (is (nil? (meta (st/update-in Kikka [:c :d] (constantly s/Str)))))))
@@ -174,6 +191,11 @@
            (st/dissoc-in dissoc-in-schema [:a [1 2 3] "d"]))))
   (testing "resulting empty maps are removed"
     (is (= {} (st/dissoc-in dissoc-in-schema [:a [1 2 3]]))))
+  (testing "schema records in path are walked over as normal records"
+    (let [schema {:a (s/maybe {:b s/Str})}]
+      (is (= {} (st/dissoc-in schema [:a])))
+      (is (= {} (st/dissoc-in schema [:a :schema])))
+      (is (= schema (st/dissoc-in schema [:a :b])))))
   (testing "make anonymous if value changed"
     (is (not (nil? (meta (st/dissoc-in dissoc-in-schema-2 [:a :b :d])))))
     (is (nil? (meta (st/dissoc-in dissoc-in-schema-2 [:a :b :c]))))))

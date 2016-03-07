@@ -29,8 +29,13 @@
     (and (s/specific-key? k) (contains? m (s/explicit-schema-key k))) (s/explicit-schema-key k)
     :else k))
 
+(defn- unwrap-sequence-schemas [m]
+  (cond
+    (single-sequence-element? m) (:schema m)
+    :else m))
+
 (defn- get-in-schema [m k & [default]]
-  (impl/schema-value (get m (key-in-schema m k) default)))
+  (unwrap-sequence-schemas (get m (key-in-schema m k) default)))
 
 (defn- maybe-anonymous [original current]
   (if (= original current)
@@ -117,11 +122,12 @@
    (get-in m ks nil))
   ([m ks not-found]
    (loop [sentinel #?(:clj (Object.) :cljs (js/Object.))
-          m (impl/schema-value m)
+          m m #_(schema-value m)
           ks (seq ks)]
      (if ks
        (let [k (first ks)]
-         (let [m (get-in-schema m k sentinel)]
+         (let [m (get-in-schema m k sentinel)
+               #_#_m (if (next ks) (schema-value m) m)]
            (if (identical? sentinel m)
              not-found
              (recur sentinel m (next ks)))))
