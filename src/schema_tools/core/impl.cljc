@@ -38,7 +38,7 @@
   schema.core.EnumSchema
   (schema-value [this] (:vs this))
 
-  #?(:clj Object :cljs js/Object)
+  #?(:clj Object :cljs default)
   (schema-value [this] this)
 
   nil
