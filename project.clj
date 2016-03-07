@@ -14,8 +14,8 @@
 
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.3"]]
                    :dependencies [[criterium "0.4.4"]
-                                  [org.clojure/clojure "1.7.0"]
+                                  [org.clojure/clojure "1.8.0"]
                                   [org.clojure/clojurescript "1.7.145"]]}
-             :1.8 {:dependencies [[org.clojure/clojure "1.8.0-RC3"]]}}
-  :aliases {"all" ["with-profile" "dev:dev,1.8"]
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
+  :aliases {"all" ["with-profile" "dev:dev,1.7"]
             "test-clj" ["all" "do" ["test"] ["check"]]})
