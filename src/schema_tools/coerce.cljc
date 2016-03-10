@@ -2,7 +2,9 @@
   (:require [schema.core :as s]
             [schema.spec.core :as ss]
             [schema.utils :as su]
-            [schema.coerce :as sc]))
+            [schema.coerce :as sc]
+            [schema-tools.core.impl :as impl]
+            [clojure.string :as str]))
 
 ;;
 ;; Internals
@@ -53,6 +55,12 @@
           (if (map? x)
             (filter-schema-keys x explicit-keys extra-keys-checker)
             x))))))
+
+; original: https://groups.google.com/forum/m/#!topic/prismatic-plumbing/NWUnqbYhfac
+(defn default-coercion-matcher [schema]
+  (when (impl/default? schema)
+    (fn [value]
+      (if (nil? value) (:default schema) value))))
 
 (defn or-matcher
   "Creates a matcher where the first matcher matching the

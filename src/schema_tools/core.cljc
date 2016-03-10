@@ -198,6 +198,13 @@
             acc m)) schemas))))
 
 ;;
+;; Defaults
+;;
+
+(defn default [schema default]
+  (impl/default schema default))
+
+;;
 ;; Extras
 ;;
 

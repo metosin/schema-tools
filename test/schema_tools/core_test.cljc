@@ -2,7 +2,9 @@
   (:require #?(:clj [clojure.test :refer [deftest testing is]]
                :cljs [cljs.test :as test :refer-macros [deftest testing is]])
                     [schema-tools.core :as st]
-                    [schema.core :as s :include-macros true]))
+                    [schema.core :as s :include-macros true]
+                    [schema.coerce :as sc]
+                    [schema-tools.coerce :as stc]))
 
 (s/defschema Kikka {:a s/Str :b s/Str})
 
@@ -229,6 +231,15 @@
     (is (nil? (meta (st/merge {:b s/Str} Kikka))))
     (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
     (is (nil? (meta (st/merge Kikka {:c s/Str}))))))
+
+(deftest default-test
+  (let [schema {:a (st/default s/Str "a") (s/optional-key :b) [{:c (st/default s/Int 42)}]}
+        coerce (sc/coercer! schema stc/default-coercion-matcher)]
+    (testing "missing keys are not added"
+      (is (thrown? Exception (coerce {}))))
+    (testing "defaults are applied"
+      (is (= {:a "a"} (coerce {:a nil})))
+      (is (= {:a "a", :b [{:c 42}]} (coerce {:a nil :b [{:c nil}]}))))))
 
 (def optional-keys-schema
   {(s/optional-key :a) s/Str
