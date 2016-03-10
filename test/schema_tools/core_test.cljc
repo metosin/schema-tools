@@ -236,7 +236,7 @@
   (let [schema {:a (st/default s/Str "a") (s/optional-key :b) [{:c (st/default s/Int 42)}]}
         coerce (sc/coercer! schema stc/default-coercion-matcher)]
     (testing "missing keys are not added"
-      (is (thrown? Exception (coerce {}))))
+      (is (thrown? #?(:clj Exception :cljs js/Error) (coerce {}))))
     (testing "defaults are applied"
       (is (= {:a "a"} (coerce {:a nil})))
       (is (= {:a "a", :b [{:c 42}]} (coerce {:a nil :b [{:c nil}]}))))))
