@@ -3,6 +3,7 @@
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
 - `select-schema` migration helper has been dropped off
 - Handle defaults via `(st/default Long 1)`& `stc/default-coercion-matcher`
+- `stc/multi-matcher`
 - Use Clojure 1.8 by default, test also with 1.7.0
 - Updated dependencies:
 

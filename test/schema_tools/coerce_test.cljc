@@ -153,3 +153,8 @@
               (is (= ::horror type))
               (is (= s/Str schema))
               (is (= 123 value)))))))))
+
+(deftest multi-matcher-test
+  (let [schema {:a Long, :b Long}
+        matcher (stc/multi-matcher (partial = Long) integer? [(partial * 2) dec])]
+    (is (= {:a 3 :b 19} ((sc/coercer! schema matcher) {:a 2 :b 10})))))

@@ -62,6 +62,17 @@
     (fn [value]
       (if (nil? value) (:default schema) value))))
 
+(defn multi-matcher
+  "Creates a matcher matching accecpt-schema schemas,
+  having accept-value values and applying all functions."
+  [accept-schema accept-value fs]
+  (fn [schema]
+    (when (accept-schema schema)
+      (fn [value]
+        (if (accept-value value)
+          (reduce #(%2 %1) value fs)
+          value)))))
+
 (defn or-matcher
   "Creates a matcher where the first matcher matching the
   given schema is used."
