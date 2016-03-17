@@ -1,4 +1,4 @@
-## 0.8.0-SNAPSHOT
+## 0.8.0 (17.3.2015)
 
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
 - `select-schema` migration helper has been dropped off
