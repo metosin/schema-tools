@@ -121,39 +121,6 @@
               (is (= s/Str schema))
               (is (= 123 value)))))))))
 
-(deftest coerce-test
-
-  (testing "default case"
-
-    (let [matcher {s/Str #(if (string? %) (string/upper-case %) %)}]
-
-      (testing "successfull coerce retuns coerced value"
-        (is (= "KIKKA" (stc/coerce "kikka" s/Str matcher))))
-
-      (testing "failed coercion throws ex-info"
-        (try
-          (stc/coerce 123 s/Str matcher)
-          (catch #?(:clj Exception :cljs js/Error) e
-            (let [{:keys [schema type value]} (ex-data e)]
-              (is (= :schema-tools.coerce/error type))
-              (is (= s/Str schema))
-              (is (= 123 value))))))))
-
-  (testing "custom type"
-    (let [matcher {s/Str #(if (string? %) (string/upper-case %) %)}]
-
-      (testing "successfull coercion retuns coerced value"
-        (is (= "KIKKA" (stc/coerce "kikka" s/Str matcher ::horror))))
-
-      (testing "failed coercion throws ex-info"
-        (try
-          (stc/coerce 123 s/Str matcher ::horror)
-          (catch #?(:clj Exception :cljs js/Error) e
-            (let [{:keys [schema type value]} (ex-data e)]
-              (is (= ::horror type))
-              (is (= s/Str schema))
-              (is (= 123 value)))))))))
-
 (deftest multi-matcher-test
   (let [schema {:a s/Int, :b s/Int}
         matcher (stc/multi-matcher (partial = s/Int) integer? [(partial * 2) dec])]

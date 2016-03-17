@@ -63,8 +63,8 @@
       (if (nil? value) (:default schema) value))))
 
 (defn multi-matcher
-  "Creates a matcher matching accecpt-schema schemas,
-  having accept-value values and applying all functions."
+  "Creates a matcher for (accept-schema schema), reducing
+  value with fs functions if (accept-value value)."
   [accept-schema accept-value fs]
   (fn [schema]
     (when (accept-schema schema)

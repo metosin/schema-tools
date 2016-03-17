@@ -122,15 +122,14 @@
    (get-in m ks nil))
   ([m ks not-found]
    (loop [sentinel #?(:clj (Object.) :cljs (js/Object.))
-          m m #_(schema-value m)
+          m m
           ks (seq ks)]
      (if ks
-       (let [k (first ks)]
-         (let [m (get-in-schema m k sentinel)
-               #_#_m (if (next ks) (schema-value m) m)]
-           (if (identical? sentinel m)
-             not-found
-             (recur sentinel m (next ks)))))
+       (let [k (first ks)
+             m (get-in-schema m k sentinel)]
+         (if (identical? sentinel m)
+           not-found
+           (recur sentinel m (next ks))))
        m))))
 
 (defn assoc-in
