@@ -20,10 +20,6 @@
   Schema."
   {:added "0.3.0"}
   [inner outer this]
-  (let [[inner outer this] (if (and (fn? outer) (fn? this))
-                             (do (println "WARNING: Using deprecated walk argument order. Schema should be the last argument.")
-                                 [outer this inner])
-                             [inner outer this])]
   (cond
     ; Schemas with children
     (satisfies? WalkableSchema this) (-walk this inner outer)
@@ -34,7 +30,7 @@
     #?@(:clj [(list? this) (outer (with-meta (apply list (map inner this)) (meta this)))])
     (seq? this) (outer (with-meta (doall (map inner this)) (meta this)))
     (coll? this) (outer (with-meta (into (empty this) (map inner this)) (meta this)))
-    :else (outer this))))
+    :else (outer this)))
 
 (defn postwalk
   "Performs a depth-first, post-order traversal of `schema`.  Calls `f` on

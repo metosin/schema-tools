@@ -41,16 +41,6 @@
       (is (= {:a (s/maybe s/Int)}
              (replace-str {:a (s/maybe s/Str)}))))))
 
-(deftest legacy-walk-arguments-test
-  (testing "inner is called with the MapEntries"
-    (let [k (atom [])]
-      (sw/walk {:a s/Str :b s/Str}
-               (fn [x]
-                 (swap! k conj x)
-                 x)
-               identity)
-      (is (= [[:a s/Str] [:b s/Str]] @k)))))
-
 (defn map-entry? [x]
   #?(:clj  (instance? clojure.lang.IMapEntry x)
      :cljs (satisfies? IMapEntry x)))
