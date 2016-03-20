@@ -1,3 +1,8 @@
+## Unreleased
+
+- **BREAKING**: `schema-tools.walk/walk` argument order has been changed to match
+`clojure.walk/walk`
+
 ## 0.8.0 (17.3.2015)
 
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
