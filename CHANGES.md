@@ -1,9 +1,13 @@
 ## 0.9.0 (20.4.2016)
 
+**[compare](https://github.com/metosin/schema-tools/compare/0.8.0...0.9.0)**
+
 - **BREAKING**: `schema-tools.walk/walk` argument order has been changed to match
 `clojure.walk/walk`
 
 ## 0.8.0 (17.3.2016)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.7.0...0.8.0)**
 
 - Add `postwalk` and `prewalk` to `schema-tools.walk`
 - `select-schema` migration helper has been dropped off
@@ -17,6 +21,8 @@
 ```
 
 ## 0.7.0 (8.11.2015)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.6.0...0.7.0)**
 
 - Fixed problem with `walk` losing metadata for IMapEntries (or vectors) on
 Clojure 1.8
