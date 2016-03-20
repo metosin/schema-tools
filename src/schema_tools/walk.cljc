@@ -19,8 +19,7 @@
   type as given and preserving the metadata. Calls `outer` with the created
   Schema."
   {:added "0.3.0"}
-  ; FIXME: The argument order is different to clojure.walk/walk
-  [this inner outer]
+  [inner outer this]
   (cond
     ; Schemas with children
     (satisfies? WalkableSchema this) (-walk this inner outer)
@@ -41,13 +40,13 @@
   Consumes seqs as with doall."
   {:added "0.8"}
   [f schema]
-  (walk schema (partial postwalk f) f))
+  (walk (partial postwalk f) f schema))
 
 (defn prewalk
   "Like postwalk, but does pre-order traversal."
   {:added "0.8"}
   [f schema]
-  (walk (f schema) (partial prewalk f) identity))
+  (walk (partial prewalk f) identity (f schema)))
 
 (extend-protocol WalkableSchema
   #?@(:clj [clojure.lang.IMapEntry
