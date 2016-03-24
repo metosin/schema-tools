@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[prismatic/schema "1.0.5"]]
+  :dependencies [[prismatic/schema "1.1.0"]]
   :plugins [[funcool/codeina "0.3.0"]]
 
   :codeina {:target "doc"
