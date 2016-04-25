@@ -1,5 +1,8 @@
 ## Unreleased
 
+- **POTENTIALLY BREAKING**: `get-in` now supports retrieving values from map
+schema extra keys:
+    - `(get-in {s/Keyword s/Str} :foo) ;; => s/Str`
 - Updated dependencies:
 
 ```clj
