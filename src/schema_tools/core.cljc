@@ -20,13 +20,18 @@
       (not (single-sequence-element? (get m last-idx))) last-idx
       :else nil)))
 
-(defn- key-in-schema [m k]
+(defn- key-in-schema [m k extra-keys?]
   (cond
     (and (sequential? m) (number? k)) (index-in-schema m k)
     (contains? m k) k
     (contains? m (s/optional-key k)) (s/optional-key k)
     (contains? m (s/required-key k)) (s/required-key k)
     (and (s/specific-key? k) (contains? m (s/explicit-schema-key k))) (s/explicit-schema-key k)
+    (and extra-keys? (map? m)) (if-let [extra-key (s/find-extra-keys-schema m)]
+                                 (if-not (s/check extra-key k)
+                                   extra-key
+                                   k)
+                                 k)
     :else k))
 
 (defn- unwrap-sequence-schemas [m]
@@ -35,7 +40,7 @@
     :else m))
 
 (defn- get-in-schema [m k default]
-  (unwrap-sequence-schemas (get m (key-in-schema m k) default)))
+  (unwrap-sequence-schemas (get m (key-in-schema m k true) default)))
 
 (defn- maybe-anonymous [original current]
   (if (= original current)
@@ -85,7 +90,7 @@
         #?(:clj (when-not v
                   (throw (IllegalArgumentException.
                            "assoc expects even number of arguments after map/vector, found odd number"))))
-        (let [rk (key-in-schema schema k)]
+        (let [rk (key-in-schema schema k false)]
           (-> schema
               (clojure.core/dissoc rk)
               (clojure.core/assoc k v))))
@@ -98,7 +103,7 @@
   (maybe-anonymous
     schema
     (reduce
-      (fn [schema k] (clojure.core/dissoc schema (key-in-schema schema k)))
+      (fn [schema k] (clojure.core/dissoc schema (key-in-schema schema k false)))
       schema ks)))
 
 (defn select-keys
@@ -139,7 +144,7 @@
   [schema [k & ks] v]
   (maybe-anonymous
     schema
-    (let [kis (key-in-schema schema k)]
+    (let [kis (key-in-schema schema k false)]
       (if ks
         (clojure.core/assoc schema kis (assoc-in (get-in-schema schema k nil) ks v))
         (clojure.core/assoc schema kis v)))))
@@ -153,7 +158,7 @@
   [schema [k & ks] f & args]
   (maybe-anonymous
     schema
-    (let [kis (key-in-schema schema k)]
+    (let [kis (key-in-schema schema k false)]
       (if ks
         (clojure.core/assoc schema kis (apply update-in (get-in-schema schema k nil) ks f args))
         (clojure.core/assoc schema kis (apply f (get-in-schema schema k nil) args))))))
@@ -164,7 +169,7 @@
   nested structure. keys is a sequence of keys. Any empty maps that result
   will not be present in the new Schema."
   [schema [k & ks]]
-  (let [k (key-in-schema schema k)]
+  (let [k (key-in-schema schema k false)]
     (if ks
       (if-let [nextmap (get schema k)]
         (let [newmap (dissoc-in nextmap ks)]

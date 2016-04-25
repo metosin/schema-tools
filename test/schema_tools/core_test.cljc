@@ -145,7 +145,13 @@
       (is (= s/Int (st/get-in (s/cond-pre {:a s/Str} {:a s/Int}) [1 :a]))))
 
   #_(testing "enum"
-      (is (= #{:a :b} (st/schema-value (s/enum :a :b))))))
+      (is (= #{:a :b} (st/schema-value (s/enum :a :b)))))
+
+  (testing "works with map extra-keys-schema"
+    (is (= (st/get-in {s/Keyword s/Str} [:a]) s/Str))
+    (is (= (st/get-in {:foo {s/Int {:a s/Str}}} [:foo 5 :a]) s/Str))
+    (is (= (st/get-in {s/Int s/Str} [:a]) nil)
+        "Keyword key should not match s/Int extra key")))
 
 (def assoc-in-schema
   {:a {(s/optional-key [1 2 3]) {(s/required-key "d") {}}}})
