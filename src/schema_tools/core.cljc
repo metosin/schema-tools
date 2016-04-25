@@ -34,7 +34,7 @@
     (single-sequence-element? m) (:schema m)
     :else m))
 
-(defn- get-in-schema [m k & [default]]
+(defn- get-in-schema [m k default]
   (unwrap-sequence-schemas (get m (key-in-schema m k) default)))
 
 (defn- maybe-anonymous [original current]
@@ -141,7 +141,7 @@
     schema
     (let [kis (key-in-schema schema k)]
       (if ks
-        (clojure.core/assoc schema kis (assoc-in (get-in-schema schema k) ks v))
+        (clojure.core/assoc schema kis (assoc-in (get-in-schema schema k nil) ks v))
         (clojure.core/assoc schema kis v)))))
 
 (defn update-in
@@ -155,8 +155,8 @@
     schema
     (let [kis (key-in-schema schema k)]
       (if ks
-        (clojure.core/assoc schema kis (apply update-in (get-in-schema schema k) ks f args))
-        (clojure.core/assoc schema kis (apply f (get-in-schema schema k) args))))))
+        (clojure.core/assoc schema kis (apply update-in (get-in-schema schema k nil) ks f args))
+        (clojure.core/assoc schema kis (apply f (get-in-schema schema k nil) args))))))
 
 ;; (c) original https://github.com/clojure/core.incubator/blob/master/src/main/clojure/clojure/core/incubator.clj
 (defn dissoc-in
