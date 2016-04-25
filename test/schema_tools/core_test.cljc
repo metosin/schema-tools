@@ -37,13 +37,13 @@
   (testing "happy case"
     (is (= {(s/optional-key :a) s/Int
             :b s/Int
-            "c" s/Int
+            (s/required-key "c") s/Int
             (s/optional-key :d) s/Int
             s/Keyword s/Int}
            (st/assoc basic-schema
                      (s/optional-key :a) s/Int
                      :b s/Int
-                     "c" s/Int
+                     (s/required-key "c") s/Int
                      (s/optional-key :d) s/Int
                      s/Keyword s/Int))))
   (testing "make anonymous if value changed"
