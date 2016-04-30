@@ -3,7 +3,7 @@
 - Updated dependencies:
 
 ```clj
-[prismatic/schema "1.1.0"] is available but we use "1.0.5"
+[prismatic/schema "1.1.1"] is available but we use "1.0.5"
 ```
 
 ## 0.9.0 (20.4.2016)
