@@ -5,7 +5,8 @@
             [schema.core :as s]
             [schema.coerce :as sc]
             [clojure.string :as str]
-            [schema-tools.coerce :as stc]))
+            [schema-tools.coerce :as stc])
+  (:refer-clojure :exclude [boolean?]))
 
 (deftest forwarding-matcher-test
   (let [string->vec (fn [schema]

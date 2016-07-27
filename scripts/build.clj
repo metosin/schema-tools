@@ -5,7 +5,7 @@
   "test"
   {:main "schema-tools.runner"
    :output-to "target/generated/js/out/tests.js"
-   :source-map "target/generated/js/out/tests.map.js"
+   :source-map true
    :output-dir "target/generated/js/out"
    :optimizations :none
    :target :nodejs})
