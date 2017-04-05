@@ -5,8 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[prismatic/schema "1.1.3"]]
-  :plugins [[funcool/codeina "0.4.0"]]
+  :dependencies [[prismatic/schema "1.1.5"]]
+  :plugins [[funcool/codeina "0.5.0"]]
 
   :codeina {:target "doc"
             :src-uri "http://github.com/metosin/schema-tools/blob/master/"

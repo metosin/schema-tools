@@ -1,10 +1,10 @@
 ## Unreleased
 
-- Tested with `[org.clojure/clojurescript "1.9.93"]`
+- Tested with `[org.clojure/clojurescript "1.9.495"]`
 - Updated dependencies:
 
 ```clj
-[prismatic/schema "1.1.3"] is available but we use "1.0.5"
+[prismatic/schema "1.1.5"] is available but we use "1.0.5"
 ```
 
 ## 0.9.0 (20.4.2016)
