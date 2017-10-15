@@ -68,9 +68,9 @@
     (is (nil? (meta (st/select-keys Kikka [:a]))))))
 
 (deftest open-schema-test
-  (let [schema {:a Long, :b [(s/maybe {:a Long, s/Keyword s/Keyword})]}
+  (let [schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Keyword})]}
         value {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}]
-    (is (= {:a Long, :b [(s/maybe {:a Long, s/Any s/Any})], s/Any s/Any}
+    (is (= {:a s/Int, :b [(s/maybe {:a s/Int, s/Any s/Any})], s/Any s/Any}
            (st/open-schema schema)))
     (is (= value ((stc/coercer (st/open-schema schema)) value)))))
 
