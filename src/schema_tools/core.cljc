@@ -224,9 +224,7 @@
   (walk/prewalk
     (fn [x]
       (if (and (map? x) (not (record? x)))
-        (-> x
-            (dissoc (s/find-extra-keys-schema x))
-            (assoc s/Any s/Any))
+        (assoc (dissoc x (s/find-extra-keys-schema x)) s/Any s/Any)
         x))
     schema))
 
