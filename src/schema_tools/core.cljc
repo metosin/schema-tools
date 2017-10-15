@@ -218,14 +218,15 @@
    (stc/coerce value schema (stc/or-matcher stc/map-filter-matcher matcher))))
 
 (defn make-open
-  "Walks a schema adding [`s/Any` `s/Any`] entry all Map Schemas if they don't
-  have a spesific key already defined."
+  "Walks a schema adding [`s/Any` `s/Any`] entry to all Map Schemas, removing any
+  existing extra keys if defined."
   [schema]
   (walk/prewalk
     (fn [x]
       (if (and (map? x) (not (record? x)))
-        (if-not (s/find-extra-keys-schema x)
-          (assoc x s/Any s/Any))
+        (-> x
+            (dissoc (s/find-extra-keys-schema x))
+            (assoc s/Any s/Any))
         x))
     schema))
 

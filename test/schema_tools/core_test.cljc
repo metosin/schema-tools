@@ -69,7 +69,7 @@
 
 (deftest make-open-test
   (is (= {:a Long, :b [(s/maybe {:a Long, s/Any s/Any})], s/Any s/Any}
-        (st/make-open {:a Long, :b [(s/maybe {:a Long})]}))))
+        (st/make-open {:a Long, :b [(s/maybe {:a Long, s/Keyword s/Keyword})]}))))
 
 (def get-in-schema
   {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
