@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Added `st/make-open` to make Map Schemas accept any extra keys (if no specific key was set)
 - Tested also against `[org.clojure/clojurescript "1.9.946"]` & `[org.clojure/clojure "1.9.0-beta2"]`
 - Updated dependencies:
 

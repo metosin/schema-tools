@@ -2,6 +2,7 @@
   (:require [schema.core :as s]
             [schema-tools.coerce :as stc]
             [schema-tools.util :as stu]
+            [schema-tools.walk :as walk]
             [schema-tools.core.impl :as impl])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
@@ -215,6 +216,18 @@
    (select-schema value schema (constantly nil)))
   ([value schema matcher]
    (stc/coerce value schema (stc/or-matcher stc/map-filter-matcher matcher))))
+
+(defn make-open
+  "Walks a schema adding [`s/Any` `s/Any`] entry all Map Schemas if they don't
+  have a spesific key already defined."
+  [schema]
+  (walk/prewalk
+    (fn [x]
+      (if (and (map? x) (not (record? x)))
+        (if-not (s/find-extra-keys-schema x)
+          (assoc x s/Any s/Any))
+        x))
+    schema))
 
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."

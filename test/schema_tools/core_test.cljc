@@ -67,6 +67,10 @@
     (is (not (nil? (meta (st/select-keys Kikka [:a :b])))))
     (is (nil? (meta (st/select-keys Kikka [:a]))))))
 
+(deftest make-open-test
+  (is (= {:a Long, :b [(s/maybe {:a Long, s/Any s/Any})], s/Any s/Any}
+        (st/make-open {:a Long, :b [(s/maybe {:a Long})]}))))
+
 (def get-in-schema
   {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
    (s/optional-key "d") {s/Keyword s/Str}})
