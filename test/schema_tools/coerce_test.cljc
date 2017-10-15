@@ -89,6 +89,9 @@
 
 (deftest coercer-test
 
+  (testing "1-arity just for validating"
+    (is (= "kikka" ((stc/coercer s/Str) "kikka"))))
+
   (testing "default case"
 
     (let [matcher {s/Str #(if (string? %) (string/upper-case %) %)}

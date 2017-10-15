@@ -1,5 +1,6 @@
 ## 0.9.1-SNAPSHOT
 
+- `stc/corce` and `stc/coercer` default to `(constantly nil)` matcher
 - `st/open-schema` transforms all nested Map Schemas to accept any extra keys
 - Tested also against `[org.clojure/clojurescript "1.9.946"]` & `[org.clojure/clojure "1.9.0-beta2"]`
 - Updated dependencies:

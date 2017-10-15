@@ -40,16 +40,16 @@
   "Creates a matcher which removes all illegal keys from non-record maps."
   [schema]
   (when (and (map? schema) (not (record? schema)))
-    (let [extra-keys-schema  (s/find-extra-keys-schema schema)
+    (let [extra-keys-schema (s/find-extra-keys-schema schema)
           extra-keys-checker (when extra-keys-schema
                                (ss/run-checker (fn [s params]
                                                  (ss/checker (s/spec s) params))
                                                true
                                                extra-keys-schema))
-          explicit-keys      (some->> (dissoc schema extra-keys-schema)
-                                      keys
-                                      (mapv s/explicit-schema-key)
-                                      set)]
+          explicit-keys (some->> (dissoc schema extra-keys-schema)
+                                 keys
+                                 (mapv s/explicit-schema-key)
+                                 set)]
       (when (or extra-keys-checker (seq explicit-keys))
         (fn [x]
           (if (map? x)
@@ -107,6 +107,8 @@
   "Produce a function that simultaneously coerces and validates a value against a `schema.`
   If a value can't be coerced to match the schema, an `ex-info` is thrown - like `schema.core/validate`,
   but with overridable `:type`, defaulting to `:schema-tools.coerce/error.`"
+  ([schema]
+   (coercer schema (constantly nil)))
   ([schema matcher]
    (coercer schema matcher ::error))
   ([schema matcher type]
@@ -118,7 +120,9 @@
   "Simultaneously coerces and validates a value to match the given `schema.` If a `value` can't
   be coerced to match the `schema`, an `ex-info` is thrown - like `schema.core/validate`,
   but with overridable `:type`, defaulting to `:schema-tools.coerce/error.`"
+  ([value schema]
+   (coerce value schema (constantly nil)))
   ([value schema matcher]
-    (coerce value schema matcher ::error))
+   (coerce value schema matcher ::error))
   ([value schema matcher type]
    ((coercer schema matcher type) value)))
