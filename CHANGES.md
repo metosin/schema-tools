@@ -1,10 +1,13 @@
-## Unreleased
+## 0.9.1-SNAPSHOT
 
-- Tested with `[org.clojure/clojurescript "1.9.562"]`
+- `stc/corce` and `stc/coercer` default to `(constantly nil)` matcher
+- `st/open-schema` transforms all nested Map Schemas to accept any extra keys
+- Tested also against `[org.clojure/clojurescript "1.9.946"]` & `[org.clojure/clojure "1.9.0-beta2"]`
 - Updated dependencies:
 
 ```clj
-[prismatic/schema "1.1.6"] is available but we use "1.0.5"
+[prismatic/schema "1.1.7"] is available but we use "1.0.5"
+[org.clojure/clojurescript "1.9.946"] is available but we use "1.9.562"
 ```
 
 ## 0.9.0 (20.4.2016)
