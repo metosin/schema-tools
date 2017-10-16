@@ -1,7 +1,7 @@
 # Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.svg?branch=master)](https://travis-ci.org/metosin/schema-tools) [![Downloads](https://jarkeeper.com/metosin/schema-tools/downloads.svg)](https://jarkeeper.com/metosin/schema-tools) [![Dependencies Status](https://jarkeeper.com/metosin/schema-tools/status.svg)](https://jarkeeper.com/metosin/schema-tools)
 
 Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps, both Clojure & ClojureScript.
-* common Schema definitions: `any-keys`, `any-keyword-keys`
+* common Schema definitions: `any-keys`, `any-keyword-keys`, `open-schema`
 * schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
   * removes the schema name and ns if the schema (value) has changed.
@@ -124,6 +124,6 @@ See the [tests](https://github.com/metosin/schema-tools/tree/master/test/schema_
 
 ## License
 
-Copyright © 2014-2015 [Metosin Oy](http://www.metosin.fi)
+Copyright © 2014-2017 [Metosin Oy](http://www.metosin.fi)
 
 Distributed under the Eclipse Public License, the same as Clojure.

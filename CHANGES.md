@@ -1,4 +1,4 @@
-## 0.9.1-SNAPSHOT
+## 0.9.1 (16.10.2017)
 
 - `stc/corce` and `stc/coercer` default to `(constantly nil)` matcher
 - `st/open-schema` transforms all nested Map Schemas to accept any extra keys
