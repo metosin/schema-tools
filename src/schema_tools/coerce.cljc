@@ -140,7 +140,7 @@
 ;; coercions
 ;;
 
-(defn safe-coerce-string [f]
+(defn- safe-coerce-string [f]
   (fn [x]
     (if (string? x)
       (try
@@ -204,6 +204,10 @@
       (catch #?(:clj Exception, :cljs js/Error) _ x))
     x))
 
+(defn collection-matcher [schema]
+  (if (or (and (coll? schema) (not (record? schema))))
+    (fn [x] (if (coll? x) x [x]))))
+
 (def +json-coercions+
   {s/Keyword sc/string->keyword
    #?@(:clj [Keyword sc/string->keyword])
@@ -225,19 +229,6 @@
    #?@(:clj [Long (comp safe-int string->long)])
    #?@(:clj [Double (comp double string->double)])})
 
-#_(defn split-params-matcher [schema]
-    (if (or (and (coll? schema) (not (record? schema))))
-      (fn [x]
-        (if (string? x)
-          (str/split x #",")
-          x))))
-
-(defn multi-params-matcher
-  "If only one parameter is provided to multi param, ring
-   doesn't wrap the param is collection."
-  [schema]
-  (if (or (and (coll? schema) (not (record? schema))))
-    (fn [x] (if (coll? x) x [x]))))
 
 ;;
 ;; matchers
@@ -250,6 +241,5 @@
 
 (def string-coercion-matcher
   (some-fn +string-coercions+
-           ; split-params-matcher
-           multi-params-matcher
+           collection-matcher
            json-coercion-matcher))
