@@ -6,7 +6,8 @@
             [schema-tools.core.impl :as impl]
     #?@(:clj  [
             clojure.edn]
-        :cljs [[cljs.reader]]))
+        :cljs [[cljs.reader]
+               [goog.date.UtcDateTime]]))
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
@@ -139,8 +140,13 @@
 ;; coercions
 ;;
 
-(defn coerce-string [f]
-  (fn [x] (if (string? x) (f x) x)))
+(defn safe-coerce-string [f]
+  (fn [x]
+    (if (string? x)
+      (try
+        (f x)
+        (catch #?(:clj Exception, :cljs js/Error) _ x))
+      x)))
 
 (defn string->boolean [x]
   (if (string? x)
@@ -190,6 +196,14 @@
       (catch #?(:clj Exception, :cljs js/Error) _ x))
     x))
 
+(defn string->date [x]
+  (if (string? x)
+    (try
+      #?(:clj  (Date/from (Instant/parse x))
+         :cljs (js/Date. (.getTime (goog.date.UtcDateTime.fromIsoString x))))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
+    x))
+
 (def +json-coercions+
   {s/Keyword sc/string->keyword
    #?@(:clj [Keyword sc/string->keyword])
@@ -197,18 +211,19 @@
    s/Int safe-int
    #?@(:clj [Long sc/safe-long-cast])
    #?@(:clj [Double double])
-   #?@(:clj [Pattern (coerce-string re-pattern)])
-   #?@(:clj [Date (coerce-string #(Date/from (Instant/parse %)))])
-   #?@(:clj [LocalDate (coerce-string #(LocalDate/parse %))])
-   #?@(:clj [LocalTime (coerce-string #(LocalTime/parse %))])
-   #?@(:clj [Instant (coerce-string #(Instant/parse %))])})
+   #?@(:clj [Pattern (safe-coerce-string re-pattern)])
+   #?@(:clj [Date string->date])
+   #?@(:cljs [js/Date string->date])
+   #?@(:clj [LocalDate (safe-coerce-string #(LocalDate/parse %))])
+   #?@(:clj [LocalTime (safe-coerce-string #(LocalTime/parse %))])
+   #?@(:clj [Instant (safe-coerce-string #(Instant/parse %))])})
 
 (def +string-coercions+
   {s/Int (comp safe-int string->number)
    s/Num string->number
    s/Bool string->boolean
    #?@(:clj [Long (comp safe-int string->long)])
-   #?@(:clj [Double (comp number->double string->double)])})
+   #?@(:clj [Double (comp double string->double)])})
 
 #_(defn split-params-matcher [schema]
     (if (or (and (coll? schema) (not (record? schema))))

@@ -1,12 +1,15 @@
 (ns schema-tools.coerce-test
-  (:require #?(:clj [clojure.test :refer [deftest testing is are]]
-               :cljs [cljs.test :as test :refer-macros [deftest testing is are]])
-                    [clojure.string :as string]
-                    [schema.core :as s]
-                    [schema.coerce :as sc]
-                    [clojure.string :as str]
-                    [schema-tools.coerce :as stc]
-                    [schema.utils :as su])
+  (:require
+    #?@(:clj  [[clojure.test :refer [deftest testing is are]]]
+        :cljs [[cljs.test :as test :refer-macros [deftest testing is are]]
+               [cljs.reader]
+               [goog.date.UtcDateTime]])
+               [clojure.string :as string]
+               [schema.core :as s]
+               [schema.coerce :as sc]
+               [clojure.string :as str]
+               [schema-tools.coerce :as stc]
+               [schema.utils :as su])
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
@@ -152,9 +155,9 @@
               Keyword "kikka/kikka" :kikka/kikka
               Keyword 'kikka ::fails])
 
-    #?@(:clj [UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-              UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-              UUID "INVALID" ::fails])
+    s/Uuid "5f60751d-9bf7-4344-97ee-48643c9949ce" (stc/string->uuid "5f60751d-9bf7-4344-97ee-48643c9949ce")
+    s/Uuid #uuid "5f60751d-9bf7-4344-97ee-48643c9949ce" (stc/string->uuid "5f60751d-9bf7-4344-97ee-48643c9949ce")
+    s/Uuid "INVALID" ::fails
 
     s/Int 1 1
     s/Int 92233720368547758071 92233720368547758071
@@ -172,9 +175,16 @@
               Double -1.7976931348623157E308 -1.7976931348623157E308
               Double "1.0" ::fails])
 
-    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (Date/from (Instant/parse "2014-02-18T18:25:37.456Z"))
-              Date "2014-02-18T18:25:37Z" (Date/from (Instant/parse "2014-02-18T18:25:37Z"))
-              Date "2014-02-18T18" ::fails])
+    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (stc/string->date "2014-02-18T18:25:37.456Z")
+              Date "2014-02-18T18:25:37Z" (stc/string->date "2014-02-18T18:25:37Z")
+              Date "2014-02-18T18" ::fails
+              Date "INVALID" ::fails])
+
+    #?@(:cljs [js/Date "2014-02-18T18:25:37.456Z" (stc/string->date "2014-02-18T18:25:37.456Z")
+               js/Date "2014-02-18T18:25:37Z" (stc/string->date "2014-02-18T18:25:37Z")
+               ;; TODO: this works differently in clj!
+               js/Date "2014-02-18T18" (stc/string->date "2014-02-18T18")
+               js/Date "INVALID" ::fails])
 
     #?@(:clj [LocalDate "2014-02-19" (LocalDate/parse "2014-02-19")
               LocalDate "INVALID" ::fails])
@@ -186,7 +196,8 @@
 
     #?@(:clj [Instant "2014-02-18T18:25:37.456Z" (Instant/parse "2014-02-18T18:25:37.456Z")
               Instant "2014-02-18T18:25:37Z" (Instant/parse "2014-02-18T18:25:37Z")
-              Instant "2014-02-18T18:25" ::fails]))
+              Instant "2014-02-18T18:25" ::fails
+              Instant "INVALID" ::fails]))
 
   #?(:clj
      (testing "Pattern"
@@ -211,9 +222,9 @@
               Keyword "kikka/kikka" :kikka/kikka
               Keyword 'kikka ::fails])
 
-    #?@(:clj [UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-              UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-              UUID "INVALID" ::fails])
+    s/Uuid "5f60751d-9bf7-4344-97ee-48643c9949ce" (stc/string->uuid "5f60751d-9bf7-4344-97ee-48643c9949ce")
+    s/Uuid #uuid "5f60751d-9bf7-4344-97ee-48643c9949ce" (stc/string->uuid "5f60751d-9bf7-4344-97ee-48643c9949ce")
+    s/Uuid "INVALID" ::fails
 
     s/Int 1 1
     s/Int 92233720368547758071 92233720368547758071
@@ -235,9 +246,16 @@
               Double "1" 1.0
               Double "1.0" 1.0])
 
-    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (Date/from (Instant/parse "2014-02-18T18:25:37.456Z"))
-              Date "2014-02-18T18:25:37Z" (Date/from (Instant/parse "2014-02-18T18:25:37Z"))
-              Date "2014-02-18T18" ::fails])
+    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (stc/string->date "2014-02-18T18:25:37.456Z")
+              Date "2014-02-18T18:25:37Z" (stc/string->date "2014-02-18T18:25:37Z")
+              Date "2014-02-18T18" ::fails
+              Date "INVALID" ::fails])
+
+    #?@(:cljs [js/Date "2014-02-18T18:25:37.456Z" (stc/string->date "2014-02-18T18:25:37.456Z")
+               js/Date "2014-02-18T18:25:37Z" (stc/string->date "2014-02-18T18:25:37Z")
+               ;; TODO: this works differently in clj!
+               js/Date "2014-02-18T18" (stc/string->date "2014-02-18T18")
+               js/Date "INVALID" ::fails])
 
     #?@(:clj [LocalDate "2014-02-19" (LocalDate/parse "2014-02-19")
               LocalDate "INVALID" ::fails])
