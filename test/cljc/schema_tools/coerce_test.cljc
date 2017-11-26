@@ -226,13 +226,6 @@
     s/Uuid #uuid "5f60751d-9bf7-4344-97ee-48643c9949ce" (stc/string->uuid "5f60751d-9bf7-4344-97ee-48643c9949ce")
     s/Uuid "INVALID" ::fails
 
-    s/Int 1 1
-    s/Int 92233720368547758071 92233720368547758071
-    s/Int -92233720368547758071 -92233720368547758071
-    s/Int "1" 1
-    s/Int "1.0" 1
-    s/Int "1.1" ::fails
-
     #?@(:clj [Long 1 1
               Long 9223372036854775807 9223372036854775807
               Long -9223372036854775807 -9223372036854775807
@@ -269,6 +262,13 @@
               Instant "2014-02-18T18:25:37Z" (Instant/parse "2014-02-18T18:25:37Z")
               Instant "2014-02-18T18:25" ::fails])
 
+    s/Int 1 1
+    s/Int 92233720368547758071 92233720368547758071
+    s/Int -92233720368547758071 -92233720368547758071
+    s/Int "1" 1
+    s/Int "1.0" 1
+    s/Int "1.1" ::fails
+
     s/Num 1 1
     s/Num 1.0 1.0
     s/Num "1" 1
@@ -281,12 +281,7 @@
     s/Bool true true
     s/Bool "true" true
     s/Bool "false" false
-    s/Bool "invalid" ::fails
-
-    #?@(:clj [Boolean true true
-              Boolean "true" true
-              Boolean "false" false
-              Boolean "invalid" ::fails]))
+    s/Bool "invalid" ::fails)
 
   #?(:clj
      (testing "Pattern"
