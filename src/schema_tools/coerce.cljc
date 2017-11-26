@@ -150,19 +150,25 @@
       x)
     x))
 
-(defn string->long [^String x]
-  (if (string? x)
-    (try
-      (Long/valueOf x)
-      (catch Exception _ x))
-    x))
+#?(:clj
+   (defn string->long [^String x]
+     (if (string? x)
+       (try
+         (Long/valueOf x)
+         (catch #?(:clj Exception, :cljs js/Error) _ x))
+       x)))
 
-(defn string->double [^String x]
-  (if (string? x)
-    (try
-      (Double/valueOf x)
-      (catch Exception _ x))
-    x))
+#?(:clj
+   (defn string->double [^String x]
+     (if (string? x)
+       (try
+         (Double/valueOf x)
+         (catch #?(:clj Exception, :cljs js/Error) _ x))
+       x)))
+
+(defn- safe-int [x]
+  #?(:clj  (sc/safe-long-cast x)
+     :cljs x))
 
 (defn string->number [^String x]
   (if (string? x)
@@ -170,59 +176,39 @@
       (let [parsed #?(:clj  (clojure.edn/read-string x)
                       :cljs (cljs.reader/read-string x))]
         (if (number? parsed) parsed x))
-      (catch Exception _ x))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
     x))
 
-(defn string->uuid [^String x]
+(defn string->uuid [x]
   (if (string? x)
     (try
-      (UUID/fromString x)
-      (catch Exception _ x))
+      #?(:clj  (UUID/fromString x)
+         ;; http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+         :cljs (if (re-find #"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" x)
+                 (uuid x)
+                 x))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
     x))
-
-(defn number->double [^Number x]
-  (if (number? x)
-    (try
-      (double x)
-      (catch Exception _ x))
-    x))
-
-(defmacro cond-matcher [& conds]
-  (let [x (gensym "x")]
-    `(fn [~x]
-       (cond
-         ~@(for [c conds] `(~c ~x))
-         :else ~x))))
 
 (def +json-coercions+
   {s/Keyword sc/string->keyword
    #?@(:clj [Keyword sc/string->keyword])
    s/Uuid string->uuid
-   s/Int sc/safe-long-cast
-   Long sc/safe-long-cast
-   Double double
-   Pattern (coerce-string re-pattern)
+   s/Int safe-int
+   #?@(:clj [Long sc/safe-long-cast])
+   #?@(:clj [Double double])
+   #?@(:clj [Pattern (coerce-string re-pattern)])
    #?@(:clj [Date (coerce-string #(Date/from (Instant/parse %)))])
    #?@(:clj [LocalDate (coerce-string #(LocalDate/parse %))])
    #?@(:clj [LocalTime (coerce-string #(LocalTime/parse %))])
    #?@(:clj [Instant (coerce-string #(Instant/parse %))])})
 
-#_(sc/string-coercion-matcher)
-
 (def +string-coercions+
-  {s/Int (cond-matcher
-           string? string->long
-           number? sc/safe-long-cast)
-   s/Num (cond-matcher
-           string? string->number
-           number? identity)
+  {s/Int (comp safe-int string->number)
+   s/Num string->number
    s/Bool string->boolean
-   #?@(:clj [Long (cond-matcher
-                    string? string->long
-                    number? sc/safe-long-cast)])
-   #?@(:clj [Double (cond-matcher
-                      string? string->double
-                      number? number->double)])})
+   #?@(:clj [Long (comp safe-int string->long)])
+   #?@(:clj [Double (comp number->double string->double)])})
 
 #_(defn split-params-matcher [schema]
     (if (or (and (coll? schema) (not (record? schema))))

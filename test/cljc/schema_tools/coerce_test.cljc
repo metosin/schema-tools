@@ -146,15 +146,15 @@
     s/Keyword "kikka/kikka" :kikka/kikka
     s/Keyword 'kikka ::fails
 
-    Keyword :kikka :kikka
-    Keyword ::kikka ::kikka
-    Keyword "kikka" :kikka
-    Keyword "kikka/kikka" :kikka/kikka
-    Keyword 'kikka ::fails
+    #?@(:clj [Keyword :kikka :kikka
+              Keyword ::kikka ::kikka
+              Keyword "kikka" :kikka
+              Keyword "kikka/kikka" :kikka/kikka
+              Keyword 'kikka ::fails])
 
-    UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-    UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-    UUID "INVALID" ::fails
+    #?@(:clj [UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+              UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+              UUID "INVALID" ::fails])
 
     s/Int 1 1
     s/Int 92233720368547758071 92233720368547758071
@@ -188,8 +188,9 @@
               Instant "2014-02-18T18:25:37Z" (Instant/parse "2014-02-18T18:25:37Z")
               Instant "2014-02-18T18:25" ::fails]))
 
-  (testing "Pattern"
-    (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*")))))
+  #?(:clj
+     (testing "Pattern"
+       (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*"))))))
 
 (deftest string-matcher-test
   (are [schema value expected]
@@ -204,22 +205,22 @@
     s/Keyword "kikka/kikka" :kikka/kikka
     s/Keyword 'kikka ::fails
 
-    #?@(:clj [
-              Keyword :kikka :kikka
+    #?@(:clj [Keyword :kikka :kikka
               Keyword ::kikka ::kikka
               Keyword "kikka" :kikka
               Keyword "kikka/kikka" :kikka/kikka
               Keyword 'kikka ::fails])
 
-    UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-    UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
-    UUID "INVALID" ::fails
+    #?@(:clj [UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+              UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+              UUID "INVALID" ::fails])
 
     s/Int 1 1
     s/Int 92233720368547758071 92233720368547758071
     s/Int -92233720368547758071 -92233720368547758071
     s/Int "1" 1
-    s/Int "1.0" ::fails
+    s/Int "1.0" 1
+    s/Int "1.1" ::fails
 
     #?@(:clj [Long 1 1
               Long 9223372036854775807 9223372036854775807
@@ -269,5 +270,6 @@
               Boolean "false" false
               Boolean "invalid" ::fails]))
 
-  (testing "Pattern"
-    (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*")))))
+  #?(:clj
+     (testing "Pattern"
+       (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*"))))))
