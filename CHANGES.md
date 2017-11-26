@@ -1,5 +1,6 @@
 ## UNRELEASED
 
+* **BREAKING**: Requires now Java1.8 (date coercions using `java.time`)
 * **BREAKING**: `Default` record value is now `value`, not `default`, fixes [#34](https://github.com/metosin/schema-tools/issues/34)
 * `schema-tools.coercion` contains now `json-coercion-matcher` and `string-coercion-matcher`, ported and polished from [Ring-swagger](https://github.com/metosin/ring-swagger)
 
