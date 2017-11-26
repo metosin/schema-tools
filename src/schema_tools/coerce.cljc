@@ -68,7 +68,7 @@
 (defn default-coercion-matcher [schema]
   (when (impl/default? schema)
     (fn [value]
-      (if (nil? value) (:default schema) value))))
+      (if (nil? value) (:value schema) value))))
 
 (defn multi-matcher
   "Creates a matcher for (accept-schema schema), reducing
