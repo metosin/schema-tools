@@ -136,6 +136,8 @@
         matcher (stc/multi-matcher (partial = s/Int) integer? [(partial * 2) dec])]
     (is (= {:a 3 :b 19} ((sc/coercer! schema matcher) {:a 2 :b 10})))))
 
+;; TODO: remove duplications betweeb json-matcher-test & string-matcher-test!
+
 (deftest json-matcher-test
   (are [schema value expected]
     (let [result ((sc/coercer schema stc/json-coercion-matcher) value)]
