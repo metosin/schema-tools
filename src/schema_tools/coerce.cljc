@@ -4,7 +4,14 @@
             [schema.utils :as su]
             [schema.coerce :as sc]
             [schema-tools.core.impl :as impl]
-            [clojure.string :as str]))
+    #?@(:clj  [
+            clojure.edn]
+        :cljs [[cljs.reader]]))
+  #?(:clj
+     (:import [java.util Date UUID]
+              [java.util.regex Pattern]
+              [java.time LocalDate LocalTime Instant]
+              (clojure.lang APersistentSet Keyword))))
 
 ;;
 ;; Internals
@@ -20,16 +27,16 @@
       coerced)))
 
 ; original: https://gist.github.com/abp/0c4106eba7b72802347b
-(defn- filter-schema-keys
-  [m schema-keys extra-keys-checker]
-  (reduce-kv (fn [m k _]
-               (if (or (contains? schema-keys k)
-                       (and extra-keys-checker
-                            (not (su/error? (extra-keys-checker k)))))
-                 m
-                 (dissoc m k)))
-             m
-             m))
+(defn- filter-schema-keys [m schema-keys extra-keys-checker]
+  (reduce-kv
+    (fn [m k _]
+      (if (or (contains? schema-keys k)
+              (and extra-keys-checker
+                   (not (su/error? (extra-keys-checker k)))))
+        m
+        (dissoc m k)))
+    m
+    m))
 
 ;;
 ;; Matchers
@@ -42,10 +49,11 @@
   (when (and (map? schema) (not (record? schema)))
     (let [extra-keys-schema (s/find-extra-keys-schema schema)
           extra-keys-checker (when extra-keys-schema
-                               (ss/run-checker (fn [s params]
-                                                 (ss/checker (s/spec s) params))
-                                               true
-                                               extra-keys-schema))
+                               (ss/run-checker
+                                 (fn [s params]
+                                   (ss/checker (s/spec s) params))
+                                 true
+                                 extra-keys-schema))
           explicit-keys (some->> (dissoc schema extra-keys-schema)
                                  keys
                                  (mapv s/explicit-schema-key)
@@ -126,3 +134,121 @@
    (coerce value schema matcher ::error))
   ([value schema matcher type]
    ((coercer schema matcher type) value)))
+
+;;
+;; coercions
+;;
+
+(defn coerce-string [f]
+  (fn [x] (if (string? x) (f x) x)))
+
+(defn string->boolean [x]
+  (if (string? x)
+    (condp = x
+      "true" true
+      "false" false
+      x)
+    x))
+
+(defn string->long [^String x]
+  (if (string? x)
+    (try
+      (Long/valueOf x)
+      (catch Exception _ x))
+    x))
+
+(defn string->double [^String x]
+  (if (string? x)
+    (try
+      (Double/valueOf x)
+      (catch Exception _ x))
+    x))
+
+(defn string->number [^String x]
+  (if (string? x)
+    (try
+      (let [parsed #?(:clj  (clojure.edn/read-string x)
+                      :cljs (cljs.reader/read-string x))]
+        (if (number? parsed) parsed x))
+      (catch Exception _ x))
+    x))
+
+(defn string->uuid [^String x]
+  (if (string? x)
+    (try
+      (UUID/fromString x)
+      (catch Exception _ x))
+    x))
+
+(defn number->double [^Number x]
+  (if (number? x)
+    (try
+      (double x)
+      (catch Exception _ x))
+    x))
+
+(defmacro cond-matcher [& conds]
+  (let [x (gensym "x")]
+    `(fn [~x]
+       (cond
+         ~@(for [c conds] `(~c ~x))
+         :else ~x))))
+
+(def +json-coercions+
+  {s/Keyword sc/string->keyword
+   #?@(:clj [Keyword sc/string->keyword])
+   s/Uuid string->uuid
+   s/Int sc/safe-long-cast
+   Long sc/safe-long-cast
+   Double double
+   Pattern (coerce-string re-pattern)
+   #?@(:clj [Date (coerce-string #(Date/from (Instant/parse %)))])
+   #?@(:clj [LocalDate (coerce-string #(LocalDate/parse %))])
+   #?@(:clj [LocalTime (coerce-string #(LocalTime/parse %))])
+   #?@(:clj [Instant (coerce-string #(Instant/parse %))])})
+
+#_(sc/string-coercion-matcher)
+
+(def +string-coercions+
+  {s/Int (cond-matcher
+           string? string->long
+           number? sc/safe-long-cast)
+   s/Num (cond-matcher
+           string? string->number
+           number? identity)
+   s/Bool string->boolean
+   #?@(:clj [Long (cond-matcher
+                    string? string->long
+                    number? sc/safe-long-cast)])
+   #?@(:clj [Double (cond-matcher
+                      string? string->double
+                      number? number->double)])})
+
+#_(defn split-params-matcher [schema]
+    (if (or (and (coll? schema) (not (record? schema))))
+      (fn [x]
+        (if (string? x)
+          (str/split x #",")
+          x))))
+
+(defn multi-params-matcher
+  "If only one parameter is provided to multi param, ring
+   doesn't wrap the param is collection."
+  [schema]
+  (if (or (and (coll? schema) (not (record? schema))))
+    (fn [x] (if (coll? x) x [x]))))
+
+;;
+;; matchers
+;;
+
+(def json-coercion-matcher
+  (some-fn +json-coercions+
+           sc/keyword-enum-matcher
+           sc/set-matcher))
+
+(def string-coercion-matcher
+  (some-fn +string-coercions+
+           ; split-params-matcher
+           multi-params-matcher
+           json-coercion-matcher))

@@ -1,12 +1,17 @@
 (ns schema-tools.coerce-test
-  (:require #?(:clj  [clojure.test :refer [deftest testing is]]
-               :cljs [cljs.test :as test :refer-macros [deftest testing is]])
-            [clojure.string :as string]
-            [schema.core :as s]
-            [schema.coerce :as sc]
-            [clojure.string :as str]
-            [schema-tools.coerce :as stc])
-  (:refer-clojure :exclude [boolean?]))
+  (:require #?(:clj [clojure.test :refer [deftest testing is are]]
+               :cljs [cljs.test :as test :refer-macros [deftest testing is are]])
+                    [clojure.string :as string]
+                    [schema.core :as s]
+                    [schema.coerce :as sc]
+                    [clojure.string :as str]
+                    [schema-tools.coerce :as stc]
+                    [schema.utils :as su])
+  #?(:clj
+     (:import [java.util Date UUID]
+              [java.util.regex Pattern]
+              [java.time LocalDate LocalTime Instant]
+              (clojure.lang Keyword))))
 
 (deftest forwarding-matcher-test
   (let [string->vec (fn [schema]
@@ -39,12 +44,12 @@
                            :e s/Int
                            :f s/Int}
                           string->vec->long)
-              {:a [1 2 3]
-               :b "1,2,3"
-               :c ["1" "2" "3"]
-               :d ["1,2,3" "4,5,6" "7,8,9"]
-               :e 1
-               :f "1"}))))
+               {:a [1 2 3]
+                :b "1,2,3"
+                :c ["1" "2" "3"]
+                :d ["1,2,3" "4,5,6" "7,8,9"]
+                :e 1
+                :f "1"}))))
 
     (testing "string->long->vec is able to parse Long(s) and String(s) of Long(s)."
       (is (= {:a [1 2 3]
@@ -60,18 +65,16 @@
                            :e s/Int
                            :f s/Int}
                           string->long->vec)
-              {:a [1 2 3]
-               :b "1,2,3"
-               :c ["1" "2" "3"]
-               :d ["1,2,3" "4,5,6" "7,8,9"]
-               :e 1
-               :f "1"}))))))
-
-(defn boolean? [x]
-  (or (true? x) (false? x)))
+               {:a [1 2 3]
+                :b "1,2,3"
+                :c ["1" "2" "3"]
+                :d ["1,2,3" "4,5,6" "7,8,9"]
+                :e 1
+                :f "1"}))))))
 
 (deftest or-matcher-test
-  (let [base-matcher (fn [schema-pred value-pred value-fn]
+  (let [boolean? #(or (true? %) (false? %))
+        base-matcher (fn [schema-pred value-pred value-fn]
                        (fn [schema]
                          (if (schema-pred schema)
                            (fn [x]
@@ -85,7 +88,7 @@
       (is (= {:band "KISS", :number 42, :lucid true}
              ((sc/coercer {:band s/Str :number s/Int :lucid s/Bool}
                           (stc/or-matcher m1 m2 m3 m4))
-              {:band "kiss", :number 41, :lucid false}))))))
+               {:band "kiss", :number 41, :lucid false}))))))
 
 (deftest coercer-test
 
@@ -129,3 +132,142 @@
   (let [schema {:a s/Int, :b s/Int}
         matcher (stc/multi-matcher (partial = s/Int) integer? [(partial * 2) dec])]
     (is (= {:a 3 :b 19} ((sc/coercer! schema matcher) {:a 2 :b 10})))))
+
+(deftest json-matcher-test
+  (are [schema value expected]
+    (let [result ((sc/coercer schema stc/json-coercion-matcher) value)]
+      (if (= ::fails expected)
+        (boolean (su/error-val result))
+        (= expected result)))
+
+    s/Keyword :kikka :kikka
+    s/Keyword ::kikka ::kikka
+    s/Keyword "kikka" :kikka
+    s/Keyword "kikka/kikka" :kikka/kikka
+    s/Keyword 'kikka ::fails
+
+    Keyword :kikka :kikka
+    Keyword ::kikka ::kikka
+    Keyword "kikka" :kikka
+    Keyword "kikka/kikka" :kikka/kikka
+    Keyword 'kikka ::fails
+
+    UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+    UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+    UUID "INVALID" ::fails
+
+    s/Int 1 1
+    s/Int 92233720368547758071 92233720368547758071
+    s/Int -92233720368547758071 -92233720368547758071
+    s/Int "1" ::fails
+
+    #?@(:clj [Long 1 1
+              Long 9223372036854775807 9223372036854775807
+              Long -9223372036854775807 -9223372036854775807
+              Long "1" ::fails])
+
+    #?@(:clj [Double 1 1.0
+              Double 1.1 1.1
+              Double 1.7976931348623157E308 1.7976931348623157E308
+              Double -1.7976931348623157E308 -1.7976931348623157E308
+              Double "1.0" ::fails])
+
+    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (Date/from (Instant/parse "2014-02-18T18:25:37.456Z"))
+              Date "2014-02-18T18:25:37Z" (Date/from (Instant/parse "2014-02-18T18:25:37Z"))
+              Date "2014-02-18T18" ::fails])
+
+    #?@(:clj [LocalDate "2014-02-19" (LocalDate/parse "2014-02-19")
+              LocalDate "INVALID" ::fails])
+
+    #?@(:clj [LocalTime "10:23" (LocalTime/parse "10:23")
+              LocalTime "10:23:37" (LocalTime/parse "10:23:37")
+              LocalTime "10:23:37.456" (LocalTime/parse "10:23:37.456")
+              LocalTime "INVALID" ::fails])
+
+    #?@(:clj [Instant "2014-02-18T18:25:37.456Z" (Instant/parse "2014-02-18T18:25:37.456Z")
+              Instant "2014-02-18T18:25:37Z" (Instant/parse "2014-02-18T18:25:37Z")
+              Instant "2014-02-18T18:25" ::fails]))
+
+  (testing "Pattern"
+    (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*")))))
+
+(deftest string-matcher-test
+  (are [schema value expected]
+    (let [result ((sc/coercer schema stc/string-coercion-matcher) value)]
+      (if (= ::fails expected)
+        (boolean (su/error-val result))
+        (= expected result)))
+
+    s/Keyword :kikka :kikka
+    s/Keyword ::kikka ::kikka
+    s/Keyword "kikka" :kikka
+    s/Keyword "kikka/kikka" :kikka/kikka
+    s/Keyword 'kikka ::fails
+
+    #?@(:clj [
+              Keyword :kikka :kikka
+              Keyword ::kikka ::kikka
+              Keyword "kikka" :kikka
+              Keyword "kikka/kikka" :kikka/kikka
+              Keyword 'kikka ::fails])
+
+    UUID "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+    UUID #uuid "77e70512-1337-dead-beef-0123456789ab" (UUID/fromString "77e70512-1337-dead-beef-0123456789ab")
+    UUID "INVALID" ::fails
+
+    s/Int 1 1
+    s/Int 92233720368547758071 92233720368547758071
+    s/Int -92233720368547758071 -92233720368547758071
+    s/Int "1" 1
+    s/Int "1.0" ::fails
+
+    #?@(:clj [Long 1 1
+              Long 9223372036854775807 9223372036854775807
+              Long -9223372036854775807 -9223372036854775807
+              Long "1" 1
+              Long "1.0" ::fails])
+
+    #?@(:clj [Double 1 1.0
+              Double 1.1 1.1
+              Double 1.7976931348623157E308 1.7976931348623157E308
+              Double -1.7976931348623157E308 -1.7976931348623157E308
+              Double "1" 1.0
+              Double "1.0" 1.0])
+
+    #?@(:clj [Date "2014-02-18T18:25:37.456Z" (Date/from (Instant/parse "2014-02-18T18:25:37.456Z"))
+              Date "2014-02-18T18:25:37Z" (Date/from (Instant/parse "2014-02-18T18:25:37Z"))
+              Date "2014-02-18T18" ::fails])
+
+    #?@(:clj [LocalDate "2014-02-19" (LocalDate/parse "2014-02-19")
+              LocalDate "INVALID" ::fails])
+
+    #?@(:clj [LocalTime "10:23" (LocalTime/parse "10:23")
+              LocalTime "10:23:37" (LocalTime/parse "10:23:37")
+              LocalTime "10:23:37.456" (LocalTime/parse "10:23:37.456")
+              LocalTime "INVALID" ::fails])
+
+    #?@(:clj [Instant "2014-02-18T18:25:37.456Z" (Instant/parse "2014-02-18T18:25:37.456Z")
+              Instant "2014-02-18T18:25:37Z" (Instant/parse "2014-02-18T18:25:37Z")
+              Instant "2014-02-18T18:25" ::fails])
+
+    s/Num 1 1
+    s/Num 1.0 1.0
+    s/Num "1" 1
+    s/Num "1.0" 1.0
+    s/Num "-1.0" -1.0
+    s/Num "+1.0" 1.0
+    s/Num "1.0e10" 1.0e10
+    s/Num "invalid" ::fails
+
+    s/Bool true true
+    s/Bool "true" true
+    s/Bool "false" false
+    s/Bool "invalid" ::fails
+
+    #?@(:clj [Boolean true true
+              Boolean "true" true
+              Boolean "false" false
+              Boolean "invalid" ::fails]))
+
+  (testing "Pattern"
+    (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) ".*")))))
