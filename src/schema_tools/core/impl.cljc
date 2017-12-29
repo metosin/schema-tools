@@ -50,15 +50,15 @@
 ;; Default
 ;;
 
-(defrecord Default [schema default]
+(defrecord Default [schema value]
   s/Schema
   (spec [_]
     (variant/variant-spec spec/+no-precondition+ [{:schema schema}]))
   (explain [_]
-    (list 'default (s/explain schema) default)))
+    (list 'default (s/explain schema) value)))
 
 (def default? (partial instance? Default))
 
-(defn default [schema default]
-  (s/validate schema default)
-  (->Default schema default))
+(defn default [schema value]
+  (s/validate schema value)
+  (->Default schema value))

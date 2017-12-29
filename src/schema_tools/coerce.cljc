@@ -4,7 +4,15 @@
             [schema.utils :as su]
             [schema.coerce :as sc]
             [schema-tools.core.impl :as impl]
-            [clojure.string :as str]))
+    #?@(:clj  [
+            clojure.edn]
+        :cljs [[cljs.reader]
+               [goog.date.UtcDateTime]]))
+  #?(:clj
+     (:import [java.util Date UUID]
+              [java.util.regex Pattern]
+              [java.time LocalDate LocalTime Instant]
+              (clojure.lang APersistentSet Keyword))))
 
 ;;
 ;; Internals
@@ -20,16 +28,16 @@
       coerced)))
 
 ; original: https://gist.github.com/abp/0c4106eba7b72802347b
-(defn- filter-schema-keys
-  [m schema-keys extra-keys-checker]
-  (reduce-kv (fn [m k _]
-               (if (or (contains? schema-keys k)
-                       (and extra-keys-checker
-                            (not (su/error? (extra-keys-checker k)))))
-                 m
-                 (dissoc m k)))
-             m
-             m))
+(defn- filter-schema-keys [m schema-keys extra-keys-checker]
+  (reduce-kv
+    (fn [m k _]
+      (if (or (contains? schema-keys k)
+              (and extra-keys-checker
+                   (not (su/error? (extra-keys-checker k)))))
+        m
+        (dissoc m k)))
+    m
+    m))
 
 ;;
 ;; Matchers
@@ -42,10 +50,11 @@
   (when (and (map? schema) (not (record? schema)))
     (let [extra-keys-schema (s/find-extra-keys-schema schema)
           extra-keys-checker (when extra-keys-schema
-                               (ss/run-checker (fn [s params]
-                                                 (ss/checker (s/spec s) params))
-                                               true
-                                               extra-keys-schema))
+                               (ss/run-checker
+                                 (fn [s params]
+                                   (ss/checker (s/spec s) params))
+                                 true
+                                 extra-keys-schema))
           explicit-keys (some->> (dissoc schema extra-keys-schema)
                                  keys
                                  (mapv s/explicit-schema-key)
@@ -60,7 +69,7 @@
 (defn default-coercion-matcher [schema]
   (when (impl/default? schema)
     (fn [value]
-      (if (nil? value) (:default schema) value))))
+      (if (nil? value) (:value schema) value))))
 
 (defn multi-matcher
   "Creates a matcher for (accept-schema schema), reducing
@@ -126,3 +135,111 @@
    (coerce value schema matcher ::error))
   ([value schema matcher type]
    ((coercer schema matcher type) value)))
+
+;;
+;; coercions
+;;
+
+(defn- safe-coerce-string [f]
+  (fn [x]
+    (if (string? x)
+      (try
+        (f x)
+        (catch #?(:clj Exception, :cljs js/Error) _ x))
+      x)))
+
+(defn string->boolean [x]
+  (if (string? x)
+    (condp = x
+      "true" true
+      "false" false
+      x)
+    x))
+
+#?(:clj
+   (defn string->long [^String x]
+     (if (string? x)
+       (try
+         (Long/valueOf x)
+         (catch #?(:clj Exception, :cljs js/Error) _ x))
+       x)))
+
+#?(:clj
+   (defn string->double [^String x]
+     (if (string? x)
+       (try
+         (Double/valueOf x)
+         (catch #?(:clj Exception, :cljs js/Error) _ x))
+       x)))
+
+(defn- safe-int [x]
+  #?(:clj  (sc/safe-long-cast x)
+     :cljs x))
+
+(defn string->number [^String x]
+  (if (string? x)
+    (try
+      (let [parsed #?(:clj  (clojure.edn/read-string x)
+                      :cljs (cljs.reader/read-string x))]
+        (if (number? parsed) parsed x))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
+    x))
+
+(defn string->uuid [x]
+  (if (string? x)
+    (try
+      #?(:clj  (UUID/fromString x)
+         ;; http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+         :cljs (if (re-find #"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" x)
+                 (uuid x)
+                 x))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
+    x))
+
+(defn string->date [x]
+  (if (string? x)
+    (try
+      #?(:clj  (Date/from (Instant/parse x))
+         :cljs (js/Date. (.getTime (goog.date.UtcDateTime.fromIsoString x))))
+      (catch #?(:clj Exception, :cljs js/Error) _ x))
+    x))
+
+(defn collection-matcher [schema]
+  (if (or (and (coll? schema) (not (record? schema))))
+    (fn [x] (if (coll? x) x [x]))))
+
+(def +json-coercions+
+  {s/Keyword sc/string->keyword
+   #?@(:clj [Keyword sc/string->keyword])
+   s/Uuid string->uuid
+   s/Int safe-int
+   #?@(:clj [Long sc/safe-long-cast])
+   #?@(:clj [Double double])
+   #?@(:clj [Pattern (safe-coerce-string re-pattern)])
+   #?@(:clj [Date string->date])
+   #?@(:cljs [js/Date string->date])
+   #?@(:clj [LocalDate (safe-coerce-string #(LocalDate/parse %))])
+   #?@(:clj [LocalTime (safe-coerce-string #(LocalTime/parse %))])
+   #?@(:clj [Instant (safe-coerce-string #(Instant/parse %))])})
+
+(def +string-coercions+
+  {s/Int (comp safe-int string->number)
+   s/Num string->number
+   s/Bool string->boolean
+   #?@(:clj [Long (comp safe-int string->long)])
+   #?@(:clj [Double (comp double string->double)])})
+
+
+;;
+;; matchers
+;;
+
+(def json-coercion-matcher
+  (some-fn +json-coercions+
+           sc/keyword-enum-matcher
+           sc/set-matcher))
+
+(def string-coercion-matcher
+  (some-fn +string-coercions+
+           collection-matcher
+           json-coercion-matcher))

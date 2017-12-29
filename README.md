@@ -16,6 +16,8 @@ Common utilities for working with [Prismatic Schema](https://github.com/Prismati
 
 [![Clojars Project](http://clojars.org/metosin/schema-tools/latest-version.svg)](http://clojars.org/metosin/schema-tools)
 
+Requires Java 1.8.
+
 ## Examples
 
 Normal `clojure.core` functions don't work well with Schemas:
@@ -111,7 +113,7 @@ Filtering out illegal schema map keys using coercion with additional Json-coerci
 ;            :schema {:beer {:vs #{:ipa :apa}}},
 ;            :value {:beer "ipa", :taste "good"},
 ;            :error {:beer (not (#{:ipa :apa} "ipa"))}}
-           
+
 (require '[schema.coerce :as sc])
 
 (st/select-schema ipa Beer sc/json-coercion-matcher)
