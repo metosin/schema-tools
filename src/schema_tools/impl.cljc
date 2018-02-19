@@ -1,4 +1,4 @@
-(ns schema-tools.core.impl
+(ns schema-tools.impl
   (:require [schema.core :as s]
             [schema.spec.variant :as variant]
             [schema.spec.core :as spec]))

@@ -3,7 +3,7 @@
             [schema-tools.coerce :as stc]
             [schema-tools.util :as stu]
             [schema-tools.walk :as walk]
-            [schema-tools.core.impl :as impl])
+            [schema-tools.impl :as impl])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
 (defn- explicit-key [k] (if (s/specific-key? k) (s/explicit-schema-key k) k))
