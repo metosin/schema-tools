@@ -1,4 +1,4 @@
-## UNRELEASED
+## 0.10.0 (19.2.2018)
 
 * **BREAKING**: Requires now Java1.8 (date coercions using `java.time`)
 * **BREAKING**: `Default` record value is now `value`, not `default`, fixes [#34](https://github.com/metosin/schema-tools/issues/34)

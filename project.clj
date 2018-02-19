@@ -1,4 +1,4 @@
-(defproject metosin/schema-tools "0.10.0-SNAPSHOT"
+(defproject metosin/schema-tools "0.10.0"
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
@@ -16,7 +16,7 @@
                    :dependencies [[criterium "0.4.4"]
                                   [org.clojure/clojure "1.8.0"]
                                   [org.clojure/clojurescript "1.9.946"]]}
-             :1.9 {:dependencies [[org.clojure/clojure "1.9.0-beta2"]]}}
+             :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.9"]
             "test-clj" ["all" "do" ["test"] ["check"]]
             "test-phantom" ["doo" "phantom" "test"]
