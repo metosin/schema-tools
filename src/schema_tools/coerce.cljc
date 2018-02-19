@@ -3,7 +3,7 @@
             [schema.spec.core :as ss]
             [schema.utils :as su]
             [schema.coerce :as sc]
-            [schema-tools.core.impl :as impl]
+            [schema-tools.impl :as impl]
     #?@(:clj  [
             clojure.edn]
         :cljs [[cljs.reader]
