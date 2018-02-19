@@ -126,6 +126,6 @@ See the [tests](https://github.com/metosin/schema-tools/tree/master/test/schema_
 
 ## License
 
-Copyright © 2014-2017 [Metosin Oy](http://www.metosin.fi)
+Copyright © 2014-2018 [Metosin Oy](http://www.metosin.fi)
 
 Distributed under the Eclipse Public License, the same as Clojure.
