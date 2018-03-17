@@ -1,3 +1,7 @@
+## 0.10.1-SNAPSHOT
+
+* One Swagger, please.
+
 ## 0.10.0 (19.2.2018)
 
 * **BREAKING**: Requires now Java1.8 (date coercions using `java.time`)
