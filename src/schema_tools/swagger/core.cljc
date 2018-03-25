@@ -319,16 +319,3 @@
    (swagger-spec x nil))
   ([x options]
    (expand-qualified-keywords x options)))
-
-(swagger-spec
-  {:info {:title "swagger2"}
-   :paths {"/echo" {:get {::parameters {:query {:x (s/named Long "Kikka")}
-                                        :body (s/named {:age Long} "User")}}}}})
-
-(s/named {} "Kikka")
-
-(s/defschema Kikkaz
-  {:a Long})
-
-(schema-name Kikkaz)
-(schema-name (s/named {} "Kikka"))
