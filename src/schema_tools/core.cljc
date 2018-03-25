@@ -3,6 +3,8 @@
             [schema-tools.coerce :as stc]
             [schema-tools.util :as stu]
             [schema-tools.walk :as walk]
+            [schema.spec.variant :as variant]
+            [schema.spec.core :as spec]
             [schema-tools.impl :as impl])
   (:refer-clojure :exclude [assoc dissoc select-keys update get-in assoc-in update-in merge]))
 
@@ -203,6 +205,30 @@
 
 (defn default [schema default]
   (impl/default schema default))
+
+;;
+;; Schema
+;;
+
+(def schema-keys [:name :description])
+
+(defrecord Schema [schema data]
+  schema.core.Schema
+  (spec [_]
+    (variant/variant-spec
+      spec/+no-precondition+
+      [{:schema schema}]))
+  (explain [this]
+    (let [ops (select-keys data schema-keys)]
+      (-> ['schema (-> this :schema s/explain)]
+          (cond-> (seq ops) (conj ops))
+          (seq)))))
+
+(defn schema
+  ([pred]
+   (schema pred nil))
+  ([pred data]
+   (->Schema pred data)))
 
 ;;
 ;; Extras
