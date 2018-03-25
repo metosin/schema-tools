@@ -17,9 +17,9 @@
    [s/Str {:type "string"}]
    [Kikka {:type "object"
            :title "KikkaRecord"
-           :properties {:a {:type "string"}}
+           :properties {"a" {:type "string"}}
            :additionalProperties false
-           :required [:a]}]
+           :required ["a"]}]
    [s/Keyword {:type "string"}]
    [s/Inst {:type "string", :format "date-time"}]
    [s/Uuid {:type "string", :format "uuid"}]
@@ -38,18 +38,18 @@
                  :items {:type "string"}}]
    [Abba {:type "object"
           :title "Abba"
-          :properties {:string {:type "string"}}
+          :properties {"string" {:type "string"}}
           :additionalProperties false
-          :required [:string]}]
+          :required ["string"]}]
    [(st/schema {:string s/Str}) {:type "object"
-                                 :properties {:string {:type "string"}}
+                                 :properties {"string" {:type "string"}}
                                  :additionalProperties false
-                                 :required [:string]}]
+                                 :required ["string"]}]
    [(st/schema {:string s/Str} {:name "Schema2"}) {:type "object"
                                                    :title "Schema2"
-                                                   :properties {:string {:type "string"}}
+                                                   :properties {"string" {:type "string"}}
                                                    :additionalProperties false
-                                                   :required [:string]}]
+                                                   :required ["string"]}]
    [(s/maybe s/Keyword) {:type "string", :x-nullable true}]
    [(s/enum "s" "m" "l") {:type "string", :enum ["s" "l" "m"]}]
    [(s/both s/Num (s/pred odd? 'odd?)) {:type "number", :format "double"}]
@@ -60,17 +60,115 @@
    [{:string s/Str
      (s/required-key :req) s/Str
      (s/optional-key :opt) s/Str} {:type "object"
-                                   :properties {:string {:type "string"}
-                                                :req {:type "string"}
-                                                :opt {:type "string"}}
+                                   :properties {"string" {:type "string"}
+                                                "req" {:type "string"}
+                                                "opt" {:type "string"}}
                                    :additionalProperties false
-                                   :required [:string :req]}]
+                                   :required ["string" "req"]}]
    [{:string s/Str
      s/Int s/Int} {:type "object"
-                   :properties {:string {:type "string"}}
+                   :properties {"string" {:type "string"}}
                    :additionalProperties {:type "integer", :format "int32"}
-                   :required [:string]}]])
+                   :required ["string"]}]])
 
 (deftest test-expectations
   (doseq [[schema swagger] exceptations]
     (is (= swagger (swagger/transform schema nil)))))
+
+(def Id s/Str)
+(def Name s/Str)
+(def Street s/Str)
+(s/defschema City (s/maybe (s/enum :tre :hki)))
+(s/defschema Address {:street Street
+                      :city City})
+(s/defschema User {:id Id
+                   :name Name
+                   :address Address})
+
+(deftest expand-test
+
+  (testing "::parameters"
+    (is (= {:parameters [{:in "query"
+                          :name "name2"
+                          :description "this survives the merge"
+                          :type "string"
+                          :required true}
+                         {:in "query"
+                          :name "name"
+                          :description ""
+                          :type "string"
+                          :required false}
+                         {:in "query"
+                          :name "street"
+                          :description ""
+                          :type "string"
+                          :required false}
+                         {:in "query"
+                          :name "city"
+                          :description ""
+                          :type "string"
+                          :required false
+                          :enum [:tre :hki]
+                          :allowEmptyValue true}
+                         {:in "path"
+                          :name "id"
+                          :description ""
+                          :type "string"
+                          :required true}
+                         {:in "body",
+                          :name "Address",
+                          :description "",
+                          :required true,
+                          :schema {:type "object",
+                                   :title "Address",
+                                   :properties {"street" {:type "string"},
+                                                "city" {:enum [:tre :hki],
+                                                        :type "string"
+                                                        :x-nullable true}},
+                                   :additionalProperties false,
+                                   :required ["street" "city"]}}]}
+           (swagger/swagger-spec
+             {:parameters [{:in "query"
+                            :name "name"
+                            :description "this will be overridden"
+                            :required false}
+                           {:in "query"
+                            :name "name2"
+                            :description "this survives the merge"
+                            :type "string"
+                            :required true}]
+              ::swagger/parameters
+              {:query {(s/optional-key :name) Name
+                       (s/optional-key :street) Street
+                       (s/optional-key :city) City}
+               :path {:id Id}
+               :body Address}}))))
+
+  #_(testing "::responses"
+      (is (= {:responses
+              {200 {:schema
+                    {:type "object"
+                     :properties
+                     {"id" {:type "string"}
+                      "name" {:type "string"}
+                      "address" {:type "object"
+                                 :properties {"street" {:type "string"}
+                                              "city" {:enum [:tre :hki]
+                                                      :type "string"
+                                                      :x-nullable true}}
+                                 :required ["street" "city"]
+                                 :title "spec-tools.swagger.core-test/address"}}
+                     :required ["id" "name" "address"]
+                     :title "spec-tools.swagger.core-test/user"}
+                    :description ""}
+               404 {:schema {}
+                    :description "Ohnoes."}
+               500 {:description "fail"}}}
+             (swagger/swagger-spec
+               {:responses {404 {:description "fail"}
+                            500 {:description "fail"}}
+                ::swagger/responses {200 {:schema ::user}
+                                     404 {:description "Ohnoes."}}})))))
+
+
+

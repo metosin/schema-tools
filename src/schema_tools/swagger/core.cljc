@@ -41,6 +41,9 @@
       (str "don't know how to convert " schema " into a Swagger Schema. ")
       {:schema schema})))
 
+(defn maybe? [schema]
+  (instance? schema.core.Maybe schema))
+
 #_(defn reference? [m]
   (contains? m :$ref))
 
@@ -59,7 +62,7 @@
   (some->> (for [[k v] schema
                  :when (s/specific-key? k)
                  :let [v (transform v opts)]]
-             (and v [(s/explicit-schema-key k) v]))
+             (and v [(key-name (s/explicit-schema-key k)) v]))
            (seq) (into (empty schema))))
 
 (defn additional-properties [schema]
@@ -211,23 +214,120 @@
          :title (some-> (or (:name opts) (s/schema-name this)) name)
          :properties (properties this opts)
          :additionalProperties (additional-properties this)
-         :required (some->> (filterv s/required-key? (keys this)) seq vec)}))))
+         :required (some->> (filterv s/required-key? (keys this)) seq (mapv key-name))}))))
+
+(defn schema-name [schema]
+  (some->
+    (or
+      (s/schema-name schema)
+      (if (instance? schema.core.NamedSchema schema)
+        (:name schema)))
+    (name)))
+
 
 (defn transform [schema opts]
   (-transform schema opts))
+
+;;
+;; extract swagger2 parameters
+;;
+
+(defmulti extract-parameter (fn [in _] in))
+
+(defmethod extract-parameter :body [_ schema]
+  (let [swagger (transform schema {:in :body, :type :parameter})]
+    [{:in "body"
+      :name (or (schema-name schema) "body")
+      :description ""
+      :required (not (maybe? schema))
+      :schema swagger}]))
+
+(defmethod extract-parameter :default [in spec]
+  (let [{:keys [properties required]} (transform spec {:in in, :type :parameter})]
+    (mapv
+      (fn [[k {:keys [type] :as schema}]]
+        (merge
+          {:in (name in)
+           :name (key-name k)
+           :description ""
+           :type type
+           :required (contains? (set required) k)}
+          schema))
+      properties)))
+
+;;
+;; expand the spec
+;;
+
+(defmulti expand (fn [k _ _ _] k) :default ::extension)
+
+(defmethod expand ::extension [k v _ _]
+  {(keyword (str "x-" (key-name k))) v})
+
+(defmethod expand ::responses [_ v acc _]
+  {:responses
+   (into
+     (or (:responses acc) {})
+     (for [[status response] v]
+       [status (-> response
+                   (update :schema transform {:type :schema})
+                   (update :description (fnil identity "")))]))})
+
+(defmethod expand ::parameters [_ v acc _]
+  (let [old (or (:parameters acc) [])
+        new (mapcat (fn [[in spec]] (extract-parameter in spec)) v)
+        merged (->> (into old new)
+                    (reverse)
+                    (reduce
+                      (fn [[ps cache :as acc] p]
+                        (let [c (select-keys p [:in :name])]
+                          (if-not (cache c)
+                            [(conj ps p) (conj cache c)]
+                            acc)))
+                      [[] #{}])
+                    (first)
+                    (reverse)
+                    (vec))]
+    {:parameters merged}))
+
+(defn expand-qualified-keywords [x options]
+  (let [accept? (set (keys (methods expand)))]
+    (walk/postwalk
+      (fn [x]
+        (if (map? x)
+          (reduce-kv
+            (fn [acc k v]
+              (if (accept? k)
+                (-> acc (dissoc k) (merge (expand k v acc options)))
+                acc))
+            x
+            x)
+          x))
+      x)))
 
 ;;
 ;; generate the swagger spec
 ;;
 
 (defn swagger-spec
-  "Transforms data into a swagger2 spec. WIP"
+  "Transforms data into a swagger2 spec. Input data must conform
+  to the Swagger2 Spec (http://swagger.io/specification/) with a
+  exception that it can have any qualified keywords that are expanded
+  with the `schema-tools.swagger.core/expand` multimethod."
   ([x]
    (swagger-spec x nil))
   ([x options]
-   (walk/postwalk
-     (fn [x]
-       (if (map? x)
-         (dissoc x ::parameters ::responses)
-         x))
-     x)))
+   (expand-qualified-keywords x options)))
+
+(swagger-spec
+  {:info {:title "swagger2"}
+   :paths {"/echo" {:get {::parameters {:query {:x (s/named Long "Kikka")}
+                                        :body (s/named {:age Long} "User")}}}}})
+
+(s/named {} "Kikka")
+
+(s/defschema Kikkaz
+  {:a Long})
+
+(schema-name Kikkaz)
+(schema-name (s/named {} "Kikka"))
