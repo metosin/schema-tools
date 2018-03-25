@@ -213,7 +213,7 @@
 (def schema-keys [:name :description])
 
 (defrecord Schema [schema data]
-  schema.core.Schema
+  s/Schema
   (spec [_]
     (variant/variant-spec
       spec/+no-precondition+
