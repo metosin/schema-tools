@@ -37,7 +37,7 @@
    [[s/Keyword] {:type "array"
                  :items {:type "string"}}]
    [Abba {:type "object"
-          :title "Abba"
+          :title "schema-tools.swagger.core-test/Abba"
           :properties {"string" {:type "string"}}
           :additionalProperties false
           :required ["string"]}]
@@ -121,11 +121,11 @@
                           :type "string"
                           :required true}
                          {:in "body",
-                          :name "Address",
+                          :name "schema-tools.swagger.core-test/Address",
                           :description "",
                           :required true,
                           :schema {:type "object",
-                                   :title "Address",
+                                   :title "schema-tools.swagger.core-test/Address",
                                    :properties {"street" {:type "string"},
                                                 "city" {:enum [:tre :hki],
                                                         :type "string"
@@ -152,11 +152,11 @@
   (testing "::responses"
     (is (= {:responses
             {200 {:schema {:type "object"
-                           :title "User"
+                           :title "schema-tools.swagger.core-test/User"
                            :properties {"id" {:type "string"}
                                         "name" {:type "string"}
                                         "address" {:type "object"
-                                                   :title "Address"
+                                                   :title "schema-tools.swagger.core-test/Address"
                                                    :properties {"street" {:type "string"}
                                                                 "city" {:enum [:tre :hki]
                                                                         :type "string"

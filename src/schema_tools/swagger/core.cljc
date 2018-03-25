@@ -24,6 +24,17 @@
 (defn required-keys [schema]
   (filterv s/required-key? (keys schema)))
 
+(defn schema-name [schema opts]
+  (if-let [name (some->
+                  (or
+                    (:name opts)
+                    (s/schema-name schema)
+                    (if (instance? schema.core.NamedSchema schema)
+                      (:name schema)))
+                  (name))]
+    (let [ns (s/schema-ns schema)]
+      (if ns (str ns "/" name) name))))
+
 (defn key-name [x]
   (if (keyword? x)
     (let [n (namespace x)]
@@ -45,13 +56,13 @@
   (instance? schema.core.Maybe schema))
 
 #_(defn reference? [m]
-  (contains? m :$ref))
+    (contains? m :$ref))
 
 #_(defn reference [e {:keys [ignore-missing-mappings?]}]
-  (if-let [schema-name (s/schema-name e)]
-    {:$ref (str "#/definitions/" schema-name)}
-    (if-not ignore-missing-mappings?
-      (not-supported! e))))
+    (if-let [schema-name (s/schema-name e)]
+      {:$ref (str "#/definitions/" schema-name)}
+      (if-not ignore-missing-mappings?
+        (not-supported! e))))
 
 (defn- collection-schema [e options]
   (-> {:type "array"
@@ -166,7 +177,7 @@
 
   #_#_schema.core.Recursive
       (-transform [this opts]
-                 (-transform (:derefable this) opts))
+                  (-transform (:derefable this) opts))
 
   schema.core.EqSchema
   (-transform [this opts]
@@ -211,19 +222,10 @@
     (if (plain-map? this)
       (remove-empty-keys
         {:type "object"
-         :title (some-> (or (:name opts) (s/schema-name this)) name)
+         :title (schema-name this opts)
          :properties (properties this opts)
          :additionalProperties (additional-properties this)
          :required (some->> (filterv s/required-key? (keys this)) seq (mapv key-name))}))))
-
-(defn schema-name [schema]
-  (some->
-    (or
-      (s/schema-name schema)
-      (if (instance? schema.core.NamedSchema schema)
-        (:name schema)))
-    (name)))
-
 
 (defn transform [schema opts]
   (-transform schema opts))
@@ -237,22 +239,22 @@
 (defmethod extract-parameter :body [_ schema]
   (let [swagger (transform schema {:in :body, :type :parameter})]
     [{:in "body"
-      :name (or (schema-name schema) "body")
+      :name (or (schema-name schema nil) "body")
       :description ""
       :required (not (maybe? schema))
       :schema swagger}]))
 
-(defmethod extract-parameter :default [in spec]
-  (let [{:keys [properties required]} (transform spec {:in in, :type :parameter})]
+(defmethod extract-parameter :default [in schema]
+  (let [{:keys [properties required]} (transform schema {:in in, :type :parameter})]
     (mapv
-      (fn [[k {:keys [type] :as schema}]]
+      (fn [[k {:keys [type] :as swagger}]]
         (merge
           {:in (name in)
            :name (key-name k)
            :description ""
            :type type
            :required (contains? (set required) k)}
-          schema))
+          swagger))
       properties)))
 
 ;;
