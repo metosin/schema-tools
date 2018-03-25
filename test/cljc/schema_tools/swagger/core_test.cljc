@@ -144,31 +144,27 @@
                :path {:id Id}
                :body Address}}))))
 
-  #_(testing "::responses"
-      (is (= {:responses
-              {200 {:schema
-                    {:type "object"
-                     :properties
-                     {"id" {:type "string"}
-                      "name" {:type "string"}
-                      "address" {:type "object"
-                                 :properties {"street" {:type "string"}
-                                              "city" {:enum [:tre :hki]
-                                                      :type "string"
-                                                      :x-nullable true}}
-                                 :required ["street" "city"]
-                                 :title "spec-tools.swagger.core-test/address"}}
-                     :required ["id" "name" "address"]
-                     :title "spec-tools.swagger.core-test/user"}
-                    :description ""}
-               404 {:schema {}
-                    :description "Ohnoes."}
-               500 {:description "fail"}}}
-             (swagger/swagger-spec
-               {:responses {404 {:description "fail"}
-                            500 {:description "fail"}}
-                ::swagger/responses {200 {:schema ::user}
-                                     404 {:description "Ohnoes."}}})))))
-
-
-
+  (testing "::responses"
+    (is (= {:responses
+            {200 {:schema {:type "object"
+                           :title "User"
+                           :properties {"id" {:type "string"}
+                                        "name" {:type "string"}
+                                        "address" {:type "object"
+                                                   :title "Address"
+                                                   :properties {"street" {:type "string"}
+                                                                "city" {:enum [:tre :hki]
+                                                                        :type "string"
+                                                                        :x-nullable true}}
+                                                   :additionalProperties false
+                                                   :required ["street" "city"]}}
+                           :additionalProperties false
+                           :required ["id" "name" "address"]}
+                  :description ""}
+             404 {:description "Ohnoes."}
+             500 {:description "fail"}}}
+           (swagger/swagger-spec
+             {:responses {404 {:description "fail"}
+                          500 {:description "fail"}}
+              ::swagger/responses {200 {:schema User}
+                                   404 {:description "Ohnoes."}}})))))

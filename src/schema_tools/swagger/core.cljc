@@ -271,7 +271,8 @@
      (for [[status response] v]
        [status (-> response
                    (update :schema transform {:type :schema})
-                   (update :description (fnil identity "")))]))})
+                   (update :description (fnil identity ""))
+                   (remove-empty-keys))]))})
 
 (defmethod expand ::parameters [_ v acc _]
   (let [old (or (:parameters acc) [])
