@@ -87,6 +87,11 @@
 
 (deftest expand-test
 
+  (testing "non-registered are not affected"
+    (is (= {::kikka "kukka"}
+           (swagger/swagger-spec
+             {::kikka "kukka"}))))
+
   (testing "::parameters"
     (is (= {:parameters [{:in "query"
                           :name "name2"
