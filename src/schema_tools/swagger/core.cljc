@@ -261,10 +261,7 @@
 ;; expand the spec
 ;;
 
-(defmulti expand (fn [k _ _ _] k) :default ::extension)
-
-(defmethod expand ::extension [k v _ _]
-  {(keyword (str "x-" (key-name k))) v})
+(defmulti expand (fn [k _ _ _] k))
 
 (defmethod expand ::responses [_ v acc _]
   {:responses
