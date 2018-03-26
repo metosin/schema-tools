@@ -1,7 +1,10 @@
 sudo: false
 language: clojure
 lein: 2.7.1
-script: 
+install:
+  - npm install
+  - lein deps
+script:
   - ./scripts/test.sh $TEST
 env:
   matrix:
@@ -14,7 +17,7 @@ matrix:
 jdk:
   - oraclejdk8
 node_js:
-  - "6.1"
+  - "8.10"
 cache:
   directories:
   - "$HOME/.m2"
