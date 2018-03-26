@@ -210,8 +210,6 @@
 ;; Schema
 ;;
 
-(def schema-keys [:name :description])
-
 (defrecord Schema [schema data]
   s/Schema
   (spec [_]
@@ -219,7 +217,7 @@
       spec/+no-precondition+
       [{:schema schema}]))
   (explain [this]
-    (let [ops (select-keys data schema-keys)]
+    (let [ops (select-keys data [:name :description])]
       (-> ['schema (-> this :schema s/explain)]
           (cond-> (seq ops) (conj ops))
           (seq)))))

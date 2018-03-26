@@ -139,7 +139,7 @@
 
   schema_tools.core.Schema
   (-transform [this opts]
-    (-transform (:schema this) (merge opts (select-keys (:data this) schema-keys))))
+    (-transform (:schema this) (merge opts (select-keys (:data this) [:name :description]))))
 
   java.lang.Class
   (-transform [this opts]
