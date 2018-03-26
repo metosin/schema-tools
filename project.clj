@@ -22,7 +22,7 @@
   :aliases {"all" ["with-profile" "dev:dev,1.9"]
             "all-cljs" ["with-profile" "dev:dev,1.10"]
             "test-clj" ["all" "do" ["test"] ["check"]]
-            "test-cljs" ["all-cljs" "do" ["test-node" "test-chrome" "test-advanced"]]
+            "test-cljs" ["all-cljs" "do" ["test-node"] ["test-chrome"] ["test-advanced"]]
             "test-chrome" ["doo" "chrome-headless" "test" "once"]
             "test-advanced" ["doo" "phantom" "advanced-test" "once"]
             "test-node" ["doo" "node" "node-test" "once"]}
