@@ -7,7 +7,7 @@
             :comments "same as Clojure"}
   :dependencies [[prismatic/schema "1.1.7"]]
   :plugins [[funcool/codeina "0.5.0"]
-            [lein-doo "0.1.8"]]
+            [lein-doo "0.1.10"]]
   :test-paths ["test/clj" "test/cljc"]
   :codeina {:target "doc"
             :src-uri "http://github.com/metosin/schema-tools/blob/master/"
@@ -16,27 +16,28 @@
                    :dependencies [[criterium "0.4.4"]
                                   [org.clojure/clojure "1.8.0"]
                                   [org.clojure/clojurescript "1.9.946"]]}
-             :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}}
+             :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
+             :1.10 {:dependencies [[org.clojure/clojure "1.10.0-alpha4"]
+                                   [org.clojure/clojurescript "1.10.238"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.9"]
+            "all-cljs" ["with-profile" "dev:dev,1.10"]
             "test-clj" ["all" "do" ["test"] ["check"]]
-            "test-phantom" ["doo" "phantom" "test"]
-            "test-advanced" ["doo" "phantom" "advanced-test"]
-            "test-node" ["doo" "node" "node-test"]}
-  ;; Below, :process-shim false is workaround for <https://github.com/bensu/doo/pull/141>
+            "test-cljs" ["all-cljs" "do" ["test-node" "test-chrome" "test-advanced"]]
+            "test-chrome" ["doo" "chrome-headless" "test" "once"]
+            "test-advanced" ["doo" "phantom" "advanced-test" "once"]
+            "test-node" ["doo" "node" "node-test" "once"]}
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["src" "test/cljc" "test/cljs"]
                         :compiler {:output-to "target/out/test.js"
                                    :output-dir "target/out"
                                    :main schema-tools.doo-runner
-                                   :optimizations :none
-                                   :process-shim false}}
+                                   :optimizations :none}}
                        {:id "advanced-test"
                         :source-paths ["src" "test/cljc" "test/cljs"]
                         :compiler {:output-to "target/advanced_out/test.js"
                                    :output-dir "target/advanced_out"
                                    :main schema-tools.doo-runner
-                                   :optimizations :advanced
-                                   :process-shim false}}
+                                   :optimizations :advanced}}
                        ;; Node.js requires :target :nodejs, hence the separate
                        ;; build configuration.
                        {:id "node-test"
@@ -45,5 +46,4 @@
                                    :output-dir "target/node_out"
                                    :main schema-tools.doo-runner
                                    :optimizations :none
-                                   :target :nodejs
-                                   :process-shim false}}]})
+                                   :target :nodejs}}]})

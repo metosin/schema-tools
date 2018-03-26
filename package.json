@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "schema-tools",
+  "dependencies": {},
+  "devDependencies": {
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cljs-test": "^0.1.0"
+  }
+}
