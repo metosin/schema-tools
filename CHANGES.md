@@ -1,5 +1,7 @@
 ## 0.10.1-SNAPSHOT
 
+* **BUGFIX**: Works now with ClojureScript 1.10.238
+    * MapEntry changes in the latest ClojureScript broke `walk`
 * One Swagger, please.
 
 ## 0.10.0 (19.2.2018)

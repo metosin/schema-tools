@@ -2,6 +2,7 @@ sudo: false
 language: clojure
 lein: 2.7.1
 install:
+  - npm install -g karma-cli
   - npm install
   - lein deps
 script:
