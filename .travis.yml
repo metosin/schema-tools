@@ -22,3 +22,5 @@ node_js:
 cache:
   directories:
   - "$HOME/.m2"
+addons:
+  chrome: stable
