@@ -1,7 +1,8 @@
 (ns schema-tools.walk
   "Provides walk function which can be used to transform schemas while
   preserving their structure and type."
-  (:require [schema.core :as s]))
+  (:require [schema.core :as s])
+  #?(:clj (:import [java.util Map$Entry])))
 
 (defprotocol WalkableSchema
   (-walk [this inner outer]))
@@ -49,12 +50,13 @@
   (walk (partial prewalk f) identity (f schema)))
 
 (extend-protocol WalkableSchema
-  #?@(:clj [clojure.lang.IMapEntry
-            (-walk [this inner outer]
-                   (outer (with-meta (vec (map inner this)) (meta this))))]
-      :cljs [MapEntry
-             (-walk [this inner outer]
-                    (outer (with-meta (MapEntry. (inner (key this)) (inner (val this)) nil) (meta this))))])
+  ;; Walk for map-entries doesn't have to return new map-entry, because
+  ;; the result is used in (into {} ...) and vector will
+  ;; work in that case.
+  #?(:clj Map$Entry
+     :cljs MapEntry)
+  (-walk [this inner outer]
+    (outer (with-meta (vec (map inner this)) (meta this))))
 
   schema.core.Maybe
   (-walk [this inner outer]
