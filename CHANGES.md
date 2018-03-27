@@ -1,4 +1,4 @@
-## 0.10.1-SNAPSHOT
+## 0.10.1
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.0...0.10.1)**
 
