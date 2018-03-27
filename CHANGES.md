@@ -1,16 +1,22 @@
 ## 0.10.1-SNAPSHOT
 
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.0...0.10.1)**
+
 * **BUGFIX**: Works now with ClojureScript 1.10.238
     * MapEntry changes in the latest ClojureScript broke `walk`
 * One Swagger, please.
 
 ## 0.10.0 (19.2.2018)
 
+**[compare](https://github.com/metosin/schema-tools/compare/0.9.1...0.10.0)**
+
 * **BREAKING**: Requires now Java1.8 (date coercions using `java.time`)
 * **BREAKING**: `Default` record value is now `value`, not `default`, fixes [#34](https://github.com/metosin/schema-tools/issues/34)
 * `schema-tools.coercion` contains now `json-coercion-matcher` and `string-coercion-matcher`, ported and polished from [Ring-swagger](https://github.com/metosin/ring-swagger)
 
 ## 0.9.1 (16.10.2017)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.9.0...0.9.1)**
 
 - `stc/corce` and `stc/coercer` default to `(constantly nil)` matcher
 - `st/open-schema` transforms all nested Map Schemas to accept any extra keys
