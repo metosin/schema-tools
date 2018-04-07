@@ -82,55 +82,56 @@
       (transform v nil))
     false))
 
+(defn object-schema [this opts]
+  (if (plain-map? this)
+    (remove-empty-keys
+      {:type "object"
+       :title (schema-name this opts)
+       :properties (properties this opts)
+       :additionalProperties (additional-properties this)
+       :required (some->> (filterv s/required-key? (keys this)) seq (mapv key-name))})))
+
 ;;
 ;; transformations
 ;;
 
-(defmulti convert-class (fn [c _] c))
-(defmethod convert-class java.lang.Integer [_ _] {:type "integer" :format "int32"})
-(defmethod convert-class java.lang.Long [_ _] {:type "integer" :format "int64"})
-(defmethod convert-class java.lang.Double [_ _] {:type "number" :format "double"})
-(defmethod convert-class java.lang.Number [_ _] {:type "number" :format "double"})
-(defmethod convert-class java.lang.String [_ _] {:type "string"})
-(defmethod convert-class java.lang.Boolean [_ _] {:type "boolean"})
-(defmethod convert-class clojure.lang.Keyword [_ _] {:type "string"})
-(defmethod convert-class clojure.lang.Symbol [_ _] {:type "string"})
-(defmethod convert-class java.util.UUID [_ _] {:type "string" :format "uuid"})
-(defmethod convert-class java.util.Date [_ _] {:type "string" :format "date-time"})
-(defmethod convert-class java.time.Instant [_ _] {:type "string" :format "date-time"})
-(defmethod convert-class java.time.LocalDate [_ _] {:type "string" :format "date"})
-(defmethod convert-class java.time.LocalTime [_ _] {:type "string" :format "time"})
-(defmethod convert-class java.util.regex.Pattern [_ _] {:type "string" :format "regex"})
-(defmethod convert-class java.io.File [_ _] {:type "file"})
+(defmulti transform-pred (fn [this _] this) :default ::default)
+(defmethod transform-pred integer? [_ _] {:type "integer" :format "int32"})
+(defmethod transform-pred keyword? [_ _] {:type "string"})
+(defmethod transform-pred symbol? [_ _] {:type "string"})
 
-(defmethod convert-class :default [e {:keys [ignore-missing-mappings?]}]
+(defmethod transform-pred ::default [e {:keys [ignore-missing-mappings?]}]
   (if-not [ignore-missing-mappings?]
     (not-supported! e)))
 
-(defmulti predicate-schema (fn [this _] this))
-(defmethod predicate-schema integer? [_ _] {:type "integer" :format "int32"})
-(defmethod predicate-schema keyword? [_ _] {:type "string"})
-(defmethod predicate-schema symbol? [_ _] {:type "string"})
 
-(defmulti transform-class (fn [c _] c))
-(defmethod transform-class java.lang.Integer [_ _] {:type "integer" :format "int32"})
-(defmethod transform-class java.lang.Long [_ _] {:type "integer" :format "int64"})
-(defmethod transform-class java.lang.Double [_ _] {:type "number" :format "double"})
-(defmethod transform-class java.lang.Number [_ _] {:type "number" :format "double"})
-(defmethod transform-class java.lang.String [_ _] {:type "string"})
-(defmethod transform-class java.lang.Boolean [_ _] {:type "boolean"})
-(defmethod transform-class clojure.lang.Keyword [_ _] {:type "string"})
-(defmethod transform-class clojure.lang.Symbol [_ _] {:type "string"})
-(defmethod transform-class java.util.UUID [_ _] {:type "string" :format "uuid"})
-(defmethod transform-class java.util.Date [_ _] {:type "string" :format "date-time"})
-(defmethod transform-class java.time.Instant [_ _] {:type "string" :format "date-time"})
-(defmethod transform-class java.time.LocalDate [_ _] {:type "string" :format "date"})
-(defmethod transform-class java.time.LocalTime [_ _] {:type "string" :format "time"})
-(defmethod transform-class java.util.regex.Pattern [_ _] {:type "string" :format "regex"})
-(defmethod transform-class java.io.File [_ _] {:type "file"})
+(defmulti transform-class (fn [c _] c) :default ::default)
+#?(:clj (defmethod transform-class java.lang.Integer [_ _] {:type "integer" :format "int32"}))
+#?(:clj (defmethod transform-class java.lang.Long [_ _] {:type "integer" :format "int64"}))
+#?(:clj (defmethod transform-class java.lang.Double [_ _] {:type "number" :format "double"}))
+#?(:clj (defmethod transform-class java.lang.Number [_ _] {:type "number" :format "double"}))
+#?(:clj (defmethod transform-class java.lang.String [_ _] {:type "string"}))
+#?(:clj (defmethod transform-class java.lang.Boolean [_ _] {:type "boolean"}))
+#?(:clj (defmethod transform-class clojure.lang.Keyword [_ _] {:type "string"}))
+#?(:clj (defmethod transform-class clojure.lang.Symbol [_ _] {:type "string"}))
+#?(:clj (defmethod transform-class java.util.UUID [_ _] {:type "string" :format "uuid"}))
+#?(:clj (defmethod transform-class java.util.Date [_ _] {:type "string" :format "date-time"}))
+#?(:clj (defmethod transform-class java.time.Instant [_ _] {:type "string" :format "date-time"}))
+#?(:clj (defmethod transform-class java.time.LocalDate [_ _] {:type "string" :format "date"}))
+#?(:clj (defmethod transform-class java.time.LocalTime [_ _] {:type "string" :format "time"}))
+#?(:clj (defmethod transform-class java.util.regex.Pattern [_ _] {:type "string" :format "regex"}))
+#?(:clj (defmethod transform-class java.io.File [_ _] {:type "file"}))
+
+(defmethod transform-class ::default [e {:keys [ignore-missing-mappings?]}]
+  (if-not [ignore-missing-mappings?]
+    (not-supported! e)))
 
 (defprotocol SwaggerSchema
   (-transform [this opts]))
+
+(defn transform [schema opts]
+  (println "=>" schema)
+  (-transform schema opts))
 
 (extend-protocol SwaggerSchema
 
@@ -139,33 +140,35 @@
 
   schema_tools.core.Schema
   (-transform [this opts]
-    (-transform (:schema this) (merge opts (select-keys (:data this) [:name :description]))))
+    (transform (:schema this) (merge opts (select-keys (:data this) [:name :description]))))
 
-  java.lang.Class
-  (-transform [this opts]
-    (if-let [schema (record-schema this)]
-      (-transform schema opts)
-      (transform-class this opts)))
+  #?@(:clj
+      [java.lang.Class
+       (-transform [this opts]
+         (if-let [schema (record-schema this)]
+           (transform schema opts)
+           (transform-class this opts)))])
 
-  java.util.regex.Pattern
-  (-transform [this _]
-    {:type "string" :pattern (str this)})
+  #?@(:clj
+      [java.util.regex.Pattern
+       (-transform [this _]
+         {:type "string" :pattern (str this)})])
 
   schema.core.Both
   (-transform [this options]
-    (-transform (first (:schemas this)) options))
+    (transform (first (:schemas this)) options))
 
   schema.core.Predicate
   (-transform [this options]
-    (predicate-schema (:p? this) options))
+    (transform-pred (:p? this) options))
 
   schema.core.EnumSchema
   (-transform [this options]
-    (assoc (-transform (class (first (:vs this))) options) :enum (vec (:vs this))))
+    (assoc (transform (type (first (:vs this))) options) :enum (vec (:vs this))))
 
   schema.core.Maybe
   (-transform [e {:keys [in] :as opts}]
-    (let [schema (-transform (:schema e) opts)]
+    (let [schema (transform (:schema e) opts)]
       (condp contains? in
         #{:query :formData} (assoc schema :allowEmptyValue true)
         #{nil :body} (assoc schema :x-nullable true)
@@ -173,62 +176,61 @@
 
   schema.core.Either
   (-transform [this opts]
-    (-transform (first (:schemas this)) opts))
+    (transform (first (:schemas this)) opts))
 
   #_#_schema.core.Recursive
       (-transform [this opts]
-                  (-transform (:derefable this) opts))
+                  (transform (:derefable this) opts))
 
   schema.core.EqSchema
   (-transform [this opts]
-    (-transform (class (:v this)) opts))
+    (transform (type (:v this)) opts))
 
   schema.core.One
   (-transform [this opts]
-    (-transform (:schema this) opts))
+    (transform (:schema this) opts))
 
   schema.core.AnythingSchema
   (-transform [_ {:keys [in] :as opts}]
     (if (and in (not= :body in))
-      (-transform (s/maybe s/Str) opts)
+      (transform (s/maybe s/Str) opts)
       {}))
 
   schema.core.ConditionalSchema
   (-transform [this opts]
-    {:x-oneOf (vec (keep (comp #(-transform % opts) second) (:preds-and-schemas this)))})
+    {:x-oneOf (vec (keep (comp #(transform % opts) second) (:preds-and-schemas this)))})
 
   schema.core.CondPre
   (-transform [this opts]
-    {:x-oneOf (mapv #(-transform % opts) (:schemas this))})
+    {:x-oneOf (mapv #(transform % opts) (:schemas this))})
 
   schema.core.Constrained
   (-transform [this opts]
-    (-transform (:schema this) opts))
+    (transform (:schema this) opts))
 
   schema.core.NamedSchema
   (-transform [{:keys [schema name]} opts]
-    (-transform schema (assoc opts :name name)))
+    (transform schema (assoc opts :name name)))
 
-  clojure.lang.Sequential
-  (-transform [this options]
-    (collection-schema this options))
+  #?@(:clj
+      [clojure.lang.Sequential
+       (-transform [this options]
+         (collection-schema this options))])
 
-  clojure.lang.IPersistentSet
-  (-transform [this options]
-    (assoc (collection-schema this options) :uniqueItems true))
+  #?@(:clj
+      [clojure.lang.IPersistentSet
+       (-transform [this options]
+         (assoc (collection-schema this options) :uniqueItems true))])
 
-  clojure.lang.IPersistentMap
+  #?(:clj  clojure.lang.PersistentArrayMap
+     :cljs cljs.core.PersistentArrayMap)
   (-transform [this opts]
-    (if (plain-map? this)
-      (remove-empty-keys
-        {:type "object"
-         :title (schema-name this opts)
-         :properties (properties this opts)
-         :additionalProperties (additional-properties this)
-         :required (some->> (filterv s/required-key? (keys this)) seq (mapv key-name))}))))
+    (object-schema this opts))
 
-(defn transform [schema opts]
-  (-transform schema opts))
+  #?(:clj  clojure.lang.PersistentHashMap
+     :cljs cljs.core.PersistentHashMap)
+  (-transform [this opts]
+    (object-schema this opts)))
 
 ;;
 ;; extract swagger2 parameters
@@ -294,7 +296,7 @@
   (let [accept? (set (keys (methods expand)))]
     (walk/postwalk
       (fn [x]
-        (if (map? x)
+        (if (plain-map? x)
           (reduce-kv
             (fn [acc k v]
               (if (accept? k)
