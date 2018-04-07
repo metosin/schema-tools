@@ -72,8 +72,7 @@
 (defn properties [schema opts]
   (some->> (for [[k v] schema
                  :when (s/specific-key? k)
-                 :let [_ (println k "...." v "=>" (transform v opts))
-                       v (transform v opts)]]
+                 :let [v (transform v opts)]]
              (and v [(key-name (s/explicit-schema-key k)) v]))
            (seq) (into (empty schema))))
 
@@ -107,26 +106,29 @@
     (not-supported! e)))
 
 (defmulti transform-type (fn [c _] c) :default ::default)
-#?(:clj (defmethod transform-type java.lang.Integer [_ _] {:type "integer" :format "int32"}))
-#?(:clj (defmethod transform-type java.lang.Long [_ _] {:type "integer" :format "int64"}))
-#?(:clj (defmethod transform-type java.lang.Double [_ _] {:type "number" :format "double"}))
-#?(:clj (defmethod transform-type java.lang.Number [_ _] {:type "number" :format "double"}))
-#?(:clj (defmethod transform-type java.lang.String [_ _] {:type "string"}))
-#?(:clj (defmethod transform-type java.lang.Boolean [_ _] {:type "boolean"}))
-#?(:clj (defmethod transform-type clojure.lang.Keyword [_ _] {:type "string"}))
 
-
-(defmethod transform-type #?(:clj  clojure.lang.Keyword
+(defmethod transform-type #?(:clj  java.lang.Boolean,
+                             :cljs js/Boolean) [_ _] {:type "boolean"})
+(defmethod transform-type #?(:clj  java.lang.Number,
+                             :cljs js/Number) [_ _] {:type "number" :format "double"})
+(defmethod transform-type #?(:clj  clojure.lang.Keyword,
                              :cljs cljs.core.Keyword) [_ _] {:type "string"})
+(defmethod transform-type #?(:clj  java.util.Date,
+                             :cljs js/Date) [_ _] {:type "string" :format "date-time"})
+(defmethod transform-type #?(:clj  java.util.UUID,
+                             :cljs cljs.core/UUID) [_ _] {:type "string" :format "uuid"})
 
 #?(:clj (defmethod transform-type clojure.lang.Symbol [_ _] {:type "string"}))
-#?(:clj (defmethod transform-type java.util.UUID [_ _] {:type "string" :format "uuid"}))
-#?(:clj (defmethod transform-type java.util.Date [_ _] {:type "string" :format "date-time"}))
 #?(:clj (defmethod transform-type java.time.Instant [_ _] {:type "string" :format "date-time"}))
 #?(:clj (defmethod transform-type java.time.LocalDate [_ _] {:type "string" :format "date"}))
 #?(:clj (defmethod transform-type java.time.LocalTime [_ _] {:type "string" :format "time"}))
 #?(:clj (defmethod transform-type java.util.regex.Pattern [_ _] {:type "string" :format "regex"}))
 #?(:clj (defmethod transform-type java.io.File [_ _] {:type "file"}))
+#?(:clj (defmethod transform-type java.lang.Integer [_ _] {:type "integer" :format "int32"}))
+#?(:clj (defmethod transform-type java.lang.Long [_ _] {:type "integer" :format "int64"}))
+#?(:clj (defmethod transform-type java.lang.Double [_ _] {:type "number" :format "double"}))
+#?(:clj (defmethod transform-type java.lang.String [_ _] {:type "string"}))
+
 
 #_(defmethod transform-type ::default [e {:keys [ignore-missing-mappings?]}]
     (if-not [ignore-missing-mappings?]
@@ -162,7 +164,6 @@
 
   schema.core.Predicate
   (-transform [this options]
-    (println "pred:" (:p? this))
     (transform-pred (:p? this) options))
 
   schema.core.EnumSchema
