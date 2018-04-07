@@ -94,6 +94,7 @@
              {::kikka "kukka"}))))
 
   (testing "::parameters"
+    #_(println "E:" (pr-str (swagger/transform (s/enum :a :b) nil)))
     (is (= {:parameters [{:in "query"
                           :name "name2"
                           :description "this survives the merge"
@@ -149,27 +150,27 @@
                                     :path {:id Id}
                                     :body Address}}))))
 
-  #_(testing "::responses"
-      (is (= {:responses
-              {200 {:schema {:type "object"
-                             :title "schema-tools.swagger.core-test/User"
-                             :properties {"id" {:type "string"}
-                                          "name" {:type "string"}
-                                          "address" {:type "object"
-                                                     :title "schema-tools.swagger.core-test/Address"
-                                                     :properties {"street" {:type "string"}
-                                                                  "city" {:enum [:tre :hki]
-                                                                          :type "string"
-                                                                          :x-nullable true}}
-                                                     :additionalProperties false
-                                                     :required ["street" "city"]}}
-                             :additionalProperties false
-                             :required ["id" "name" "address"]}
-                    :description ""}
-               404 {:description "Ohnoes."}
-               500 {:description "fail"}}}
-             (swagger/swagger-spec
-               {:responses {404 {:description "fail"}
-                            500 {:description "fail"}}
-                ::swagger/responses {200 {:schema User}
-                                     404 {:description "Ohnoes."}}})))))
+  (testing "::responses"
+    (is (= {:responses
+            {200 {:schema {:type "object"
+                           :title "schema-tools.swagger.core-test/User"
+                           :properties {"id" {:type "string"}
+                                        "name" {:type "string"}
+                                        "address" {:type "object"
+                                                   :title "schema-tools.swagger.core-test/Address"
+                                                   :properties {"street" {:type "string"}
+                                                                "city" {:enum [:tre :hki]
+                                                                        :type "string"
+                                                                        :x-nullable true}}
+                                                   :additionalProperties false
+                                                   :required ["street" "city"]}}
+                           :additionalProperties false
+                           :required ["id" "name" "address"]}
+                  :description ""}
+             404 {:description "Ohnoes."}
+             500 {:description "fail"}}}
+           (swagger/swagger-spec
+             {:responses {404 {:description "fail"}
+                          500 {:description "fail"}}
+              ::swagger/responses {200 {:schema User}
+                                   404 {:description "Ohnoes."}}})))))
