@@ -2,7 +2,10 @@
   (:require [clojure.walk :as walk]
             [schema-tools.core]
             [schema.utils :as su]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [clojure.string :as str]
+    #?@(:cljs [goog.date.UtcDateTime
+               goog.date.Date])))
 
 ;;
 ;; common
@@ -15,7 +18,9 @@
 
 (defn record-schema [x]
   (if-let [schema (some-> x su/class-schema :schema)]
-    (s/named schema (str (.getSimpleName ^Class x) "Record"))))
+    (let [name #?(:clj  (.getSimpleName ^Class x)
+                  :cljs (some-> x su/class-schema :klass pr-str (str/split "/") last))]
+      (s/named schema (str name "Record")))))
 
 (defn plain-map? [x]
   (and (map? x)
@@ -117,18 +122,22 @@
                              :cljs js/Date) [_ _] {:type "string" :format "date-time"})
 (defmethod transform-type #?(:clj  java.util.UUID,
                              :cljs cljs.core/UUID) [_ _] {:type "string" :format "uuid"})
+(defmethod transform-type #?(:clj  java.util.regex.Pattern,
+                             :cljs js/RegExp) [_ _] {:type "string" :format "regex"})
+(defmethod transform-type #?(:clj  String,
+                             :cljs js/String) [_ _] {:type "string"})
 
 #?(:clj (defmethod transform-type clojure.lang.Symbol [_ _] {:type "string"}))
 #?(:clj (defmethod transform-type java.time.Instant [_ _] {:type "string" :format "date-time"}))
 #?(:clj (defmethod transform-type java.time.LocalDate [_ _] {:type "string" :format "date"}))
 #?(:clj (defmethod transform-type java.time.LocalTime [_ _] {:type "string" :format "time"}))
-#?(:clj (defmethod transform-type java.util.regex.Pattern [_ _] {:type "string" :format "regex"}))
 #?(:clj (defmethod transform-type java.io.File [_ _] {:type "file"}))
 #?(:clj (defmethod transform-type java.lang.Integer [_ _] {:type "integer" :format "int32"}))
 #?(:clj (defmethod transform-type java.lang.Long [_ _] {:type "integer" :format "int64"}))
 #?(:clj (defmethod transform-type java.lang.Double [_ _] {:type "number" :format "double"}))
-#?(:clj (defmethod transform-type java.lang.String [_ _] {:type "string"}))
 
+#?(:cljs (defmethod transform-type goog.date.Date [_ _] {:type "string" :format "date"}))
+#?(:cljs (defmethod transform-type goog.date.UtcDateTime [_ _] {:type "string" :format "date-time"}))
 
 #_(defmethod transform-type ::default [e {:keys [ignore-missing-mappings?]}]
     (if-not [ignore-missing-mappings?]
@@ -153,10 +162,11 @@
   (-transform [this opts]
     (transform (:schema this) (merge opts (select-keys (:data this) [:name :description]))))
 
-  #?@(:clj
-      [java.util.regex.Pattern
-       (-transform [this _]
-         {:type "string" :pattern (str this)})])
+  #?(:clj  java.util.regex.Pattern
+     :cljs js/RegExp)
+  (-transform [this _]
+    {:type "string" :pattern (str #?(:clj  this
+                                     :cljs (.-source this)))})
 
   schema.core.Both
   (-transform [this options]
@@ -168,7 +178,7 @@
 
   schema.core.EnumSchema
   (-transform [this options]
-    (assoc (transform (type (first (:vs this))) options) :enum (vec (:vs this))))
+    (assoc (transform (type (first (:vs this))) options) :enum (:vs this)))
 
   schema.core.Maybe
   (-transform [e {:keys [in] :as opts}]
@@ -216,15 +226,20 @@
   (-transform [{:keys [schema name]} opts]
     (transform schema (assoc opts :name name)))
 
-  #?@(:clj
-      [clojure.lang.Sequential
-       (-transform [this options]
-         (collection-schema this options))])
+  #?(:clj  clojure.lang.Sequential
+     :cljs cljs.core/List)
+  (-transform [this options]
+    (collection-schema this options))
 
-  #?@(:clj
-      [clojure.lang.IPersistentSet
-       (-transform [this options]
-         (assoc (collection-schema this options) :uniqueItems true))])
+  #?(:clj  clojure.lang.IPersistentSet
+     :cljs cljs.core/PersistentHashSet)
+  (-transform [this options]
+    (assoc (collection-schema this options) :uniqueItems true))
+
+  #?(:clj  clojure.lang.APersistentVector
+     :cljs cljs.core.PersistentVector)
+  (-transform [this options]
+    (collection-schema this options))
 
   #?(:clj  clojure.lang.PersistentArrayMap
      :cljs cljs.core.PersistentArrayMap)
