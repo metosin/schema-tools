@@ -19,6 +19,7 @@
 (defn record-schema [x]
   (if-let [schema (some-> x su/class-schema :schema)]
     (let [name #?(:clj  (.getSimpleName ^Class x)
+                  ;; TODO: phantom generates invalid names
                   :cljs (some-> x su/class-schema :klass pr-str (str/split "/") last))]
       (s/named schema (str name "Record")))))
 
