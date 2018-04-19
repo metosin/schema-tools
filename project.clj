@@ -1,11 +1,11 @@
-(defproject metosin/schema-tools "0.10.1"
+(defproject metosin/schema-tools "0.10.2-SNAPSHOT"
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  :dependencies [[prismatic/schema "1.1.7"]]
+  :dependencies [[prismatic/schema "1.1.9"]]
   :plugins [[funcool/codeina "0.5.0"]
             [lein-doo "0.1.10"]]
   :test-paths ["test/clj" "test/cljc"]
@@ -14,12 +14,12 @@
             :src-uri-prefix "#L"}
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.5"]]
                    :dependencies [[criterium "0.4.4"]
-                                  [org.clojure/clojure "1.8.0"]
-                                  [org.clojure/clojurescript "1.9.946"]]}
-             :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
+                                  [org.clojure/clojure "1.9.0"]
+                                  [org.clojure/clojurescript "1.10.238"]]}
+             :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
              :1.10 {:dependencies [[org.clojure/clojure "1.10.0-alpha4"]
                                    [org.clojure/clojurescript "1.10.238"]]}}
-  :aliases {"all" ["with-profile" "dev:dev,1.9"]
+  :aliases {"all" ["with-profile" "dev:dev,1.8"]
             "all-cljs" ["with-profile" "dev:dev,1.10"]
             "test-clj" ["all" "do" ["test"] ["check"]]
             "test-cljs" ["all-cljs" "do" ["test-node"] ["test-chrome"] ["test-advanced"]]

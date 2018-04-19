@@ -1,6 +1,7 @@
 # Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.svg?branch=master)](https://travis-ci.org/metosin/schema-tools) [![Downloads](https://jarkeeper.com/metosin/schema-tools/downloads.svg)](https://jarkeeper.com/metosin/schema-tools) [![Dependencies Status](https://jarkeeper.com/metosin/schema-tools/status.svg)](https://jarkeeper.com/metosin/schema-tools)
 
-Common utilities for working with [Prismatic Schema](https://github.com/Prismatic/schema) Maps, both Clojure & ClojureScript.
+Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for Clojure/Script.
+
 * common Schema definitions: `any-keys`, `any-keyword-keys`, `open-schema`
 * schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
@@ -9,6 +10,8 @@ Common utilities for working with [Prismatic Schema](https://github.com/Prismati
 * meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
 * coercion tools: `or-matcher`, `map-filter-matcher`, `multi-matcher`, `coercer`, `coerce`
 * Protocol-based walker for manipulating Schemas in `schema-tools.walk`: `walk`, `prewalk` and `postwalk`.
+* Swagger2 generation
+* Coercion tools
 
 [API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
 
