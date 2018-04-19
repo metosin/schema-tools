@@ -325,3 +325,7 @@
        (is (= nil (st/resolve-schema-description Kikka))))
      (testing "anonymous schema"
        (is (= nil (st/resolve-schema-description {:ping s/Str}))))))
+
+(deftest schema-test
+  (is (= 1 (s/validate (st/schema s/Int {}) 1)))
+  (is (= 1 (stc/coerce "1" (st/schema s/Int {}) stc/string-coercion-matcher))))
