@@ -1,7 +1,9 @@
-## 0.10.2-SNAPSHOT
+## 0.10.2 (8.5.2018)
 
-* Initial support of Schema->Swagger2, ported from [ring-swagger](https://github.com/metosin/ring-swagger) with added support for ClojureScript! 
-   * Few [issues](https://github.com/metosin/schema-tools/issues) still. 
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.1...0.10.2)**
+
+* Initial support of Schema->Swagger2, ported from [ring-swagger](https://github.com/metosin/ring-swagger) with added support for ClojureScript!
+   * Few [issues](https://github.com/metosin/schema-tools/issues) still.
    * See [code](https://github.com/metosin/schema-tools/blob/master/src/schema_tools/swagger/core.cljc) for details.
 
 ## 0.10.1
