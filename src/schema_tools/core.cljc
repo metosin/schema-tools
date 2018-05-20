@@ -62,8 +62,9 @@
           (cond
             (and ks (not (ks? (explicit-key k)))) k
             (s/specific-key? k) (f (s/explicit-schema-key k))
-            :else (f k)))
+            :else k))
         schema))))
+
 ;;
 ;; Definitions
 ;;
@@ -232,6 +233,16 @@
 ;; Extras
 ;;
 
+(defn optional-keys
+  "Makes given map keys optional. Defaults to all keys."
+  ([m] (optional-keys m nil))
+  ([m ks] (transform-keys m s/optional-key ks)))
+
+(defn required-keys
+  "Makes given map keys required. Defaults to all keys."
+  ([m] (required-keys m nil))
+  ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
+
 (defn select-schema
   "Strips all disallowed keys from nested Map schemas via coercion. Takes an optional
   coercion matcher for extra coercing the selected value(s) on a single sweep. If a value
@@ -252,15 +263,15 @@
         x))
     schema))
 
-(defn optional-keys
-  "Makes given map keys optional. Defaults to all keys."
-  ([m] (optional-keys m nil))
-  ([m ks] (transform-keys m s/optional-key ks)))
-
-(defn required-keys
-  "Makes given map keys required. Defaults to all keys."
-  ([m] (required-keys m nil))
-  ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
+(defn optional-keys-schema
+  "Walks a schema making all keys optional in Map Schemas."
+  [schema]
+  (walk/prewalk
+    (fn [x]
+      (if (and (map? x) (not (record? x)))
+        (optional-keys x)
+        x))
+    schema))
 
 (defn schema-with-description
   "Records description in schema's metadata."

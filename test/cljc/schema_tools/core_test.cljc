@@ -329,3 +329,40 @@
 (deftest schema-test
   (is (= 1 (s/validate (st/schema s/Int {}) 1)))
   (is (= 1 (stc/coerce "1" (st/schema s/Int {}) stc/string-coercion-matcher))))
+
+(deftest optional-keys-schema-test
+  (let [coercer (fn [schema matcher {:keys [open? loose?]}]
+                  (let [f (comp (if loose? st/optional-keys-schema identity)
+                                (if open? st/open-schema identity))]
+                    (schema.coerce/coercer (f schema) matcher)))
+        schema {:a Long, :b [(s/maybe {:a Long, s/Keyword s/Keyword})]}
+        schema-coercer (coercer schema (constantly nil) {:open? true, :loose? true})]
+    
+    (testing "coerces values correctly"
+      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}))))
+
+    (testing "returns coerced data even if missing keys/errors"
+      (is (= {:a 1}
+             (schema-coercer {:a 1}))))
+
+    (testing "leaves extra keys"
+      (is (= {:a 1 :z "extra"}
+             (schema-coercer {:a 1
+                              :z "extra"}))))
+
+    (testing "coerces nested data"
+      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}))))
+
+    (testing "leaves extra nested data"
+      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"
+                         :nested "keep-me-please"}], "kukka" "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"
+                                         :nested "keep-me-please"}], "kukka" "kakka"}))))
+
+    (testing "leave data"
+      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}
+                        {:b "keep-me-too"}], "kukka" "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}
+                                        {:b "keep-me-too"}], "kukka" "kakka"}))))))
