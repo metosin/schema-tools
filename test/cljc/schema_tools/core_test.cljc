@@ -335,9 +335,9 @@
                   (let [f (comp (if loose? st/optional-keys-schema identity)
                                 (if open? st/open-schema identity))]
                     (schema.coerce/coercer (f schema) matcher)))
-        schema {:a Long, :b [(s/maybe {:a Long, s/Keyword s/Keyword})]}
+        schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Keyword})]}
         schema-coercer (coercer schema (constantly nil) {:open? true, :loose? true})]
-    
+
     (testing "coerces values correctly"
       (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}
              (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}))))
