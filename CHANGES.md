@@ -1,3 +1,9 @@
+## 0.10.3 (23.5.2018)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.2...0.10.3)**
+
+* `schema-tools.core/optional-keys-schema` to make all Map Schema keys optional (recursively)
+
 ## 0.10.2 (8.5.2018)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.1...0.10.2)**
