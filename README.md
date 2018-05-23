@@ -2,7 +2,7 @@
 
 Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for Clojure/Script.
 
-* common Schema definitions: `any-keys`, `any-keyword-keys`, `open-schema`
+* common Schema definitions: `any-keys`, `any-keyword-keys`, `open-schema`, `optional-keys-schema`
 * schema-aware selectors: `get-in`, `select-keys`, `select-schema`
 * schema-aware transformers: `assoc`, `dissoc`, `assoc-in`, `update-in`, `update`, `dissoc-in`, `merge`, `optional-keys`, `required-keys`
   * removes the schema name and ns if the schema (value) has changed.
