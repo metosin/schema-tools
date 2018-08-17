@@ -2,9 +2,7 @@
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"
-            :distribution :repo
-            :comments "same as Clojure"}
+            :url "http://www.eclipse.org/legal/epl-v20.html"}
   :dependencies [[prismatic/schema "1.1.9"]]
   :plugins [[funcool/codeina "0.5.0"]
             [lein-doo "0.1.10"]]
