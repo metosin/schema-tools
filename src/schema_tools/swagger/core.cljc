@@ -123,8 +123,8 @@
                              :cljs js/Date) [_ _] {:type "string" :format "date-time"})
 (defmethod transform-type #?(:clj  java.util.UUID,
                              :cljs cljs.core/UUID) [_ _] {:type "string" :format "uuid"})
-(defmethod transform-type #?(:clj  java.util.regex.Pattern,
-                             :cljs js/RegExp) [_ _] {:type "string" :format "regex"})
+(defmethod transform-type #?(:clj java.util.regex.Pattern
+                             :cljs schema.core.Regex) [_ _] {:type "string" :format "regex"})
 (defmethod transform-type #?(:clj  String,
                              :cljs js/String) [_ _] {:type "string"})
 
