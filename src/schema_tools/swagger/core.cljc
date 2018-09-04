@@ -108,7 +108,7 @@
 (defmethod transform-pred symbol? [_ _] {:type "string"})
 
 (defmethod transform-pred ::default [e {:keys [ignore-missing-mappings?]}]
-  (if-not [ignore-missing-mappings?]
+  (if-not ignore-missing-mappings?
     (not-supported! e)))
 
 (defmulti transform-type (fn [c _] c) :default ::default)
@@ -123,8 +123,8 @@
                              :cljs js/Date) [_ _] {:type "string" :format "date-time"})
 (defmethod transform-type #?(:clj  java.util.UUID,
                              :cljs cljs.core/UUID) [_ _] {:type "string" :format "uuid"})
-(defmethod transform-type #?(:clj  java.util.regex.Pattern,
-                             :cljs js/RegExp) [_ _] {:type "string" :format "regex"})
+(defmethod transform-type #?(:clj java.util.regex.Pattern
+                             :cljs schema.core.Regex) [_ _] {:type "string" :format "regex"})
 (defmethod transform-type #?(:clj  String,
                              :cljs js/String) [_ _] {:type "string"})
 
@@ -140,9 +140,9 @@
 #?(:cljs (defmethod transform-type goog.date.Date [_ _] {:type "string" :format "date"}))
 #?(:cljs (defmethod transform-type goog.date.UtcDateTime [_ _] {:type "string" :format "date-time"}))
 
-#_(defmethod transform-type ::default [e {:keys [ignore-missing-mappings?]}]
-    (if-not [ignore-missing-mappings?]
-      (not-supported! e)))
+(defmethod transform-type ::default [e {:keys [ignore-missing-mappings?]}]
+  (if-not ignore-missing-mappings?
+    (not-supported! e)))
 
 (defprotocol SwaggerSchema
   (-transform [this opts]))

@@ -28,8 +28,8 @@
    [s/Keyword {:type "string"}]
    [s/Inst {:type "string", :format "date-time"}]
    [s/Uuid {:type "string", :format "uuid"}]
-   [#?(:clj  java.util.regex.Pattern
-       :cljs js/RegExp) {:type "string", :format "regex"}]
+   #?(:clj [java.util.regex.Pattern {:type "string", :format "regex"}])
+   [s/Regex {:type "string", :format "regex"}]
 
    [#"a[6-9]" {:type "string", :pattern "a[6-9]"}]
    [#{s/Keyword} {:type "array"
