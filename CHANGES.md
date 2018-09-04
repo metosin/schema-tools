@@ -1,10 +1,17 @@
-## 0.10.3 (23.5.2018)
+## 0.10.4 (2018-09-04)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.3...0.10.4)**
+
+- Fix ClojureScript (Closure) warning about reference to global RegExp object.
+    - Using `js/RegExp` as Schema is no longer supported, instead one should use `schema.core/Regex`
+
+## 0.10.3 (2018-05-23)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.2...0.10.3)**
 
 * `schema-tools.core/optional-keys-schema` to make all Map Schema keys optional (recursively)
 
-## 0.10.2 (8.5.2018)
+## 0.10.2 (2018-05-08)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.1...0.10.2)**
 
@@ -12,7 +19,7 @@
    * Few [issues](https://github.com/metosin/schema-tools/issues) still.
    * See [code](https://github.com/metosin/schema-tools/blob/master/src/schema_tools/swagger/core.cljc) for details.
 
-## 0.10.1
+## 0.10.1 (2018-03-27)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.0...0.10.1)**
 
@@ -20,7 +27,7 @@
     * MapEntry changes in the latest ClojureScript broke `walk`
 * One Swagger, please.
 
-## 0.10.0 (19.2.2018)
+## 0.10.0 (2018-02-19)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.9.1...0.10.0)**
 
