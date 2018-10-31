@@ -1,4 +1,4 @@
-# Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.svg?branch=master)](https://travis-ci.org/metosin/schema-tools) [![Downloads](https://jarkeeper.com/metosin/schema-tools/downloads.svg)](https://jarkeeper.com/metosin/schema-tools) [![Dependencies Status](https://jarkeeper.com/metosin/schema-tools/status.svg)](https://jarkeeper.com/metosin/schema-tools)
+# Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.svg?branch=master)](https://travis-ci.org/metosin/schema-tools) [![cljdoc badge](https://cljdoc.org/badge/metosin/schema-tools)](https://cljdoc.org/d/metosin/schema-tools/CURRENT)
 
 Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for Clojure/Script.
 
