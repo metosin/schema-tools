@@ -1,5 +1,7 @@
 ## 0.10.5 (2018-11-01)
 
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.4...0.10.5)**
+
 - New options for handling default values ([#25](https://github.com/metosin/schema-tools/issues/25)):
   - `schema-tools.coerce/default-key-matcher` which adds missing map keys if they have default values specified.
   - `schema-tools.coerce/default-coercion-matcher` has been renamed to `stc/default-value-matcher`.
