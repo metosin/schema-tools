@@ -66,13 +66,17 @@
             x))))))
 
 ; original: https://groups.google.com/forum/m/#!topic/prismatic-plumbing/NWUnqbYhfac
-(defn default-coercion-matcher
+(defn default-value-matcher
   "Creates a matcher which converts nils to default values. You can set default values
   with [[schema-tools.core/default]]."
   [schema]
   (when (impl/default? schema)
     (fn [value]
       (if (nil? value) (:value schema) value))))
+
+(def ^:deprecated default-coercion-matcher
+  "Deprecated - use [[default-value-matcher]] instead."
+  default-value-matcher)
 
 (defn default-key-matcher
   "Creates a matcher which adds missing keys to a map if they have default values.
