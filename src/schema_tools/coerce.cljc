@@ -94,6 +94,15 @@
       (when (seq default-map)
         (fn [x] (merge default-map x))))))
 
+(defn default-matcher
+  "Combination of [[default-value-matcher]] and [[default-key-matcher]]: Creates
+  a matcher which adds missing keys with default values to a map and converts
+  nils to default values. You can set default values with
+  [[schema-tools.core/default]]."
+  [schema]
+  (or (default-key-matcher schema)
+      (default-value-matcher schema)))
+
 (defn multi-matcher
   "Creates a matcher for (accept-schema schema), reducing
   value with fs functions if (accept-value value)."
