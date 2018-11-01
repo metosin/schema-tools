@@ -1,4 +1,4 @@
-(defproject metosin/schema-tools "0.10.5"
+(defproject metosin/schema-tools "0.10.6-SNAPSHOT"
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
