@@ -66,10 +66,29 @@
             x))))))
 
 ; original: https://groups.google.com/forum/m/#!topic/prismatic-plumbing/NWUnqbYhfac
-(defn default-coercion-matcher [schema]
+(defn default-coercion-matcher
+  "Creates a matcher which converts nils to default values. You can set default values
+  with [[schema-tools.core/default]]."
+  [schema]
   (when (impl/default? schema)
     (fn [value]
       (if (nil? value) (:value schema) value))))
+
+(defn default-key-matcher
+  "Creates a matcher which adds missing keys to a map if they have default values.
+  You can set default values with [[schema-tools.core/default]]."
+  [schema]
+  ;; Can't use `map?` here, since we're looking for a map literal, but records
+  ;; satisfy `map?`.
+  (when (and (map? schema) (not (record? schema)))
+    (let [default-map (reduce-kv (fn [acc k v]
+                                   (if (impl/default? v)
+                                     (assoc acc k (:value v))
+                                     acc))
+                                 {}
+                                 schema)]
+      (when (seq default-map)
+        (fn [x] (merge default-map x))))))
 
 (defn multi-matcher
   "Creates a matcher for (accept-schema schema), reducing

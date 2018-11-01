@@ -248,6 +248,18 @@
       (is (= {:a "a"} (coerce {:a nil})))
       (is (= {:a "a", :b [{:c 42}]} (coerce {:a nil :b [{:c nil}]}))))))
 
+(deftest default-key-test
+  (let [schema {:a (st/default s/Str "a")
+                (s/optional-key :b)
+                [{:c (st/default s/Int 42)}]}
+        coerce (sc/coercer! schema stc/default-key-matcher)]
+    (testing "missing keys are added"
+      (is (= {:a "a"} (coerce {})))
+      (is (= {:a "b"} (coerce {:a "b"})))
+      (is (= {:a "a" :b [{:c 42}]} (coerce {:b [{}]}))))
+    (testing "nils are not punned"
+      (is (thrown? #?(:clj Exception :cljs js/Error) (coerce {:a nil}))))))
+
 (def optional-keys-schema
   {(s/optional-key :a) s/Str
    (s/required-key :b) s/Str
