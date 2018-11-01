@@ -239,14 +239,31 @@
     (is (not (nil? (meta (st/merge Kikka {:b s/Str})))))
     (is (nil? (meta (st/merge Kikka {:c s/Str}))))))
 
-(deftest default-test
+(deftest default-value-test
   (let [schema {:a (st/default s/Str "a") (s/optional-key :b) [{:c (st/default s/Int 42)}]}
-        coerce (sc/coercer! schema stc/default-coercion-matcher)]
+        coerce (sc/coercer! schema stc/default-value-matcher)]
     (testing "missing keys are not added"
       (is (thrown? #?(:clj Exception :cljs js/Error) (coerce {}))))
     (testing "defaults are applied"
       (is (= {:a "a"} (coerce {:a nil})))
       (is (= {:a "a", :b [{:c 42}]} (coerce {:a nil :b [{:c nil}]}))))))
+
+(deftest default-key-test
+  (let [schema {:a (st/default s/Str "a")
+                (s/optional-key :b)
+                [{:c (st/default s/Int 42)}]}
+        coerce (sc/coercer! schema stc/default-key-matcher)]
+    (testing "missing keys are added"
+      (is (= {:a "a"} (coerce {})))
+      (is (= {:a "b"} (coerce {:a "b"})))
+      (is (= {:a "a" :b [{:c 42}]} (coerce {:b [{}]}))))
+    (testing "nils are not punned"
+      (is (thrown? #?(:clj Exception :cljs js/Error) (coerce {:a nil}))))))
+
+(deftest default-test
+  (let [schema {:a (st/default s/Str "a"), :b (st/default s/Str "b")}
+        coerce (sc/coercer! schema stc/default-matcher)]
+    (is (= {:a "a" :b "b"} (coerce {:a nil})))))
 
 (def optional-keys-schema
   {(s/optional-key :a) s/Str
