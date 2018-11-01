@@ -1,3 +1,11 @@
+## Unreleased
+
+- New options for handling default values ([#25](https://github.com/metosin/schema-tools/issues/25)):
+  - `schema-tools.coerce/default-key-matcher` which adds missing map keys if they have default values specified.
+  - `schema-tools.coerce/default-coercion-matcher` has been renamed to `stc/default-value-matcher`.
+      - `default-coercion-matcher` is now a deprecated alias for `default-value-matcher`.
+  - `schema-tools.coerce/default-matcher` combines the effects of `default-key-matcher` and `default-value-matcher`.
+
 ## 0.10.4 (2018-09-04)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.3...0.10.4)**
