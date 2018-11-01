@@ -13,7 +13,7 @@ Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for
 * Swagger2 generation
 * Coercion tools
 
-[API Docs](http://metosin.github.io/schema-tools/schema-tools.core.html).
+[API Docs](https://cljdoc.org/d/metosin/schema-tools/CURRENT).
 
 ## Latest version
 
