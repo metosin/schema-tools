@@ -3,6 +3,14 @@
             [schema.spec.variant :as variant]
             [schema.spec.core :as spec]))
 
+(defn unlift-keys [data ns-name]
+  (reduce
+    (fn [acc [k v]]
+      (if (= ns-name (namespace k))
+        (assoc acc (keyword (name k)) v)
+        acc))
+    {} data))
+
 (defprotocol SchemaValue
   (schema-value [this] "Returns the sub-schema for given schema."))
 

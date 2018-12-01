@@ -53,6 +53,10 @@
                                                    :properties {"string" {:type "string"}}
                                                    :additionalProperties false
                                                    :required ["string"]}]
+   [(st/schema s/Str {:swagger/default "abba"
+                      :swagger/format "email"}) {:type "string"
+                                                 :format "email"
+                                                 :default "abba"}]
    [(s/maybe s/Keyword) {:type "string", :x-nullable true}]
    [(s/enum "s" "m" "l") {:type "string", :enum #{"s" "l" "m"}}]
    [(s/both s/Num (s/pred odd? 'odd?)) {:type "number", :format "double"}]

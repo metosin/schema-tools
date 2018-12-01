@@ -4,8 +4,9 @@
             [schema.utils :as su]
             [schema.core :as s]
             [clojure.string :as str]
-    #?@(:cljs [goog.date.UtcDateTime
-               goog.date.Date])))
+            #?@(:cljs [goog.date.UtcDateTime
+                       goog.date.Date])
+            [schema-tools.impl :as impl]))
 
 ;;
 ;; common
@@ -26,9 +27,6 @@
 (defn plain-map? [x]
   (and (map? x)
        (not (record? x))))
-
-(defn required-keys [schema]
-  (filterv s/required-key? (keys schema)))
 
 (defn schema-name [schema opts]
   (if-let [name (some->
@@ -123,7 +121,7 @@
                              :cljs js/Date) [_ _] {:type "string" :format "date-time"})
 (defmethod transform-type #?(:clj  java.util.UUID,
                              :cljs cljs.core/UUID) [_ _] {:type "string" :format "uuid"})
-(defmethod transform-type #?(:clj java.util.regex.Pattern
+(defmethod transform-type #?(:clj  java.util.regex.Pattern
                              :cljs schema.core.Regex) [_ _] {:type "string" :format "regex"})
 (defmethod transform-type #?(:clj  String,
                              :cljs js/String) [_ _] {:type "string"})
@@ -160,8 +158,10 @@
   (-transform [_ _])
 
   schema_tools.core.Schema
-  (-transform [this opts]
-    (transform (:schema this) (merge opts (select-keys (:data this) [:name :description]))))
+  (-transform [{:keys [schema data]} opts]
+    (merge
+      (transform schema (merge opts (select-keys data [:name :description])))
+      (impl/unlift-keys data "swagger")))
 
   #?(:clj  java.util.regex.Pattern
      :cljs js/RegExp)
