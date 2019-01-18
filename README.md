@@ -125,7 +125,7 @@ Filtering out illegal schema map keys using coercion with additional Json-coerci
 
 ## Usage
 
-See the [tests](https://github.com/metosin/schema-tools/tree/master/test/schema_tools).
+See the [tests](https://github.com/metosin/schema-tools/tree/master/test/).
 
 ## License
 
