@@ -74,6 +74,13 @@
            (st/open-schema schema)))
     (is (= value ((stc/coercer (st/open-schema schema)) value)))))
 
+(deftest open-schema-does-not-kill-children-test
+  (let [schema {:a s/Str, :b {Long {:c s/Str}}}
+        value {:a "nakki", :b {1 {:c "kukka"}}}]
+    (is (= {:a String, :b {Long {:c String, s/Any s/Any}} s/Any s/Any}
+           (st/open-schema schema)))
+    (is (= value ((stc/coercer (st/open-schema schema)) value)))))
+
 (def get-in-schema
   {:a {(s/optional-key :b) {(s/required-key :c) s/Str}}
    (s/optional-key "d") {s/Keyword s/Str}})
