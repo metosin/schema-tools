@@ -65,6 +65,17 @@
             :else k))
         schema))))
 
+(defn- is-map-not-record? [x]
+  (and (map? x) (not (record? x))))
+
+(defn- has-maps? [a]
+  (some
+    (fn [x]
+      (and (map? x) (and (not (keyword? a)) (not (record? x))))) a))
+
+(defn- has-no-maps? [a]
+  (not (has-maps? a)))
+
 ;;
 ;; Definitions
 ;;
@@ -258,8 +269,12 @@
   [schema]
   (walk/prewalk
     (fn [x]
-      (if (and (map? x) (not (record? x)))
-        (assoc (dissoc x (s/find-extra-keys-schema x)) s/Any s/Any)
+      (if (is-map-not-record? x)
+        (if (and (has-no-maps? (vals x)))
+          (assoc (dissoc x (s/find-extra-keys-schema x)) s/Any s/Any)
+          (if (s/find-extra-keys-schema x)
+            x
+            (assoc x s/Any s/Any)))
         x))
     schema))
 
