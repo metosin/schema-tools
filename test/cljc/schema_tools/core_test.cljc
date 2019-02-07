@@ -75,9 +75,9 @@
     (is (= value ((stc/coercer (st/open-schema schema)) value)))))
 
 (deftest open-schema-does-not-kill-children-test
-  (let [schema {:a s/Str, :b {Long {:c s/Str}}}
+  (let [schema {:a s/Str, :b {s/Int {:c s/Str}}}
         value {:a "nakki", :b {1 {:c "kukka"}}}]
-    (is (= {:a s/Str, :b {Long {:c s/Str, s/Keyword s/Any}} s/Keyword s/Any}
+    (is (= {:a s/Str, :b {s/Int {:c s/Str, s/Keyword s/Any}} s/Keyword s/Any}
            (st/open-schema schema)))
     (is (= value ((stc/coercer (st/open-schema schema)) value)))))
 
