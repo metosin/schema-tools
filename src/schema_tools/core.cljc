@@ -253,7 +253,7 @@
    (stc/coerce value schema (stc/or-matcher stc/map-filter-matcher matcher))))
 
 (defn open-schema
-  "Walks a schema adding [`s/Any` `s/Any`] entry to all Map Schemas"
+  "Walks a schema adding [`s/Keyword` `s/Any`] entry to all Map Schemas"
   [schema]
   (walk/prewalk
    (fn [x]
