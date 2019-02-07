@@ -65,9 +65,6 @@
             :else k))
         schema))))
 
-(defn- is-map-not-record? [x]
-  (and (map? x) (not (record? x))))
-
 ;;
 ;; Definitions
 ;;
