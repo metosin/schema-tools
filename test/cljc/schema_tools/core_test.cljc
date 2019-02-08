@@ -68,9 +68,16 @@
     (is (nil? (meta (st/select-keys Kikka [:a]))))))
 
 (deftest open-schema-test
-  (let [schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Keyword})]}
-        value {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}]
-    (is (= {:a s/Int, :b [(s/maybe {:a s/Int, s/Any s/Any})], s/Any s/Any}
+  (let [schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Any})]}
+        value {:a 1, :b [{:a 1, :kikka "kukka"}], :kukka "kakka"}]
+    (is (= {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Any})], s/Keyword s/Any}
+           (st/open-schema schema)))
+    (is (= value ((stc/coercer (st/open-schema schema)) value)))))
+
+(deftest open-schema-does-not-kill-children-test
+  (let [schema {:a s/Str, :b {s/Int {:c s/Str}}}
+        value {:a "nakki", :b {1 {:c "kukka"}}}]
+    (is (= {:a s/Str, :b {s/Int {:c s/Str, s/Keyword s/Any}} s/Keyword s/Any}
            (st/open-schema schema)))
     (is (= value ((stc/coercer (st/open-schema schema)) value)))))
 
@@ -352,12 +359,12 @@
                   (let [f (comp (if loose? st/optional-keys-schema identity)
                                 (if open? st/open-schema identity))]
                     (schema.coerce/coercer (f schema) matcher)))
-        schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Keyword})]}
+        schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Any})]}
         schema-coercer (coercer schema (constantly nil) {:open? true, :loose? true})]
 
     (testing "coerces values correctly"
-      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}
-             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}))))
+      (is (= {:a 1, :b [{:a 1, :kikka "kukka"}], :kukka "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, :kikka "kukka"}], :kukka "kakka"}))))
 
     (testing "returns coerced data even if missing keys/errors"
       (is (= {:a 1}
@@ -369,17 +376,17 @@
                               :z "extra"}))))
 
     (testing "coerces nested data"
-      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}
-             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}], "kukka" "kakka"}))))
+      (is (= {:a 1, :b [{:a 1, :kikka "kukka"}], :kukka "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, :kikka "kukka"}], :kukka "kakka"}))))
 
     (testing "leaves extra nested data"
-      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"
-                         :nested "keep-me-please"}], "kukka" "kakka"}
-             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"
-                                         :nested "keep-me-please"}], "kukka" "kakka"}))))
+      (is (= {:a 1, :b [{:a 1, :kikka :kukka
+                         :nested :keep-me-please}], :kukka "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, :kikka :kukka
+                                         :nested :keep-me-please}], :kukka "kakka"}))))
 
     (testing "leave data"
-      (is (= {:a 1, :b [{:a 1, "kikka" "kukka"}
-                        {:b "keep-me-too"}], "kukka" "kakka"}
-             (schema-coercer {:a 1, :b [{:a 1, "kikka" "kukka"}
-                                        {:b "keep-me-too"}], "kukka" "kakka"}))))))
+      (is (= {:a 1, :b [{:a 1, :kikka "kukka"}
+                        {:b "keep-me-too"}], :kukka "kakka"}
+             (schema-coercer {:a 1, :b [{:a 1, :kikka "kukka"}
+                                        {:b "keep-me-too"}], :kukka "kakka"}))))))
