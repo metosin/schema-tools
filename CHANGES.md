@@ -1,3 +1,10 @@
+## 0.11.0 (2019-02-11)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.10.5...0.11.0)**
+
+- Prevent open-schema killing children ([#51](https://github.com/metosin/schema-tools/issues/51))
+    - `open-schema` now uses `s/Keyword` as open key Schema, instead of `s/Any`
+
 ## 0.10.5 (2018-11-01)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.4...0.10.5)**
