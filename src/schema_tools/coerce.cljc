@@ -4,9 +4,9 @@
             [schema.utils :as su]
             [schema.coerce :as sc]
             [schema-tools.impl :as impl]
-            #?@(:clj  [clojure.edn]
-                :cljs [[cljs.reader]
-                       [goog.date.UtcDateTime]]))
+    #?@(:clj  [clojure.edn]
+        :cljs [[cljs.reader]
+               [goog.date.UtcDateTime]]))
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
@@ -236,8 +236,16 @@
     x))
 
 (defn keyword->string [x]
-  (cond-> x
-          (keyword? x) name))
+  (if (keyword? x)
+    (if-let [kw-ns (namespace x)]
+      (str kw-ns "/" (name x))
+      (name x))
+    x))
+
+(defn keyword->number [x]
+  (if (keyword? x)
+    ((comp string->number keyword->string) x)
+    x))
 
 (defn collection-matcher [schema]
   (if (or (and (coll? schema) (not (record? schema))))
@@ -248,9 +256,9 @@
    s/Str keyword->string
    #?@(:clj [Keyword sc/string->keyword])
    s/Uuid string->uuid
-   s/Int safe-int
-   #?@(:clj [Long sc/safe-long-cast])
-   #?@(:clj [Double double])
+   s/Int (comp safe-int keyword->number)
+   #?@(:clj [Long (comp sc/safe-long-cast keyword->number)])
+   #?@(:clj [Double (comp double keyword->number)])
    #?@(:clj [Pattern (safe-coerce-string re-pattern)])
    #?@(:clj [Date string->date])
    #?@(:cljs [js/Date string->date])

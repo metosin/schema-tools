@@ -194,16 +194,19 @@
 
 (def json-coercion-expectations
   {"s/Int" [s/Int 1 1
+            s/Int :1 1
             s/Int 92233720368547758071 92233720368547758071
             s/Int -92233720368547758071 -92233720368547758071
             s/Int "1" ::fails]
 
    #?@(:clj ["Long" [Long 1 1
+                     Long :1 1
                      Long 9223372036854775807 9223372036854775807
                      Long -9223372036854775807 -9223372036854775807
                      Long "1" ::fails]])
 
    #?@(:clj ["Double" [Double 1 1.0
+                       Double :1 1.0
                        Double 1.1 1.1
                        Double 1.7976931348623157E308 1.7976931348623157E308
                        Double -1.7976931348623157E308 -1.7976931348623157E308
@@ -223,7 +226,8 @@
                        Double "1" 1.0
                        Double "1.0" 1.0]])
 
-   "s/Str" [s/Str :text "text"]
+   "s/Str" [s/Str :text "text"
+            s/Str :retain.ns/please "retain.ns/please"]
 
    "s/Int" [s/Int 1 1
             s/Int :1 1
