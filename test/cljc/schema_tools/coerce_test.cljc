@@ -223,15 +223,20 @@
                        Double "1" 1.0
                        Double "1.0" 1.0]])
 
+   "s/Str" [s/Str :text "text"]
+
    "s/Int" [s/Int 1 1
+            s/Int :1 1
             s/Int 92233720368547758071 92233720368547758071
             s/Int -92233720368547758071 -92233720368547758071
             s/Int "1" 1
             s/Int "1.0" 1
+            s/Int :1.0 1
             s/Int "1.1" ::fails]
 
    "s/Num" [s/Num 1 1
             s/Num 1.0 1.0
+            s/Num :1 1
             s/Num "1" 1
             s/Num "1.0" 1.0
             s/Num "-1.0" -1.0
@@ -242,6 +247,9 @@
    "s/Bool" [s/Bool true true
              s/Bool "true" true
              s/Bool "false" false
+             s/Bool :true true
+             s/Bool :false false
+             s/Bool :invalid ::fails
              s/Bool "invalid" ::fails]})
 
 (deftest json-matcher-test

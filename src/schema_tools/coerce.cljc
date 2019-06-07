@@ -4,10 +4,9 @@
             [schema.utils :as su]
             [schema.coerce :as sc]
             [schema-tools.impl :as impl]
-    #?@(:clj  [
-            clojure.edn]
-        :cljs [[cljs.reader]
-               [goog.date.UtcDateTime]]))
+            #?@(:clj  [clojure.edn]
+                :cljs [[cljs.reader]
+                       [goog.date.UtcDateTime]]))
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
@@ -236,12 +235,17 @@
       (catch #?(:clj Exception, :cljs js/Error) _ x))
     x))
 
+(defn keyword->string [x]
+  (cond-> x
+          (keyword? x) name))
+
 (defn collection-matcher [schema]
   (if (or (and (coll? schema) (not (record? schema))))
     (fn [x] (if (coll? x) x [x]))))
 
 (def +json-coercions+
   {s/Keyword sc/string->keyword
+   s/Str keyword->string
    #?@(:clj [Keyword sc/string->keyword])
    s/Uuid string->uuid
    s/Int safe-int
@@ -255,12 +259,11 @@
    #?@(:clj [Instant (safe-coerce-string #(Instant/parse %))])})
 
 (def +string-coercions+
-  {s/Int (comp safe-int string->number)
-   s/Num string->number
-   s/Bool string->boolean
-   #?@(:clj [Long (comp safe-int string->long)])
-   #?@(:clj [Double (comp double string->double)])})
-
+  {s/Int (comp safe-int string->number keyword->string)
+   s/Num (comp string->number keyword->string)
+   s/Bool (comp string->boolean keyword->string)
+   #?@(:clj [Long (comp safe-int string->long keyword->string)])
+   #?@(:clj [Double (comp double string->double keyword->string)])})
 
 ;;
 ;; matchers
