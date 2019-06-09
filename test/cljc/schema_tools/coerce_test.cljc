@@ -154,7 +154,8 @@
 
    "s/Bool" [s/Bool :true true
              s/Bool :false false
-             s/Bool :invalid ::fails]
+             s/Bool :invalid ::fails
+             s/Bool "invalid" ::fails]
 
    "s/Str" [s/Str :text "text"
             s/Str :retain.ns/please "retain.ns/please"]
@@ -163,12 +164,18 @@
             s/Int :1 1
             s/Int :1.0 1
             s/Int 92233720368547758071 92233720368547758071
-            s/Int -92233720368547758071 -92233720368547758071]
+            s/Int -92233720368547758071 -92233720368547758071
+            s/Int "1.1" ::fails]
+
+   "s/Num" [s/Num 1 1
+            s/Num 1.0 1.0
+            s/Num "invalid" ::fails]
 
    #?@(:clj ["Long" [Long 1 1
                      Long :1 1
                      Long 9223372036854775807 9223372036854775807
-                     Long -9223372036854775807 -9223372036854775807]])
+                     Long -9223372036854775807 -9223372036854775807
+                     Long "1.0" ::fails]])
 
    #?@(:clj ["Double" [Double 1 1.0
                        Double 1.1 1.1
@@ -213,39 +220,22 @@
    #?@(:clj ["Double" [Double "1.0" ::fails]])})
 
 (def string-coercion-expectations
-  {#?@(:clj ["Long" [Long 1 1
-                     Long 9223372036854775807 9223372036854775807
-                     Long -9223372036854775807 -9223372036854775807
-                     Long "1" 1
-                     Long "1.0" ::fails]])
+  {#?@(:clj ["Long" [Long "1" 1]])
 
-   #?@(:clj ["Double" [Double 1 1.0
-                       Double 1.1 1.1
-                       Double 1.7976931348623157E308 1.7976931348623157E308
-                       Double -1.7976931348623157E308 -1.7976931348623157E308
-                       Double "1" 1.0
+   #?@(:clj ["Double" [Double "1" 1.0
                        Double "1.0" 1.0]])
 
-   "s/Int" [s/Int 1 1
-            s/Int 92233720368547758071 92233720368547758071
-            s/Int -92233720368547758071 -92233720368547758071
-            s/Int "1" 1
-            s/Int "1.0" 1
-            s/Int "1.1" ::fails]
+   "s/Int" [s/Int "1" 1
+            s/Int "1.0" 1]
 
-   "s/Num" [s/Num 1 1
-            s/Num 1.0 1.0
-            s/Num "1" 1
+   "s/Num" [s/Num "1" 1
             s/Num "1.0" 1.0
             s/Num "-1.0" -1.0
             s/Num "+1.0" 1.0
-            s/Num "1.0e10" 1.0e10
-            s/Num "invalid" ::fails]
+            s/Num "1.0e10" 1.0e10]
 
-   "s/Bool" [s/Bool true true
-             s/Bool "true" true
-             s/Bool "false" false
-             s/Bool "invalid" ::fails]})
+   "s/Bool" [s/Bool "true" true
+             s/Bool "false" false]})
 
 (deftest json-matcher-test
   (doseq [[name ess] (concat shared-coercion-expectations json-coercion-expectations)
