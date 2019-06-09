@@ -1,3 +1,22 @@
+## UNRELEASED
+
+* Keys with `swagger` namespace in `st/schema` data contribute to Swagger Schema:
+
+```clj
+(require '[schema.core :as st])
+(require '[schema-tools.core :as st])
+(require '[schema-tools.swagger.core :as swagger])
+
+(swagger/transform
+  (st/schema 
+    s/Str
+    {:swagger/default "abba"
+     :swagger/format "email"}))
+; {:type "string"
+;  :format "email"
+;  :default "abba"}
+```
+
 ## 0.11.0 (2019-02-11)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.5...0.11.0)**
