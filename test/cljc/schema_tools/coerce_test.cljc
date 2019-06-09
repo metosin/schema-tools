@@ -163,21 +163,18 @@
             s/Int :1 1
             s/Int :1.0 1
             s/Int 92233720368547758071 92233720368547758071
-            s/Int -92233720368547758071 -92233720368547758071
-            s/Int "1" ::fails]
+            s/Int -92233720368547758071 -92233720368547758071]
 
    #?@(:clj ["Long" [Long 1 1
                      Long :1 1
                      Long 9223372036854775807 9223372036854775807
-                     Long -9223372036854775807 -9223372036854775807
-                     Long "1" ::fails]])
+                     Long -9223372036854775807 -9223372036854775807]])
 
    #?@(:clj ["Double" [Double 1 1.0
                        Double 1.1 1.1
                        Double :1 1.0
                        Double 1.7976931348623157E308 1.7976931348623157E308
-                       Double -1.7976931348623157E308 -1.7976931348623157E308
-                       Double "1.0" ::fails]])
+                       Double -1.7976931348623157E308 -1.7976931348623157E308]])
 
    #?@(:clj ["Date" [Date "2014-02-18T18:25:37.456Z" (stc/string->date "2014-02-18T18:25:37.456Z")
                      Date (keyword "2014-02-18T18:25:37Z") (stc/string->date "2014-02-18T18:25:37Z")
@@ -209,21 +206,11 @@
                         Instant "INVALID" ::fails]])})
 
 (def json-coercion-expectations
-  {"s/Int" [s/Int 1 1
-            s/Int 92233720368547758071 92233720368547758071
-            s/Int -92233720368547758071 -92233720368547758071
-            s/Int "1" ::fails]
+  {"s/Int" [s/Int "1" ::fails]
 
-   #?@(:clj ["Long" [Long 1 1
-                     Long 9223372036854775807 9223372036854775807
-                     Long -9223372036854775807 -9223372036854775807
-                     Long "1" ::fails]])
+   #?@(:clj ["Long" [Long "1" ::fails]])
 
-   #?@(:clj ["Double" [Double 1 1.0
-                       Double 1.1 1.1
-                       Double 1.7976931348623157E308 1.7976931348623157E308
-                       Double -1.7976931348623157E308 -1.7976931348623157E308
-                       Double "1.0" ::fails]])})
+   #?@(:clj ["Double" [Double "1.0" ::fails]])})
 
 (def string-coercion-expectations
   {#?@(:clj ["Long" [Long 1 1
@@ -261,7 +248,7 @@
              s/Bool "invalid" ::fails]})
 
 (deftest json-matcher-test
-  (doseq [[name ess] (merge shared-coercion-expectations json-coercion-expectations)
+  (doseq [[name ess] (concat shared-coercion-expectations json-coercion-expectations)
           :let [es (partition 3 ess)]
           [schema value expected] es]
     (testing name
@@ -276,13 +263,13 @@
        (is (instance? Pattern ((stc/coercer Pattern stc/json-coercion-matcher) (keyword ".*")))))))
 
 (deftest string-matcher-test
-  (doseq [[name ess] (merge shared-coercion-expectations string-coercion-expectations)
+  (doseq [[name ess] (concat shared-coercion-expectations string-coercion-expectations)
           :let [es (partition 3 ess)]
           [schema value expected] es]
     (testing name
       (let [result ((sc/coercer schema stc/string-coercion-matcher) value)]
         (if (= ::fails expected)
-          (is (= true (boolean (su/error-val result))))
+          (is (= true (boolean (su/error-val result))) (pr-str value result))
           (is (= expected result))))))
 
   #?(:clj
