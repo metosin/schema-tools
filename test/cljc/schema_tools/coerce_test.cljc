@@ -1,15 +1,14 @@
 (ns schema-tools.coerce-test
-  (:require
-    #?@(:clj  [[clojure.test :refer [deftest testing is are]]]
-        :cljs [[cljs.test :as test :refer-macros [deftest testing is are]]
-               [cljs.reader]
-               [goog.date.UtcDateTime]])
-    [clojure.string :as string]
-    [schema.core :as s]
-    [schema.coerce :as sc]
-    [clojure.string :as str]
-    [schema-tools.coerce :as stc]
-    [schema.utils :as su])
+  (:require #?@(:clj  [[clojure.test :refer [deftest testing is are]]]
+                :cljs [[cljs.test :as test :refer-macros [deftest testing is are]]
+                       [cljs.reader]
+                       [goog.date.UtcDateTime]])
+            [clojure.string :as string]
+            [schema.core :as s]
+            [schema.coerce :as sc]
+            [clojure.string :as str]
+            [schema-tools.coerce :as stc]
+            [schema.utils :as su])
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
