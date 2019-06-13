@@ -4,9 +4,9 @@
             [schema.utils :as su]
             [schema.coerce :as sc]
             [schema-tools.impl :as impl]
-    #?@(:clj  [clojure.edn]
-        :cljs [[cljs.reader]
-               [goog.date.UtcDateTime]]))
+            #?@(:clj  [clojure.edn]
+                :cljs [[cljs.reader]
+                       [goog.date.UtcDateTime]]))
   #?(:clj
      (:import [java.util Date UUID]
               [java.util.regex Pattern]
@@ -171,13 +171,11 @@
 ;; coercions
 ;;
 
-(defn- safe-coerce-string [f]
+(defn- safe [f]
   (fn [x]
-    (if (string? x)
-      (try
-        (f x)
-        (catch #?(:clj Exception, :cljs js/Error) _ x))
-      x)))
+    (try
+      (f x)
+      (catch #?(:clj Exception, :cljs js/Error) _ x))))
 
 (defn string->boolean [x]
   (if (string? x)
@@ -210,7 +208,7 @@
 (defn string->number [^String x]
   (if (string? x)
     (try
-      (let [parsed #?(:clj  (clojure.edn/read-string x)
+      (let [parsed #?(:clj (clojure.edn/read-string x)
                       :cljs (cljs.reader/read-string x))]
         (if (number? parsed) parsed x))
       (catch #?(:clj Exception, :cljs js/Error) _ x))
@@ -244,7 +242,12 @@
 
 (defn keyword->number [x]
   (if (keyword? x)
-    ((comp string->number keyword->string) x)
+    (-> x keyword->string string->number)
+    x))
+
+(defn keyword->bool [x]
+  (if (keyword? x)
+    (-> x keyword->string string->boolean)
     x))
 
 (defn collection-matcher [schema]
@@ -255,16 +258,17 @@
   {s/Keyword sc/string->keyword
    s/Str keyword->string
    #?@(:clj [Keyword sc/string->keyword])
-   s/Uuid string->uuid
+   s/Uuid (comp string->uuid keyword->string)
    s/Int (comp safe-int keyword->number)
+   s/Bool keyword->bool
    #?@(:clj [Long (comp sc/safe-long-cast keyword->number)])
    #?@(:clj [Double (comp double keyword->number)])
-   #?@(:clj [Pattern (safe-coerce-string re-pattern)])
-   #?@(:clj [Date string->date])
-   #?@(:cljs [js/Date string->date])
-   #?@(:clj [LocalDate (safe-coerce-string #(LocalDate/parse %))])
-   #?@(:clj [LocalTime (safe-coerce-string #(LocalTime/parse %))])
-   #?@(:clj [Instant (safe-coerce-string #(Instant/parse %))])})
+   #?@(:clj [Pattern (safe (comp re-pattern keyword->string))])
+   #?@(:clj [Date (comp string->date keyword->string)])
+   #?@(:cljs [js/Date (comp string->date keyword->string)])
+   #?@(:clj [LocalDate (safe #(LocalDate/parse (keyword->string %)))])
+   #?@(:clj [LocalTime (safe #(LocalTime/parse (keyword->string %)))])
+   #?@(:clj [Instant (safe #(Instant/parse (keyword->string %)))])})
 
 (def +string-coercions+
   {s/Int (comp safe-int string->number keyword->string)

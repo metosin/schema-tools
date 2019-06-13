@@ -1,5 +1,15 @@
 ## UNRELEASED
 
+* Both String & JSON Coercion also coerce from keywords. This is useful as map keys are commonly keywordized in ring/http. Fixes [#54](https://github.com/metosin/schema-tools/issues/54). Thanks to [Mitchel Kuijpers](https://github.com/mitchelkuijpers)
+
+```clj
+(stc/coerce
+  {:1 {:true "1", :false "2"}}
+  {s/Int {s/Bool s/Any}}
+  stc/json-coercion-matcher)
+; {1 {true "1", false "2"}}
+```
+
 * Keys with `swagger` namespace in `st/schema` data contribute to Swagger Schema:
 
 ```clj
