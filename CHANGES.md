@@ -43,6 +43,12 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 ;  :default "abba"}
 ```
 
+* Updated deps:
+
+```clj
+[prismatic/schema "1.1.11"] is available but we use "1.1.9"
+```
+
 ## 0.11.0 (2019-02-11)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.10.5...0.11.0)**
