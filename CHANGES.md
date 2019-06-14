@@ -14,6 +14,8 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 ## 0.12.0 (2019-06-14)
 
+**[compare](https://github.com/metosin/schema-tools/compare/0.11.0...0.12.0)**
+
 * Both String & JSON Coercion also coerce from keywords. This is useful as map keys are commonly keywordized in ring/http. Fixes [#54](https://github.com/metosin/schema-tools/issues/54). Thanks to [Mitchel Kuijpers](https://github.com/mitchelkuijpers)
 
 ```clj
