@@ -1,6 +1,6 @@
 # Schema-tools [![Build Status](https://travis-ci.org/metosin/schema-tools.svg?branch=master)](https://travis-ci.org/metosin/schema-tools) [![cljdoc badge](https://cljdoc.org/badge/metosin/schema-tools)](https://cljdoc.org/d/metosin/schema-tools/CURRENT)
 
-Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for Clojure/Script.
+Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for Clojure/Script. Big sister to [spec-tools](https://github.com/metosin/spec-tools).
 
 * common Schema definitions: `any-keys`, `any-keyword-keys`, `open-schema`, `optional-keys-schema`
 * schema-aware selectors: `get-in`, `select-keys`, `select-schema`
@@ -9,6 +9,7 @@ Common utilities for [Prismatic Schema](https://github.com/Prismatic/schema) for
 * handle schema default values via `default` & `default-coercion-matcher`
 * meta-data helpers: `schema-with-description` `schema-description`, `resolve-schema` (clj only), `resolve-schema-description` (clj only)
 * coercion tools: `or-matcher`, `map-filter-matcher`, `multi-matcher`, `coercer`, `coerce`
+* tuned JSON & String matchers: from keywords, Java8 dates etc.
 * Protocol-based walker for manipulating Schemas in `schema-tools.walk`: `walk`, `prewalk` and `postwalk`.
 * Swagger2 generation
 * Coercion tools

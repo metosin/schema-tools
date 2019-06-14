@@ -1,4 +1,4 @@
-## UNRELEASED
+## 0.12.0 (2019-06-14)
 
 * Both String & JSON Coercion also coerce from keywords. This is useful as map keys are commonly keywordized in ring/http. Fixes [#54](https://github.com/metosin/schema-tools/issues/54). Thanks to [Mitchel Kuijpers](https://github.com/mitchelkuijpers)
 
