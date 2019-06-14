@@ -1,3 +1,17 @@
+# Schema-tools CHANGELOG
+
+We use [Break Versioning][breakver]. The version numbers follow a `<major>.<minor>.<patch>` scheme with the following intent:
+
+| Bump    | Intent                                                     |
+| ------- | ---------------------------------------------------------- |
+| `major` | Major breaking changes -- check the changelog for details. |
+| `minor` | Minor breaking changes -- check the changelog for details. |
+| `patch` | No breaking changes, ever!!                                |
+
+`-SNAPSHOT` versions are preview versions for upcoming releases.
+
+[breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
+
 ## 0.12.0 (2019-06-14)
 
 * Both String & JSON Coercion also coerce from keywords. This is useful as map keys are commonly keywordized in ring/http. Fixes [#54](https://github.com/metosin/schema-tools/issues/54). Thanks to [Mitchel Kuijpers](https://github.com/mitchelkuijpers)
