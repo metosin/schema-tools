@@ -3,7 +3,7 @@
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v20.html"}
-  :dependencies [[prismatic/schema "1.1.11"]]
+  :dependencies [[prismatic/schema "1.1.12"]]
   :plugins [[funcool/codeina "0.5.0"]
             [lein-doo "0.1.11"]]
   :test-paths ["test/clj" "test/cljc"]
