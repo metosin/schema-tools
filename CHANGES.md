@@ -12,6 +12,16 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 [breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
 
+## Unreleased
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.12.0...master)**
+
+* Updated deps:
+
+```clj
+[prismatic/schema "1.1.12"] is available but we use "1.1.11"
+```
+
 ## 0.12.0 (2019-06-14)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.11.0...0.12.0)**
