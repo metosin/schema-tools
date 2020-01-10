@@ -14,7 +14,13 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 ## Unreleased
 
-**[compare](https://github.com/metosin/schema-tools/compare/0.12.0...master)**
+**[compare](https://github.com/metosin/schema-tools/compare/0.12.1...master)**
+
+(nothing)
+
+## 0.12.1 (2020-01-10)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.12.0...0.12.1)**
 
 * Updated deps:
 
