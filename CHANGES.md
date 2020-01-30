@@ -12,11 +12,11 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 [breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
 
-## Unreleased
+## 0.12.2 (2020-01-30)
 
-**[compare](https://github.com/metosin/schema-tools/compare/0.12.1...master)**
+**[compare](https://github.com/metosin/schema-tools/compare/0.12.1...0.12.2)**
 
-(nothing)
+* Fix {required,optional}-keys regression [#59](https://github.com/metosin/schema-tools/pull/59)
 
 ## 0.12.1 (2020-01-10)
 

@@ -1,4 +1,4 @@
-(defproject metosin/schema-tools "0.12.2-SNAPSHOT"
+(defproject metosin/schema-tools "0.12.2"
   :description "Common utilities for Prismatic Schema"
   :url "https://github.com/metosin/schema-tools"
   :license {:name "Eclipse Public License"
@@ -11,7 +11,7 @@
             :src-uri "http://github.com/metosin/schema-tools/blob/master/"
             :src-uri-prefix "#L"}
   :deploy-repositories [["releases" :clojars]]
-  :profiles {:dev {:plugins [[jonase/eastwood "0.3.5"]]
+  :profiles {:dev {:plugins [[jonase/eastwood "0.3.7"]]
                    :dependencies [[criterium "0.4.5"]
                                   [org.clojure/clojure "1.10.1"]
                                   [org.clojure/clojurescript "1.10.238"]]}
