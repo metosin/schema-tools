@@ -52,7 +52,7 @@
             new-meta))))))
 
 (defn- transform-keys
-  [schema f ks]
+  [schema f ks optional-keys-schema?]
   (assert (or (not ks) (vector? ks)) "input should be nil or a vector of keys.")
   (maybe-anonymous
     schema
@@ -62,7 +62,8 @@
           (cond
             (and ks (not (ks? (explicit-key k)))) k
             (s/specific-key? k) (f (s/explicit-schema-key k))
-            :else k))
+            optional-keys-schema? k
+            :else (f k)))
         schema))))
 
 ;;
@@ -236,12 +237,12 @@
 (defn optional-keys
   "Makes given map keys optional. Defaults to all keys."
   ([m] (optional-keys m nil))
-  ([m ks] (transform-keys m s/optional-key ks)))
+  ([m ks] (transform-keys m s/optional-key ks false)))
 
 (defn required-keys
   "Makes given map keys required. Defaults to all keys."
   ([m] (required-keys m nil))
-  ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks)))
+  ([m ks] (transform-keys m #(if (keyword? %) % (s/required-key %)) ks false)))
 
 (defn select-schema
   "Strips all disallowed keys from nested Map schemas via coercion. Takes an optional
@@ -268,7 +269,7 @@
   (walk/prewalk
     (fn [x]
       (if (and (map? x) (not (record? x)))
-        (optional-keys x)
+        (transform-keys x s/optional-key nil true)
         x))
     schema))
 

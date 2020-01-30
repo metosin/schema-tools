@@ -1,10 +1,10 @@
 (ns schema-tools.core-test
   (:require #?(:clj [clojure.test :refer [deftest testing is]]
                :cljs [cljs.test :as test :refer-macros [deftest testing is]])
-                    [schema-tools.core :as st]
-                    [schema.core :as s :include-macros true]
-                    [schema.coerce :as sc]
-                    [schema-tools.coerce :as stc]))
+            [schema-tools.core :as st]
+            [schema.core :as s :include-macros true]
+            [schema.coerce :as sc]
+            [schema-tools.coerce :as stc]))
 
 (s/defschema Kikka {:a s/Str :b s/Str})
 
@@ -295,7 +295,15 @@
            (keys (st/optional-keys optional-keys-schema [:a :b "d" :NON-EXISTING])))))
   (testing "make anonymous if value changed"
     (is (not (nil? (meta (st/optional-keys optional-keys-schema-2 [])))))
-    (is (nil? (meta (st/optional-keys optional-keys-schema-2 [:b]))))))
+    (is (nil? (meta (st/optional-keys optional-keys-schema-2 [:b])))))
+  (testing "missing keyword key coerces"
+    (is (= ((sc/coercer (st/optional-keys {:a s/Str}) (constantly nil))
+            {})
+           {})))
+  (testing "missing string key coerces"
+    (is (= ((sc/coercer (st/optional-keys {"a" s/Str}) (constantly nil))
+            {})
+           {}))))
 
 (def required-keys-schema
   {(s/required-key :a) s/Str
@@ -320,7 +328,11 @@
            (keys (st/required-keys required-keys-schema [:b [1 2 3] "d" :NON-EXISTING])))))
   (testing "make anonymous if value changed"
     (is (not (nil? (meta (st/required-keys required-keys-schema-2 [])))))
-    (is (nil? (meta (st/required-keys required-keys-schema-2 [:a]))))))
+    (is (nil? (meta (st/required-keys required-keys-schema-2 [:a])))))
+  (testing "required string key coerces"
+    (is (= ((sc/coercer (st/required-keys {"a" s/Str}) (constantly nil))
+            {"a" "b"})
+           {"a" "b"}))))
 
 (deftest schema-description
   (testing "schema-with-description"
@@ -358,7 +370,7 @@
   (let [coercer (fn [schema matcher {:keys [open? loose?]}]
                   (let [f (comp (if loose? st/optional-keys-schema identity)
                                 (if open? st/open-schema identity))]
-                    (schema.coerce/coercer (f schema) matcher)))
+                    (sc/coercer (f schema) matcher)))
         schema {:a s/Int, :b [(s/maybe {:a s/Int, s/Keyword s/Any})]}
         schema-coercer (coercer schema (constantly nil) {:open? true, :loose? true})]
 
