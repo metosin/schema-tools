@@ -22,7 +22,7 @@
             "test-clj" ["all" "do" ["test"] ["check"]]
             "test-cljs" ["all-cljs" "do" ["test-node"] ["test-chrome"] ["test-advanced"]]
             "test-chrome" ["doo" "chrome-headless" "test" "once"]
-            "test-advanced" ["doo" "phantom" "advanced-test" "once"]
+            "test-advanced" ["doo" "chrome-headless" "advanced-test" "once"]
             "test-node" ["doo" "node" "node-test" "once"]}
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["src" "test/cljc" "test/cljs"]
