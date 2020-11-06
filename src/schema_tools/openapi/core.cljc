@@ -121,6 +121,34 @@
   [_ _]
   {:type "string"})
 
+(defmethod transform-pred pos?
+  [_ _]
+  {:type "number" :minimum 0 :exclusiveMinimum true})
+
+(defmethod transform-pred neg?
+  [_ _]
+  {:type "number" :maximum 0 :exclusiveMaximum true})
+
+(defmethod transform-pred int?
+  [_ _]
+  {:type "integer" :format "int64"})
+
+(defmethod transform-pred pos-int?
+  [_ _]
+  {:type "integer" :format "int64" :minimum 1})
+
+(defmethod transform-pred neg-int?
+  [_ _]
+  {:type "integer" :format "int64" :maximum -1})
+
+(defmethod transform-pred nat-int?
+  [_ _]
+  {:type "integer" :format "int64" :minimum 0})
+
+(defmethod transform-pred even?
+  [_ _]
+  {:type "number" :multipleOf 2})
+
 (defmethod transform-pred ::default
   [e {:keys [ignore-missing-mappings?]}]
   (when-not ignore-missing-mappings?
@@ -128,31 +156,31 @@
 
 (defmulti transform-type (fn [t _] t) :default ::default)
 
-(defmethod transform-type #?(:clj java.lang.Boolean, :cljs js/Boolean)
+(defmethod transform-type #?(:clj java.lang.Boolean :cljs js/Boolean)
   [_ _]
   {:type "boolean"})
 
-(defmethod transform-type #?(:clj java.lang.Number, :cljs js/Number)
+(defmethod transform-type #?(:clj java.lang.Number :cljs js/Number)
   [_ _]
   {:type "number" :format "double"})
 
-(defmethod transform-type #?(:clj clojure.lang.Keyword, :cljs cljs.core.Keyword)
+(defmethod transform-type #?(:clj clojure.lang.Keyword :cljs cljs.core.Keyword)
   [_ _]
   {:type "string"})
 
-(defmethod transform-type #?(:clj java.util.Date, :cljs js/Date)
+(defmethod transform-type #?(:clj java.util.Date :cljs js/Date)
   [_ _]
   {:type "string" :format "date-time"})
 
-(defmethod transform-type #?(:clj java.util.UUID, :cljs cljs.core/UUID)
+(defmethod transform-type #?(:clj java.util.UUID :cljs cljs.core/UUID)
   [_ _]
   {:type "string" :format "uuid"})
 
-(defmethod transform-type #?(:clj java.util.regex.Pattern, :cljs schema.core.Regex)
+(defmethod transform-type #?(:clj java.util.regex.Pattern :cljs schema.core.Regex)
   [_ _]
   {:type "string" :format "regex"})
 
-(defmethod transform-type #?(:clj java.lang.String, :cljs js/String)
+(defmethod transform-type #?(:clj java.lang.String :cljs js/String)
   [_ _]
   {:type "string"})
 
@@ -223,7 +251,7 @@
      (transform schema (merge opts (select-keys data [:name :description])))
      (impl/unlift-keys data "openapi")))
 
-  #?(:clj  java.util.regex.Pattern,
+  #?(:clj  java.util.regex.Pattern
      :cljs js/RegExp)
   (-transform [this _]
     {:type "string" :pattern (str #?(:clj this, :cljs (.-source this)))})
@@ -238,7 +266,7 @@
 
   schema.core.EnumSchema
   (-transform [this opts]
-    (assoc (transform (type (first (:vs this))) opts) :enum (:vs this)))
+    (assoc (transform (type (first (:vs this))) opts) :enum (vec (:vs this))))
 
   schema.core.Maybe
   (-transform [this opts]
@@ -286,27 +314,27 @@
   (-transform [{:keys [schema name]} opts]
     (transform schema (assoc opts :name name)))
 
-  #?(:clj  clojure.lang.Sequential,
+  #?(:clj  clojure.lang.Sequential
      :cljs cljs.core/List)
   (-transform [this options]
     (collection-schema this options))
 
-  #?(:clj  clojure.lang.IPersistentSet,
+  #?(:clj  clojure.lang.IPersistentSet
      :cljs cljs.core/PersistentHashSet)
   (-transform [this options]
     (assoc (collection-schema this options) :uniqueItems true))
 
-  #?(:clj  clojure.lang.APersistentVector,
+  #?(:clj  clojure.lang.APersistentVector
      :cljs cljs.core.PersistentVector)
   (-transform [this options]
     (collection-schema this options))
 
-  #?(:clj  clojure.lang.PersistentArrayMap,
+  #?(:clj  clojure.lang.PersistentArrayMap
      :cljs cljs.core.PersistentArrayMap)
   (-transform [this opts]
     (object-schema this opts))
 
-  #?(:clj  clojure.lang.PersistentHashMap,
+  #?(:clj  clojure.lang.PersistentHashMap
      :cljs cljs.core.PersistentHashMap)
   (-transform [this opts]
     (object-schema this opts)))
