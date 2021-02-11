@@ -89,7 +89,7 @@
              {:type "null"}]}]
 
    [(s/enum "s" "m" "l")
-    {:type "string" :enum #{"s" "l" "m"}}]
+    {:type "string" :enum ["s" "l" "m"]}]
 
    [(s/both s/Num (s/pred even? 'even?))
     {:allOf [{:type "number" :format "double"}
