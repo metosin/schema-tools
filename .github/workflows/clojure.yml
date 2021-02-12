@@ -1,0 +1,48 @@
+name: Run tests
+
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-clj:
+    strategy:
+      matrix:
+        # Supported Java versions: LTS releases 8 and 11 and the latest release
+        jdk: [8, 11, 15]
+
+    name: Clojure (Java ${{ matrix.jdk }})
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Java ${{ matrix.jdk }}
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: ${{ matrix.jdk }}
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@3.1
+      with:
+        lein: latest
+    - name: Run Clojure test
+      run: ./scripts/test.sh clj
+
+  build-cljs:
+    name: ClojureScript
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Java ${{ matrix.jdk }}
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: ${{ matrix.jdk }}
+    - name: Setup Clojure
+      uses: DeLaGuardo/setup-clojure@3.1
+      with:
+        lein: latest
+    - name: Run ClojureScript test
+      run: ./scripts/test.sh cljs
