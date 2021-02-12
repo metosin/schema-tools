@@ -24,6 +24,7 @@
             "test-chrome" ["doo" "chrome-headless" "test" "once"]
             "test-advanced" ["doo" "chrome-headless" "advanced-test" "once"]
             "test-node" ["doo" "node" "node-test" "once"]}
+  :doo {:paths {:karma "npx karma"}}
   :cljsbuild {:builds [{:id "test"
                         :source-paths ["src" "test/cljc" "test/cljs"]
                         :compiler {:output-to "target/out/test.js"

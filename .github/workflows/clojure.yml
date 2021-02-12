@@ -39,10 +39,12 @@ jobs:
     - name: Setup Java ${{ matrix.jdk }}
       uses: actions/setup-java@v1.4.3
       with:
-        java-version: ${{ matrix.jdk }}
+        java-version: 8
     - name: Setup Clojure
       uses: DeLaGuardo/setup-clojure@3.1
       with:
         lein: latest
+    - name: Install deps
+      run: npm ci
     - name: Run ClojureScript test
       run: ./scripts/test.sh cljs
