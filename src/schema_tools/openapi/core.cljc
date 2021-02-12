@@ -5,14 +5,13 @@
       [clojure.walk :as walk]
       [schema-tools.impl :as impl]
       [schema.core :as s]
-      [schema-tools.core]
       [schema.utils :as su])]
     :cljs
     [(:require
       [clojure.string :as str]
+      [clojure.walk :as walk]
       [schema-tools.impl :as impl]
       [schema.core :as s]
-      [schema-tools.core]
       [schema.utils :as su])]))
 
 ;;
@@ -128,22 +127,6 @@
 (defmethod transform-pred neg?
   [_ _]
   {:type "number" :maximum 0 :exclusiveMaximum true})
-
-(defmethod transform-pred int?
-  [_ _]
-  {:type "integer" :format "int64"})
-
-(defmethod transform-pred pos-int?
-  [_ _]
-  {:type "integer" :format "int64" :minimum 1})
-
-(defmethod transform-pred neg-int?
-  [_ _]
-  {:type "integer" :format "int64" :maximum -1})
-
-(defmethod transform-pred nat-int?
-  [_ _]
-  {:type "integer" :format "int64" :minimum 0})
 
 (defmethod transform-pred even?
   [_ _]

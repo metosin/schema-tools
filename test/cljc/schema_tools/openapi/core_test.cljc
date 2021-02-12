@@ -6,12 +6,26 @@
             #?@(:cljs [goog.date.UtcDateTime
                        goog.date.Date])))
 
-;; TODO: Commons tests
-
 (s/defschema Item
   {:field s/Str})
 
 (s/defrecord Param [a :- s/Str])
+
+(deftest record-schema-test
+  (testing "Test convert record to schema"
+    (is (= (s/named {:a s/Str} "ParamRecord") (openapi/record-schema Param)))))
+
+(deftest plain-map-test
+  (testing "Test plain-map? for plain map"
+    (is (openapi/plain-map? {:id s/Int :title s/Str})))
+
+  (testing "Test plain-map? for record"
+    (is (not (openapi/plain-map? Param)))))
+
+(deftest remove-empty-keys-test
+  (testing "Test remove empty keys"
+    (is (= {:id s/Int :title s/Str}
+           (openapi/remove-empty-keys {:id s/Int :title s/Str :extra nil})))))
 
 (def expectations
   [[s/Bool
@@ -89,7 +103,7 @@
              {:type "null"}]}]
 
    [(s/enum "s" "m" "l")
-    {:type "string" :enum #{"s" "l" "m"}}]
+    {:type "string" :enum ["s" "l" "m"]}]
 
    [(s/both s/Num (s/pred even? 'even?))
     {:allOf [{:type "number" :format "double"}
@@ -100,10 +114,10 @@
      :title                "Named"
      :additionalProperties false}]
 
-   [(s/pred pos-int? 'pos-int?)
-    {:type    "integer"
-     :format  "int64"
-     :minimum 1}]
+   [(s/pred neg? 'neg?)
+    {:type "number"
+     :maximum 0
+     :exclusiveMaximum true}]
 
    [{:string               s/Str
      (s/required-key :req) s/Str
