@@ -12,9 +12,9 @@
             :src-uri-prefix "#L"}
   :deploy-repositories [["releases" :clojars]]
   :profiles {:dev {:plugins [[jonase/eastwood "0.3.7"]]
-                   :dependencies [[criterium "0.4.5"]
-                                  [org.clojure/clojure "1.10.1"]
-                                  [org.clojure/clojurescript "1.10.238"]]}
+                   :dependencies [[criterium "0.4.6"]
+                                  [org.clojure/clojure "1.10.2"]
+                                  [org.clojure/clojurescript "1.10.773"]]}
              :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
              :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}}
   :aliases {"all" ["with-profile" "dev:dev,1.8:dev,1.9"]
