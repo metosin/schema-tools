@@ -33,7 +33,8 @@
                   (or
                     (:name opts)
                     (s/schema-name schema)
-                    (if (instance? schema.core.NamedSchema schema)
+                    (if (instance? #?(:clj schema.core.NamedSchema
+                                      :cljs s/NamedSchema) schema)
                       (:name schema)))
                   (name))]
     (let [ns (s/schema-ns schema)]
@@ -57,7 +58,9 @@
       {:schema schema})))
 
 (defn maybe? [schema]
-  (instance? schema.core.Maybe schema))
+  (instance? #?(:clj schema.core.Maybe
+                :cljs s/Maybe)
+             schema))
 
 #_(defn reference? [m]
     (contains? m :$ref))

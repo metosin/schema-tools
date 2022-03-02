@@ -5,6 +5,7 @@
             schema-tools.select-schema-test
             schema-tools.coerce-test
             schema-tools.swagger.core-test
+            schema-tools.openapi.core-test
             schema-tools.experimental.walk-test))
 
 (enable-console-print!)
@@ -14,4 +15,5 @@
            'schema-tools.select-schema-test
            'schema-tools.coerce-test
            'schema-tools.swagger.core-test
+           'schema-tools.openapi.core-test
            'schema-tools.experimental.walk-test)
