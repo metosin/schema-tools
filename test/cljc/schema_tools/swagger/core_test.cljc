@@ -103,6 +103,9 @@
                    :name Name
                    :address Address})
 
+(deftest maybe-pred-test
+  (is (true? (swagger/maybe? City))))
+
 (deftest expand-test
 
   (testing "non-registered are not affected"

@@ -51,7 +51,9 @@
   (when-let [name (some->
                    (or (:name opts)
                        (s/schema-name schema)
-                       (when (instance? schema.core.NamedSchema schema)
+                       (when (instance? #?(:clj schema.core.NamedSchema
+                                           :cljs s/NamedSchema)
+                                        schema)
                          (:name schema)))
                    (name))]
     (let [ns (s/schema-ns schema)]
