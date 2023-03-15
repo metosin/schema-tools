@@ -93,6 +93,11 @@
      :additionalProperties false
      :required             ["field"]}]
 
+   [(st/schema {:field s/Str} {:openapi {:type "string"
+                                         :format "bytes"}})
+    {:type                 "string"
+     :format               "bytes"}]
+
    [(st/schema s/Str {:openapi/default "openapi"
                       :openapi/format  "email"
                       :swagger/default "swagger"})
