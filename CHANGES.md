@@ -12,6 +12,23 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 [breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
 
+## 0.13.0 (2023-03-15)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.12.3...0.13.0)**
+
+* In addition to keys `:swagger/*` and `:openapi/*` contributing to swagger/openapi schemas, you can override the whole swagger/openapi schema with `:swagger` or `:openapi`:
+
+```clj
+(require '[schema.core :as s])
+(require '[schema-tools.core :as st])
+(require '[schema-tools.openapi.core :as openapi])
+
+(openapi/transform (st/schema {:foo s/Num}
+                              {:openapi {:type "string" :format "binary"}})
+                   {})
+;; {:type "string", :format "binary"}
+```
+
 ## 0.12.3 (2021-02-12)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.12.2...0.12.3)**
@@ -56,7 +73,7 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 (require '[schema-tools.swagger.core :as swagger])
 
 (swagger/transform
-  (st/schema 
+  (st/schema
     s/Str
     {:swagger/default "abba"
      :swagger/format "email"}))
