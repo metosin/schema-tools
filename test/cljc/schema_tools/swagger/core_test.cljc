@@ -57,6 +57,7 @@
                       :swagger/format "email"}) {:type "string"
                                                  :format "email"
                                                  :default "abba"}]
+   [(st/schema {:field s/Str} {:swagger {:type "file"}}) {:type "file"}]
    [(s/maybe s/Keyword) {:type "string", :x-nullable true}]
    [(s/enum "s" "m" "l") {:type "string", :enum #{"s" "l" "m"}}]
    [(s/both s/Num (s/pred odd? 'odd?)) {:type "number", :format "double"}]

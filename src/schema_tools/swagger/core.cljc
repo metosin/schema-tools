@@ -162,9 +162,10 @@
 
   schema_tools.core.Schema
   (-transform [{:keys [schema data]} opts]
-    (merge
-      (transform schema (merge opts (select-keys data [:name :description])))
-      (impl/unlift-keys data "swagger")))
+    (or (:swagger data)
+        (merge
+         (transform schema (merge opts (select-keys data [:name :description])))
+         (impl/unlift-keys data "swagger"))))
 
   #?(:clj  java.util.regex.Pattern
      :cljs js/RegExp)
