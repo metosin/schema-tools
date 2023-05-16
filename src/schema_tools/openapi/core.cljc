@@ -353,7 +353,8 @@
                       (:title new-spec)
                       (:type new-spec))
      :in          in
-     :description ""
+     :description (or (:description spec)
+                      "")
      :required    (case in
                     :path true
                     (not nilable?))
@@ -366,7 +367,8 @@
      {:name        (or (schema-name schema nil)
                        (key-name k))
       :in          (name in)
-      :description ""
+      :description (or (:description schema)
+                       "")
       :required    (case in
                      :path true
                      (contains? (set required) k))
