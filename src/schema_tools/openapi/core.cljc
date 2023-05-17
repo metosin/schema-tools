@@ -234,7 +234,8 @@
   (-transform [{:keys [schema data]} opts]
     (or (:openapi data)
         (merge
-         (transform schema (merge opts (select-keys data [:name :description])))
+         (transform schema (merge opts (select-keys data [:name])))
+         (select-keys data [:description])
          (impl/unlift-keys data "openapi"))))
 
   #?(:clj  java.util.regex.Pattern

@@ -635,3 +635,29 @@
             :openapi/format       "password"
             :openapi/random-value "42"})
           nil))))
+
+(deftest description-test
+  (is (= [{:name "string"
+           :in :query
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}]
+         (openapi/extract-parameter :query (st/schema s/Str {:openapi/description "xyz"}))))
+  (is (= [{:name "string"
+           :in :query
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}]
+         (openapi/extract-parameter :query (st/schema s/Str {:description "xyz"}))))
+  (is (= [{:name "a"
+           :in "query"
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}
+          {:name "b"
+           :in "query"
+           :description "abc"
+           :required true
+           :schema {:type "string" :description "abc"}}]
+         (openapi/extract-parameter :query {:a (st/schema s/Str {:openapi/description "xyz"})
+                                            :b (st/schema s/Str {:description "abc"})}))))
