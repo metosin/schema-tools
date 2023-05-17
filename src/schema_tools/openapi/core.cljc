@@ -234,7 +234,8 @@
   (-transform [{:keys [schema data]} opts]
     (or (:openapi data)
         (merge
-         (transform schema (merge opts (select-keys data [:name :description])))
+         (transform schema (merge opts (select-keys data [:name])))
+         (select-keys data [:description])
          (impl/unlift-keys data "openapi"))))
 
   #?(:clj  java.util.regex.Pattern
@@ -353,7 +354,8 @@
                       (:title new-spec)
                       (:type new-spec))
      :in          in
-     :description ""
+     :description (or (:description spec)
+                      "")
      :required    (case in
                     :path true
                     (not nilable?))
@@ -366,7 +368,8 @@
      {:name        (or (schema-name schema nil)
                        (key-name k))
       :in          (name in)
-      :description ""
+      :description (or (:description schema)
+                       "")
       :required    (case in
                      :path true
                      (contains? (set required) k))

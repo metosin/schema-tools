@@ -197,7 +197,8 @@
 (def Id s/Int)
 (def Name s/Str)
 (def Street s/Str)
-(s/defschema City (s/maybe (s/enum :tre :hki)))
+(s/defschema City (st/schema (s/maybe (s/enum :tre :hki))
+                             {:openapi/description "a city"}))
 (s/defschema Filters [s/Str])
 (s/defschema Address
   {:street Street
@@ -230,9 +231,10 @@
               :schema      {:type "string"}}
              {:name        "city"
               :in          "query"
-              :description ""
+              :description "a city"
               :required    false
-              :schema      {:oneOf [{:enum [:tre :hki], :type "string"} ;from set
+              :schema      {:description "a city"
+                            :oneOf [{:enum [:tre :hki], :type "string"} ;from set
                                     {:type "null"}]}}
              {:name        "street"
               :in          "query"
@@ -264,7 +266,8 @@
               {:type                 "object"
                :properties
                {"street" {:type "string"}
-                "city"   {:oneOf [{:enum [:tre :hki] :type "string"}
+                "city"   {:description "a city"
+                          :oneOf [{:enum [:tre :hki] :type "string"}
                                   {:type "null"}]}}
                :required             ["street" "city"]
                :additionalProperties false
@@ -298,10 +301,10 @@
               :schema      {:type "integer" :format "int32"}}
              {:name        "city"
               :in          "query"
-              :description ""
+              :description "a city"
               :required    true
-              :schema
-              {:oneOf [{:enum [:tre :hki] :type "string"} {:type "null"}]}}
+              :schema      {:description "a city"
+                            :oneOf [{:enum [:tre :hki] :type "string"} {:type "null"}]}}
              {:name        "name"
               :in          "query"
               :description ""
@@ -324,10 +327,10 @@
               :schema      {:type "string"}}
              {:name        "city"
               :in          "cookie"
-              :description ""
+              :description "a city"
               :required    true
-              :schema
-              {:oneOf [{:enum [:tre :hki] :type "string"} {:type "null"}]}}]}
+              :schema      {:description "a city"
+                            :oneOf [{:enum [:tre :hki] :type "string"} {:type "null"}]}}]}
            (openapi/openapi-spec
             {:parameters
              [{:name        "name"
@@ -365,7 +368,8 @@
                 "address" {:type                 "object"
                            :properties
                            {"street" {:type "string"},
-                            "city"   {:oneOf [{:enum [:tre :hki] :type "string"}
+                            "city"   {:description "a city"
+                                      :oneOf [{:enum [:tre :hki] :type "string"}
                                               {:type "null"}]}}
                            :required             ["street" "city"]
                            :additionalProperties false
@@ -377,7 +381,8 @@
               {:type                 "object"
                :properties
                {"street" {:type "string"}
-                "city"   {:oneOf [{:enum [:tre :hki] :type "string"}
+                "city"   {:description "a city"
+                          :oneOf [{:enum [:tre :hki] :type "string"}
                                   {:type "null"}]}}
                :required             ["street" "city"]
                :additionalProperties false
@@ -427,7 +432,8 @@
                  :properties
                  {"street" {:type "string"}
                   "city"
-                  {:oneOf [{:enum [:tre :hki] :type "string"}
+                  {:description "a city"
+                   :oneOf [{:enum [:tre :hki] :type "string"}
                            {:type "null"}]}}
                  :required             ["street" "city"]
                  :additionalProperties false
@@ -441,7 +447,8 @@
                :properties
                {"street" {:type "string"}
                 "city"
-                {:oneOf [{:enum [:tre :hki] :type "string"}
+                {:description "a city"
+                 :oneOf [{:enum [:tre :hki] :type "string"}
                          {:type "null"}]}}
                :required             ["street" "city"]
                :additionalProperties false
@@ -481,7 +488,8 @@
                  :properties
                  {"street" {:type "string"}
                   "city"
-                  {:oneOf [{:enum [:tre :hki] :type "string"}
+                  {:description "a city"
+                   :oneOf [{:enum [:tre :hki] :type "string"}
                            {:type "null"}]}}
                  :required             ["street" "city"]
                  :additionalProperties false
@@ -516,7 +524,7 @@
              {:description "The number of allowed requests in the current period",
               :schema      {:type "integer"}},
              :City
-             {:description "",
+             {:description "a city",
               :required    false,
               :schema
               {:enum [:tre :hki] :type "string"}}
@@ -537,7 +545,8 @@
                  :properties
                  {"street" {:type "string"}
                   "city"
-                  {:oneOf [{:enum [:tre :hki] :type "string"}
+                  {:description "a city"
+                   :oneOf [{:enum [:tre :hki] :type "string"}
                            {:type "null"}]}}
                  :required             ["street" "city"]
                  :additionalProperties false
@@ -626,3 +635,29 @@
             :openapi/format       "password"
             :openapi/random-value "42"})
           nil))))
+
+(deftest description-test
+  (is (= [{:name "string"
+           :in :query
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}]
+         (openapi/extract-parameter :query (st/schema s/Str {:openapi/description "xyz"}))))
+  (is (= [{:name "string"
+           :in :query
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}]
+         (openapi/extract-parameter :query (st/schema s/Str {:description "xyz"}))))
+  (is (= [{:name "a"
+           :in "query"
+           :description "xyz"
+           :required true
+           :schema {:type "string" :description "xyz"}}
+          {:name "b"
+           :in "query"
+           :description "abc"
+           :required true
+           :schema {:type "string" :description "abc"}}]
+         (openapi/extract-parameter :query {:a (st/schema s/Str {:openapi/description "xyz"})
+                                            :b (st/schema s/Str {:description "abc"})}))))
