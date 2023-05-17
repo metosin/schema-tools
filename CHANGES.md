@@ -12,6 +12,14 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 [breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
 
+## 0.13.1 (2023-05-17)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.13.0...0.13.1)**
+
+* `:description` and `:openapi/description` get used for populating the OpenAPI parameter `:description`.
+  [#84](https://github.com/metosin/schema-tools/pull/84)
+  [metosin/reitit#612](https://github.com/metosin/reitit/issues/612)
+
 ## 0.13.0 (2023-03-15)
 
 **[compare](https://github.com/metosin/schema-tools/compare/0.12.3...0.13.0)**
