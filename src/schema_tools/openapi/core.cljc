@@ -232,12 +232,15 @@
 
 (defn transform
   [schema opts]
-  (let [toplevel? (nil? (::definitions opts))
-        opts (update opts ::definitions #(or % (atom {})))
+  (let [inline? (::inline? opts)
+        toplevel? (nil? (::definitions opts))
+        opts (-> opts
+                 (update ::definitions #(or % (atom {})))
+                 (dissoc ::inline?))
         definitions (::definitions opts)
         name (some-> (schema-name schema opts) ref-name)
         transformed (cond
-                      (not name)
+                      (or inline? (not name))
                       (transform-one schema opts)
 
                       (get @definitions name)
@@ -252,11 +255,7 @@
 
 (defn transform-inline
   [schema opts]
-  (let [toplevel? (nil? (::definitions opts))
-        opts (update opts ::definitions #(or % (atom {})))
-        definitions (::definitions opts)
-        transformed (transform-one schema opts)]
-    (cond-> transformed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
+  (transform schema (assoc opts ::inline? true)))
 
 (extend-protocol OpenapiSchema
 
