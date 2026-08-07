@@ -74,11 +74,12 @@
      :items {:type "string"}}]
 
    [Item
-    {:type                 "object"
-     :title                "schema-tools.openapi.core-test/Item"
-     :properties           {"field" {:type "string"}}
-     :additionalProperties false
-     :required             ["field"]}]
+    {:$ref "#/components/schemas/schema-tools.openapi.core-test.Item"
+     :definitions {"schema-tools.openapi.core-test.Item" {:type                 "object"
+                                                          :title                "schema-tools.openapi.core-test/Item"
+                                                          :properties           {"field" {:type "string"}}
+                                                          :additionalProperties false
+                                                          :required             ["field"]}}}]
 
    [(st/schema {:field s/Str})
     {:type                 "object"
@@ -87,11 +88,12 @@
      :required             ["field"]}]
 
    [(st/schema {:field s/Str} {:name "OpenAPI"})
-    {:type                 "object"
-     :title                "OpenAPI"
-     :properties           {"field" {:type "string"}}
-     :additionalProperties false
-     :required             ["field"]}]
+    {:$ref "#/components/schemas/OpenAPI"
+     :definitions {"OpenAPI" {:type                 "object"
+                              :title                "OpenAPI"
+                              :properties           {"field" {:type "string"}}
+                              :additionalProperties false
+                              :required             ["field"]}}}]
 
    [(st/schema {:field s/Str} {:openapi {:type "string"
                                          :format "bytes"}})
@@ -114,9 +116,10 @@
              {:type "number" :multipleOf 2}]}]
 
    [(s/named {} "Named")
-    {:type                 "object"
-     :title                "Named"
-     :additionalProperties false}]
+    {:$ref "#/components/schemas/Named"
+     :definitions {"Named" {:type                 "object"
+                            :title                "Named"
+                            :additionalProperties false}}}]
 
    [(s/pred neg? 'neg?)
     {:type "number"
@@ -144,11 +147,12 @@
    ;; clj only
    #?(:clj
       [Param
-       {:type                 "object"
-        :title                "ParamRecord"
-        :properties           {"a" {:type "string"}}
-        :additionalProperties false
-        :required             ["a"]}])
+       {:$ref "#/components/schemas/ParamRecord"
+        :definitions {"ParamRecord" {:type                 "object"
+                                     :title                "ParamRecord"
+                                     :properties           {"a" {:type "string"}}
+                                     :additionalProperties false
+                                     :required             ["a"]}}}])
 
    #?(:clj
       [java.util.regex.Pattern

@@ -2,6 +2,7 @@
   #?@
    (:clj
     [(:require
+      [clojure.string :as str]
       [clojure.walk :as walk]
       [schema-tools.impl :as impl]
       [schema.core :as s]
@@ -25,7 +26,7 @@
   (when-let [schema (some-> x su/class-schema :schema)]
     (let [name #?(:clj (.getSimpleName ^Class x),
                   :cljs (some-> su/class-schema :klass pr-str (str/split "/") last))]
-      (s/named schema (str name "Record")))))
+      (s/schema-with-name schema (str name "Record")))))
 
 (defn- collection-schema
   [e options]
@@ -47,10 +48,9 @@
   (into (empty m) (filter (comp not nil? val) m)))
 
 (defn schema-name
-  [schema opts]
+  [schema _opts]
   (when-let [name (some->
-                   (or (:name opts)
-                       (s/schema-name schema)
+                   (or (s/schema-name schema)
                        (when (instance? #?(:clj schema.core.NamedSchema
                                            :cljs s/NamedSchema)
                                         schema)
@@ -96,9 +96,8 @@
 
 (defn not-supported!
   [schema]
-  (ex-info
-   (str "don't know how to convert " schema " into a OpenAPI schema. ")
-   {:schema schema}))
+  (throw (ex-info (str "don't know how to convert " schema " into a OpenAPI schema. ")
+                  {:schema schema})))
 
 ;;
 ;; transformations
@@ -217,13 +216,43 @@
 (defprotocol OpenapiSchema
   (-transform [this opts]))
 
-(defn transform
+(def ref-root "#/components/schemas/")
+
+(defn- ref-name
+  [name]
+  (str/replace name "/" "."))
+
+(defn- transform-one
   [schema opts]
   (if (satisfies? OpenapiSchema schema)
     (-transform schema opts)
     (if-let [rschema (record-schema schema)]
       (transform rschema opts)
       (transform-type schema opts))))
+
+(defn transform
+  [schema opts]
+  (let [toplevel? (nil? (::definitions opts))
+        opts (update opts ::definitions #(or % (atom {})))
+        definitions (::definitions opts)
+        name (some-> (schema-name schema opts) ref-name)
+        _ (when name
+            (swap! definitions assoc name ::recursion-stopper))
+        transformed (transform-one schema opts)
+        reffed (if name
+                 (do
+                   (swap! definitions assoc name transformed)
+                   {:$ref (str ref-root name)})
+                 transformed)]
+    (cond-> reffed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
+
+(defn transform-inline
+  [schema opts]
+  (let [toplevel? (nil? (::definitions opts))
+        opts (update opts ::definitions #(or % (atom {})))
+        definitions (::definitions opts)
+        transformed (transform-one schema opts)]
+    (cond-> transformed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
 
 (extend-protocol OpenapiSchema
 
@@ -234,7 +263,10 @@
   (-transform [{:keys [schema data]} opts]
     (or (:openapi data)
         (merge
-         (transform schema (merge opts (select-keys data [:name])))
+         (transform (if-let [name (:name data)]
+                      (s/schema-with-name schema name)
+                      schema)
+                    opts)
          (select-keys data [:description])
          (impl/unlift-keys data "openapi"))))
 
@@ -264,6 +296,7 @@
   (-transform [this opts]
     {:oneOf (mapv #(transform % opts) (:schemas this))})
 
+  ;; TODO enable this
   #_#_schema.core.Recursive
   (-transform [this opts]
     (transform (:derefable this) opts))
@@ -299,7 +332,7 @@
 
   schema.core.NamedSchema
   (-transform [{:keys [schema name]} opts]
-    (transform schema (assoc opts :name name)))
+    (transform-inline (s/schema-with-name schema name) opts))
 
   #?(:clj  clojure.lang.Sequential
      :cljs cljs.core/List)
