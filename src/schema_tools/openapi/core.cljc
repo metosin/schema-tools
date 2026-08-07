@@ -2,6 +2,7 @@
   #?@
    (:clj
     [(:require
+      [clojure.string :as str]
       [clojure.walk :as walk]
       [schema-tools.impl :as impl]
       [schema.core :as s]
@@ -25,7 +26,7 @@
   (when-let [schema (some-> x su/class-schema :schema)]
     (let [name #?(:clj (.getSimpleName ^Class x),
                   :cljs (some-> su/class-schema :klass pr-str (str/split "/") last))]
-      (s/named schema (str name "Record")))))
+      (s/schema-with-name schema (str name "Record")))))
 
 (defn- collection-schema
   [e options]
@@ -47,10 +48,9 @@
   (into (empty m) (filter (comp not nil? val) m)))
 
 (defn schema-name
-  [schema opts]
+  [schema _opts]
   (when-let [name (some->
-                   (or (:name opts)
-                       (s/schema-name schema)
+                   (or (s/schema-name schema)
                        (when (instance? #?(:clj schema.core.NamedSchema
                                            :cljs s/NamedSchema)
                                         schema)
@@ -76,10 +76,10 @@
            (into (empty schema))))
 
 (defn additional-properties
-  [schema]
+  [schema opts]
   (if-let [extra-key (s/find-extra-keys-schema schema)]
     (let [v (get schema extra-key)]
-      (transform v nil))
+      (transform v opts))
     false))
 
 (defn object-schema
@@ -89,16 +89,15 @@
      {:type                 "object"
       :title                (schema-name this opts)
       :properties           (properties this opts)
-      :additionalProperties (additional-properties this)
+      :additionalProperties (additional-properties this opts)
       :required             (some->> (filterv s/required-key? (keys this))
                                      (seq)
                                      (mapv key-name))})))
 
 (defn not-supported!
   [schema]
-  (ex-info
-   (str "don't know how to convert " schema " into a OpenAPI schema. ")
-   {:schema schema}))
+  (throw (ex-info (str "don't know how to convert " schema " into a OpenAPI schema. ")
+                  {:schema schema})))
 
 ;;
 ;; transformations
@@ -217,13 +216,46 @@
 (defprotocol OpenapiSchema
   (-transform [this opts]))
 
-(defn transform
+(def ref-root "#/components/schemas/")
+
+(defn- ref-name
+  [name]
+  (str/replace name "/" "."))
+
+(defn- transform-one
   [schema opts]
   (if (satisfies? OpenapiSchema schema)
     (-transform schema opts)
     (if-let [rschema (record-schema schema)]
       (transform rschema opts)
       (transform-type schema opts))))
+
+(defn transform
+  [schema opts]
+  (let [inline? (::inline? opts)
+        toplevel? (nil? (::definitions opts))
+        opts (-> opts
+                 (update ::definitions #(or % (atom {})))
+                 (dissoc ::inline?))
+        definitions (::definitions opts)
+        name (some-> (schema-name schema opts) ref-name)
+        transformed (cond
+                      (or inline? (not name))
+                      (transform-one schema opts)
+
+                      (get @definitions name)
+                      {:$ref (str ref-root name)}
+
+                      :else
+                      (do
+                        (swap! definitions assoc name ::recursion-stopper)
+                        (swap! definitions assoc name (transform-one schema opts))
+                        {:$ref (str ref-root name)}))]
+    (cond-> transformed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
+
+(defn transform-inline
+  [schema opts]
+  (transform schema (assoc opts ::inline? true)))
 
 (extend-protocol OpenapiSchema
 
@@ -234,7 +266,10 @@
   (-transform [{:keys [schema data]} opts]
     (or (:openapi data)
         (merge
-         (transform schema (merge opts (select-keys data [:name])))
+         (transform (if-let [name (:name data)]
+                      (s/schema-with-name schema name)
+                      schema)
+                    opts)
          (select-keys data [:description])
          (impl/unlift-keys data "openapi"))))
 
@@ -264,9 +299,9 @@
   (-transform [this opts]
     {:oneOf (mapv #(transform % opts) (:schemas this))})
 
-  #_#_schema.core.Recursive
+  schema.core.Recursive
   (-transform [this opts]
-    (transform (:derefable this) opts))
+    (transform @(:derefable this) opts))
 
   schema.core.EqSchema
   (-transform [this opts]
@@ -299,7 +334,7 @@
 
   schema.core.NamedSchema
   (-transform [{:keys [schema name]} opts]
-    (transform schema (assoc opts :name name)))
+    (transform-inline (s/schema-with-name schema name) opts))
 
   #?(:clj  clojure.lang.Sequential
      :cljs cljs.core/List)
@@ -325,146 +360,3 @@
      :cljs cljs.core.PersistentHashMap)
   (-transform [this opts]
     (object-schema this opts)))
-
-;;
-;; Extract OpenAPI parameters
-;;
-
-(defn- is-nilable?
-  [spec]
-  (and (contains? spec :oneOf)
-       (= 2 (count (:oneOf spec)))
-       (-> :type
-           (group-by (:oneOf spec))
-           (contains? "null"))))
-
-(defn- extract-nilable
-  [spec]
-  (->> (:oneOf spec)
-       (remove #(= (:type %) "null"))
-       (first)))
-
-(defn- extract-single-param
-  [in spec]
-  (let [nilable? (is-nilable? spec)
-        new-spec (if nilable?
-                   (extract-nilable spec)
-                   spec)]
-    {:name        (or (schema-name new-spec nil)
-                      (:title new-spec)
-                      (:type new-spec))
-     :in          in
-     :description (or (:description spec)
-                      "")
-     :required    (case in
-                    :path true
-                    (not nilable?))
-     :schema      new-spec}))
-
-(defn- extract-object-param
-  [in {:keys [properties required]}]
-  (mapv
-   (fn [[k schema]]
-     {:name        (or (schema-name schema nil)
-                       (key-name k))
-      :in          (name in)
-      :description (or (:description schema)
-                       "")
-      :required    (case in
-                     :path true
-                     (contains? (set required) k))
-      :schema      schema})
-   properties))
-
-(defn extract-parameter
-  [in spec]
-  (let [parameter-spec (transform spec nil)
-        object?        (and (contains? parameter-spec :properties)
-                            (= "object" (:type parameter-spec)))]
-    (if object?
-      (extract-object-param in parameter-spec)
-      (-> (extract-single-param in parameter-spec) vector))))
-
-;;
-;; expand the spec
-;;
-
-(defmulti expand (fn [k _ _ _] k))
-
-(defmethod expand ::schemas
-  [_ v acc _]
-  {:schemas
-   (into
-    (or (:schemas acc) {})
-    (for [[name schema] v]
-      {name (transform schema nil)}))})
-
-(defmethod expand ::content
-  [_ v acc _]
-  {:content
-   (into
-    (or (:content acc) {})
-    (for [[content-type schema] v]
-      {content-type {:schema (transform schema nil)}}))})
-
-(defmethod expand ::parameters
-  [_ v acc _]
-  (let [old    (or (:parameters acc) [])
-        new    (mapcat (fn [[in spec]] (extract-parameter in spec)) v)
-        merged (->> (into old new)
-                    (reverse)
-                    (reduce
-                     (fn [[ps cache :as acc] p]
-                       (let [c (select-keys p [:in :name])]
-                         (if-not (cache c)
-                           [(conj ps p) (conj cache c)]
-                           acc)))
-                     [[] #{}])
-                    (first)
-                    (reverse)
-                    (vec))]
-    {:parameters merged}))
-
-(defmethod expand ::headers
-  [_ v acc _]
-  {:headers
-   (into
-    (or (:headers acc) {})
-    (for [[name spec] v]
-      {name (-> (extract-single-param :header (transform spec nil))
-                (dissoc :in :name))}))})
-
-(defn expand-qualified-keywords
-  [x options]
-  (let [accept? (set (keys (methods expand)))]
-    (walk/postwalk
-     (fn [x]
-       (if (plain-map? x)
-         (reduce-kv
-          (fn [acc k v]
-            (if (accept? k)
-              (-> acc (dissoc k) (merge (expand k v acc options)))
-              acc))
-          x
-          x)
-         x))
-     x)))
-
-;;
-;; Generate the OpenAPI spec
-;;
-
-;; Top-level openapi spec generation was moved to reitit in
-;; https://github.com/metosin/reitit/pull/638
-;;
-;; Once reitit-0.7.0-alpha6 has been out for some time, this can be
-;; deleted since it should have no other users.
-(defn ^:deprecated openapi-spec
-  "Transform data into an OpenAPI spec. Input data must conform to the Swagger3
-  Spec (https://swagger.io/specification/) with a exception that it can have
-  any qualified keywords which are expanded with the
-  `schema-tools.openapi.core/expand` multimethod."
-  ([x]
-   (openapi-spec x nil))
-  ([x options]
-   (expand-qualified-keywords x options)))
