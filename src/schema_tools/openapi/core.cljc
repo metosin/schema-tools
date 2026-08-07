@@ -76,10 +76,10 @@
            (into (empty schema))))
 
 (defn additional-properties
-  [schema]
+  [schema opts]
   (if-let [extra-key (s/find-extra-keys-schema schema)]
     (let [v (get schema extra-key)]
-      (transform v nil))
+      (transform v opts))
     false))
 
 (defn object-schema
@@ -89,7 +89,7 @@
      {:type                 "object"
       :title                (schema-name this opts)
       :properties           (properties this opts)
-      :additionalProperties (additional-properties this)
+      :additionalProperties (additional-properties this opts)
       :required             (some->> (filterv s/required-key? (keys this))
                                      (seq)
                                      (mapv key-name))})))

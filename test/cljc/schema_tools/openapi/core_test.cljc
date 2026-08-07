@@ -81,6 +81,15 @@
                                                           :additionalProperties false
                                                           :required             ["field"]}}}]
 
+   [{s/Keyword Item}
+    {:type "object"
+     :additionalProperties {:$ref "#/components/schemas/schema-tools.openapi.core-test.Item"}
+     :definitions {"schema-tools.openapi.core-test.Item" {:type                 "object"
+                                                          :title                "schema-tools.openapi.core-test/Item"
+                                                          :properties           {"field" {:type "string"}}
+                                                          :additionalProperties false
+                                                          :required             ["field"]}}}]
+
    [(st/schema {:field s/Str})
     {:type                 "object"
      :properties           {"field" {:type "string"}}
