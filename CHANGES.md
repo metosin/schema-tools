@@ -12,7 +12,9 @@ We use [Break Versioning][breakver]. The version numbers follow a `<major>.<mino
 
 [breakver]: https://github.com/ptaoussanis/encore/blob/master/BREAK-VERSIONING.md
 
-## UNRELEASED
+## 0.14.0 (2026-08-07)
+
+**[compare](https://github.com/metosin/schema-tools/compare/0.13.1...0.14.0)**
 
 * **BREAKING**: Deprecated `schema-tools.openapi.core/openapi-schema` function & helpers removed.
 * OpenAPI docs now uses named subschemas. Every named schema gets a corresponding OpenAPI $ref.
