@@ -236,15 +236,19 @@
         opts (update opts ::definitions #(or % (atom {})))
         definitions (::definitions opts)
         name (some-> (schema-name schema opts) ref-name)
-        _ (when name
-            (swap! definitions assoc name ::recursion-stopper))
-        transformed (transform-one schema opts)
-        reffed (if name
-                 (do
-                   (swap! definitions assoc name transformed)
-                   {:$ref (str ref-root name)})
-                 transformed)]
-    (cond-> reffed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
+        transformed (cond
+                      (not name)
+                      (transform-one schema opts)
+
+                      (get @definitions name)
+                      {:$ref (str ref-root name)}
+
+                      :else
+                      (do
+                        (swap! definitions assoc name ::recursion-stopper)
+                        (swap! definitions assoc name (transform-one schema opts))
+                        {:$ref (str ref-root name)}))]
+    (cond-> transformed (and toplevel? (seq @definitions)) (assoc :definitions @definitions))))
 
 (defn transform-inline
   [schema opts]
@@ -296,10 +300,9 @@
   (-transform [this opts]
     {:oneOf (mapv #(transform % opts) (:schemas this))})
 
-  ;; TODO enable this
-  #_#_schema.core.Recursive
+  schema.core.Recursive
   (-transform [this opts]
-    (transform (:derefable this) opts))
+    (transform @(:derefable this) opts))
 
   schema.core.EqSchema
   (-transform [this opts]

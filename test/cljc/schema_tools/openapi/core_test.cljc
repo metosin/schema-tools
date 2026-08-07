@@ -197,3 +197,36 @@
     (let [spec (openapi/transform (s/enum "s" "m" "l") nil)]
       (is (= "string" (:type spec)))
       (is (= (set ["s" "l" "m"]) (set (:enum spec)))))))
+
+(s/defschema Tree
+  {:value s/Str
+   :left (s/recursive #'Tree)
+   :right (s/recursive #'Tree)})
+
+(deftest recursive-test
+  (is (= {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"
+          :definitions {"schema-tools.openapi.core-test.Tree"
+                        {:type "object"
+                         :title "schema-tools.openapi.core-test/Tree"
+                         :properties {"value" {:type "string"}
+                                      "left" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}
+                                      "right" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}}
+                         :additionalProperties false
+                         :required ["value" "left" "right"]}}}
+         (openapi/transform Tree nil)))
+  (is (= {:type "object"
+          :title "schema-tools.openapi.core-test/Tree"
+          :properties {"value" {:type "string"}
+                       "left" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}
+                       "right" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}}
+          :additionalProperties false
+          :required ["value" "left" "right"]
+          :definitions {"schema-tools.openapi.core-test.Tree"
+                        {:type "object"
+                         :title "schema-tools.openapi.core-test/Tree"
+                         :properties {"value" {:type "string"}
+                                      "left" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}
+                                      "right" {:$ref "#/components/schemas/schema-tools.openapi.core-test.Tree"}}
+                         :additionalProperties false
+                         :required ["value" "left" "right"]}}}
+         (openapi/transform-inline Tree nil))))
