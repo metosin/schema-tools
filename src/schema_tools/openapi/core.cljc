@@ -313,9 +313,9 @@
 
   schema.core.AnythingSchema
   (-transform [_ {:keys [in] :as opts}]
-    (if (and in (not= :body in))
-      (transform (s/maybe s/Str) opts)
-      {}))
+    (if (and in (#{:body :requestBody :responses} in))
+      {}
+      (transform (s/maybe s/Str) opts)))
 
   schema.core.ConditionalSchema
   (-transform [this opts]
