@@ -239,3 +239,13 @@
                          :additionalProperties false
                          :required ["value" "left" "right"]}}}
          (openapi/transform-inline Tree nil))))
+
+(deftest any-test
+  (is (= {}
+         (openapi/transform s/Any {:in :body})
+         (openapi/transform s/Any {:in :requestBody})
+         (openapi/transform s/Any {:in :responses})))
+  (is (= {:oneOf [{:type "string"} {:type "null"}]}
+         (openapi/transform s/Any {:in :query})
+         (openapi/transform s/Any {:in :header})
+         (openapi/transform s/Any {}))))
